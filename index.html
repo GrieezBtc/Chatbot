@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ElitePro AI | Master Edition</title>
+    <title>ElitePro AI | Final Master</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -12,6 +12,13 @@
             --accent: #5436da;
             --glass: rgba(15, 18, 25, 0.9);
             --border: rgba(255, 255, 255, 0.1);
+            --text: #ececec;
+        }
+
+        body.light-mode {
+            --glass: rgba(240, 240, 245, 0.95);
+            --border: rgba(0, 0, 0, 0.1);
+            --text: #1a1a1a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -22,16 +29,14 @@
             background-size: cover;
         }
 
-        body { display: flex; color: #ececec; }
+        body { display: flex; color: var(--text); }
 
-        /* --- SIDEBAR --- */
         .sidebar {
             width: 280px; background: var(--glass); backdrop-filter: blur(20px);
             border-right: 1px solid var(--border); display: flex; flex-direction: column;
             padding: 20px; transition: transform 0.3s ease; z-index: 2000;
         }
 
-        /* --- MAIN VIEW --- */
         .main-content {
             flex: 1; display: flex; flex-direction: column;
             background: rgba(0, 0, 0, 0.55);
@@ -44,19 +49,14 @@
             background: rgba(0,0,0,0.3); flex-shrink: 0;
         }
 
-        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .nav-btn { background: none; border: none; color: var(--text); cursor: pointer; font-size: 1.2rem; }
+        .mic-btn.recording { color: #ff4b4b; text-shadow: 0 0 8px red; }
 
-        .mute-btn {
-            background: none; border: none; color: #888;
-            font-size: 1.1rem; cursor: pointer; transition: 0.3s;
-        }
-        .mute-btn.active { color: var(--purple-glow); }
-
-        .chat-area { flex: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
+        .chat-area { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
         .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
         
         .message { display: flex; gap: 12px; align-items: flex-start; }
-        .avatar { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .avatar { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .bot-avatar { background: #10a37f; box-shadow: 0 0 15px rgba(16, 163, 127, 0.3); }
         .user-avatar { background: var(--accent); }
 
@@ -64,62 +64,46 @@
             background: rgba(255, 255, 255, 0.08); padding: 12px 16px; 
             border-radius: 14px; border: 1px solid var(--border);
             line-height: 1.5; font-size: 0.95rem; flex: 1;
-            position: relative;
         }
 
-        .copy-btn {
-            display: inline-block; margin-top: 8px; font-size: 0.7rem; 
-            color: #666; cursor: pointer;
-        }
+        /* THINKING ANIMATION */
+        .thinking { display: flex; gap: 5px; padding: 5px 0; }
+        .dot { width: 7px; height: 7px; background: var(--purple-glow); border-radius: 50%; animation: pulse 1.2s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
 
-        /* --- INPUT BAR --- */
-        .input-wrapper { padding: 20px; flex-shrink: 0; }
+        .input-wrapper { padding: 20px; }
         .input-box {
             max-width: 800px; margin: 0 auto;
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            border: 1px solid var(--border); padding: 8px 15px;
+            border: 1px solid var(--border); padding: 10px 18px;
             border-radius: 30px; display: flex; align-items: center; gap: 12px;
         }
 
-        #messageInput { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; padding: 8px 0; }
-        
-        .mic-btn { color: #888; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
-        .mic-btn.recording { color: #ff4b4b; transform: scale(1.2); text-shadow: 0 0 8px red; }
-
-        #sendButton {
-            background: var(--purple-glow); color: white; border: none;
-            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
-            box-shadow: 0 0 15px rgba(178, 44, 255, 0.4);
-        }
+        #messageInput { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; }
+        #sendButton { background: var(--purple-glow); color: white; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; }
 
         @media (max-width: 768px) {
-            .sidebar { position: absolute; left: 0; transform: translateX(-100%); height: 100%; }
+            .sidebar { position: absolute; left: 0; transform: translateX(-100%); height: 100%; width: 280px; }
             .sidebar.active { transform: translateX(0); }
-            .main-content { width: 100vw; }
         }
-
-        #menuBtn, #closeSidebar { background:none; border:none; color:white; font-size:1.3rem; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar" id="sidebar">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-            <h2 style="font-size:1.2rem; letter-spacing:1px;">ElitePro AI</h2>
-            <button id="closeSidebar"><i class="fas fa-times"></i></button>
-        </div>
-        <button onclick="location.reload()" style="background:var(--accent); color:white; border:none; padding:10px; border-radius:25px; cursor:pointer; font-weight:600; width:100%;">+ New Chat</button>
+        <h2 style="font-size: 1.1rem; color: var(--purple-glow);">ELITEPRO</h2>
+        <button onclick="location.reload()" style="background: var(--accent); color: white; border: none; padding: 12px; border-radius: 25px; margin-top: 25px; cursor: pointer; width: 100%;">New Chat</button>
     </aside>
 
     <main class="main-content">
         <nav class="top-nav">
-            <button id="menuBtn"><i class="fas fa-bars"></i></button>
-            <span style="font-weight:600; font-size:0.9rem;">ElitePro ChatBot</span>
-            <div class="nav-right">
-                <button id="muteToggle" class="mute-btn" title="Toggle AI Voice">
-                    <i class="fas fa-volume-up"></i>
-                </button>
-                <img src="https://i.pravatar.cc/100" style="width:32px; height:32px; border-radius:50%; border:1px solid var(--purple-glow);">
+            <button id="menuBtn" class="nav-btn"><i class="fas fa-bars"></i></button>
+            <span style="font-weight: 600; font-size: 0.9rem;">ELITEPRO MASTER EDITION</span>
+            <div style="display: flex; gap: 15px;">
+                <button id="themeToggle" class="nav-btn"><i class="fas fa-moon"></i></button>
+                <button id="muteToggle" class="nav-btn"><i class="fas fa-volume-up" id="muteIcon"></i></button>
             </div>
         </nav>
 
@@ -129,8 +113,8 @@
 
         <div class="input-wrapper">
             <div class="input-box">
-                <i class="fas fa-microphone mic-btn" id="micBtn"></i>
-                <input type="text" id="messageInput" placeholder="How can I help you today?" autocomplete="off">
+                <i class="fas fa-microphone nav-btn" id="micBtn"></i>
+                <input type="text" id="messageInput" placeholder="Message ElitePro..." autocomplete="off">
                 <button id="sendButton"><i class="fas fa-arrow-up"></i></button>
             </div>
         </div>
@@ -139,96 +123,122 @@
     <script>
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const micBtn = document.getElementById('micBtn');
-        const muteToggle = document.getElementById('muteToggle');
+        const chatArea = document.getElementById('chatArea');
         const API_BASE_URL = 'https://eliteprotech-apis.zone.id/copilot?q=';
 
         let isMuted = false;
+        let botIsTyping = false;
 
-        // --- 1. MUTE TOGGLE LOGIC ---
-        muteToggle.onclick = () => {
+        document.getElementById('muteToggle').onclick = () => {
             isMuted = !isMuted;
-            muteToggle.classList.toggle('active', isMuted);
-            muteToggle.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            document.getElementById('muteIcon').className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
             if(isMuted) window.speechSynthesis.cancel();
         };
 
-        // --- 2. VOICE TO TEXT (RECORDING) ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
+        document.getElementById('themeToggle').onclick = () => document.body.classList.toggle('light-mode');
 
-            micBtn.onclick = () => {
-                recognition.start();
-                micBtn.classList.add('recording');
-            };
-
-            recognition.onresult = (event) => {
-                messageInput.value = event.results[0][0].transcript;
-                micBtn.classList.remove('recording');
-                sendMessage();
-            };
-
-            recognition.onerror = () => micBtn.classList.remove('recording');
-            recognition.onspeechend = () => recognition.stop();
+        // TYPEWRITER ENGINE
+        function typeWriter(element, text) {
+            let i = 0;
+            element.textContent = ""; 
+            const interval = setInterval(() => {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                } else { 
+                    clearInterval(interval);
+                    botIsTyping = false;
+                }
+            }, 25);
         }
 
-        // --- 3. TEXT TO SPEECH (TALKING) ---
-        function speak(text) {
-            if (isMuted) return;
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            const voices = window.speechSynthesis.getVoices();
-            utterance.voice = voices.find(v => v.name.includes('Google') || v.lang === 'en-US') || voices[0];
-            utterance.rate = 1.0;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        // --- 4. CHAT LOGIC ---
         function addMessage(text, isUser = false) {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message';
-            
-            const copyHtml = !isUser ? `<span class="copy-btn" onclick="copyText(this, \`${text.replace(/'/g, "\\'")}\`)"><i class="far fa-copy"></i> Copy</span>` : '';
-
             msgDiv.innerHTML = `
-                <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}">
-                    <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
-                </div>
-                <div class="message-text">
-                    ${text}
-                    ${copyHtml}
-                </div>
+                <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}"><i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i></div>
+                <div class="message-text"><span class="msg-content"></span></div>
             `;
             chatMessages.appendChild(msgDiv);
-            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
-            if(!isUser) speak(text);
+            const span = msgDiv.querySelector('.msg-content');
+
+            if (isUser) {
+                span.textContent = text;
+            } else {
+                typeWriter(span, text);
+                if(!isMuted) {
+                    window.speechSynthesis.cancel();
+                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+                }
+            }
+            chatArea.scrollTop = chatArea.scrollHeight;
         }
 
         async function sendMessage() {
             const val = messageInput.value.trim();
-            if(!val) return;
+            if(!val || botIsTyping) return; 
+
+            botIsTyping = true;
             addMessage(val, true);
             messageInput.value = "";
 
+            // 1. ADD THINKING LOADER
+            const loader = document.createElement('div');
+            loader.className = 'message';
+            loader.id = 'temp-loader';
+            loader.innerHTML = `
+                <div class="avatar bot-avatar"><i class="fas fa-robot"></i></div>
+                <div class="message-text"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+            `;
+            chatMessages.appendChild(loader);
+            chatArea.scrollTop = chatArea.scrollHeight;
+
             try {
-                const res = await fetch(API_BASE_URL + encodeURIComponent(val));
-                const data = await res.json();
-                if(data.success) addMessage(data.text);
-            } catch(e) { addMessage("Connection error."); }
+                // 2. FETCH WITH STRICT ERROR CATCHING
+                const response = await fetch(API_BASE_URL + encodeURIComponent(val));
+                const data = await response.json();
+                
+                // Remove loader ONLY when data arrives
+                const currentLoader = document.getElementById('temp-loader');
+                if(currentLoader) currentLoader.remove();
+
+                if(data.success) {
+                    addMessage(data.text);
+                    return; // CRITICAL: Stop the code here so it NEVER hits the catch block.
+                } else {
+                    addMessage("Sorry, I couldn't process that.");
+                }
+            } catch(e) { 
+                // ONLY triggers if the server is physically down
+                const currentLoader = document.getElementById('temp-loader');
+                if(currentLoader) {
+                    currentLoader.remove();
+                    addMessage("Connection error. Please try again.");
+                }
+            } finally {
+                // Safely reset state if no typewriter started
+                if(!document.querySelector('.message:last-child .msg-content').textContent) {
+                    botIsTyping = false;
+                }
+            }
         }
 
-        function copyText(btn, text) {
-            navigator.clipboard.writeText(text);
-            btn.innerHTML = '<i class="fas fa-check"></i> Copied';
-            setTimeout(() => { btn.innerHTML = '<i class="far fa-copy"></i> Copy'; }, 2000);
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recog = new SpeechRecognition();
+            document.getElementById('micBtn').onclick = () => { 
+                if(!botIsTyping) { recog.start(); document.getElementById('micBtn').classList.add('recording'); }
+            };
+            recog.onresult = (e) => { 
+                messageInput.value = e.results[0][0].transcript; 
+                sendMessage(); 
+            };
+            recog.onend = () => document.getElementById('micBtn').classList.remove('recording');
         }
 
         document.getElementById('menuBtn').onclick = () => document.getElementById('sidebar').classList.add('active');
-        document.getElementById('closeSidebar').onclick = () => document.getElementById('sidebar').classList.remove('active');
-        sendButton.onclick = sendMessage;
+        document.getElementById('sendButton').onclick = sendMessage;
         messageInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
     </script>
 </body>
