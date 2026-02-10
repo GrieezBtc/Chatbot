@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElitePro AI | Professional Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-bg: #0b0e11;
+            --main-bg: #13171c;
+            --accent-blue: #007bff;
+            --text-main: #ececec;
+            --text-muted: #9ca3af;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--main-bg);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .new-chat-btn {
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            padding: 12px;
+            background: transparent;
+            color: white;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .new-chat-btn:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .top-nav {
+            padding: 15px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 0; /* More space for readability */
+        }
+
+        /* Centering the chat content */
+        .message-wrapper {
+            max-width: 800px;
+            width: 90%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .message {
+            display: flex;
+            gap: 20px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .bot-avatar { background: #10a37f; } /* ChatGPT style green */
+        .user-avatar { background: #5436da; }
+
+        .message-text {
+            line-height: 1.6;
+            color: var(--text-main);
+            font-size: 1rem;
+            white-space: pre-wrap;
+        }
+
+        /* --- INPUT BOX --- */
+        .input-wrapper {
+            max-width: 800px;
+            width: 90%;
+            margin: 20px auto 40px;
+            position: relative;
+        }
+
+        #messageInput {
+            width: 100%;
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px 50px 16px 20px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        #sendButton {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #sendButton:hover { opacity: 0.8; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; } /* Hide sidebar on mobile */
+
+       /* Thinking Indicator Pulse Animation */
+        #thinking-bubble {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; } 
+            }
+      /* Sidebar Saved Chat Items */
+.   history-item {
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: 0.2s;
+}
+
+.history-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <button class="new-chat-btn"><i class="fas fa-plus"></i> &nbsp; New Chat</button>
+        <div style="color: var(--text-muted); font-size: 0.75rem; margin-left: 5px;">Recent History</div>
+        </aside>
+
+    <main class="main-content">
+        <nav class="top-nav">
+            <span style="font-weight: 600;">ElitePro AI <small style="color: var(--text-muted)">v2.0</small></span>
+            <i class="fas fa-user-circle" style="font-size: 1.2rem; cursor: pointer;"></i>
+        </nav>
+
+        <div class="chat-area" id="chatArea">
+            <div class="message-wrapper" id="chatMessages">
+                <div class="message">
+                    <div class="avatar bot-avatar"><i class="fas fa-robot"></i></div>
+                    <div class="message-text">Welcome back. How can I help you today?</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-wrapper">
+            <input type="text" id="messageInput" placeholder="Type your message here..." autocomplete="off">
+            <button id="sendButton"><i class="fas fa-arrow-up"></i></button>
+        </div>
+    </main>
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const newChatBtn = document.querySelector('.new-chat-btn');
+    const API_BASE_URL = 'https://eliteprotech-apis.zone.id/copilot?q=';
+
+    // --- 1. LOCAL STORAGE LOGIC ---
+    let chatHistory = JSON.parse(localStorage.getItem('elitepro_chat')) || [];
+
+    // Load history on startup
+    window.onload = () => {
+        if (chatHistory.length > 0) {
+            chatMessages.innerHTML = ""; // Clear the "Welcome" message
+            chatHistory.forEach(msg => {
+                // We pass 'false' for typewriter so old messages appear instantly
+                renderMessage(msg.text, msg.isUser, false);
+            });
+        }
+    };
+
+    function saveToStorage(text, isUser) {
+        chatHistory.push({ text, isUser });
+        localStorage.setItem('elitepro_chat', JSON.stringify(chatHistory));
+    }
+
+    // --- 2. UI LOGIC ---
+    function typeWriter(element, text, speed = 20) {
+        let i = 0;
+        element.textContent = ""; 
+        function type() {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+                setTimeout(type, speed);
+            }
+        }
+        type();
+    }
+
+    // Helper to just draw the HTML
+    function renderMessage(text, isUser, useTypewriter = false, isThinking = false) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message';
+        if (isThinking) msgDiv.id = 'thinking-bubble';
+        
+        const avatar = isUser ? 
+            '<div class="avatar user-avatar"><i class="fas fa-user"></i></div>' : 
+            '<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div>';
+        
+        const textContainer = document.createElement('div');
+        textContainer.className = 'message-text';
+        
+        msgDiv.innerHTML = avatar;
+        msgDiv.appendChild(textContainer);
+        chatMessages.appendChild(msgDiv);
+
+        if (isThinking) {
+            textContainer.textContent = "Thinking...";
+        } else if (useTypewriter) {
+            typeWriter(textContainer, text);
+        } else {
+            textContainer.textContent = text;
+        }
+        
+        document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+    }
+
+    // --- 3. MAIN ACTIONS ---
+    async function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+
+        renderMessage(text, true);
+        saveToStorage(text, true);
+        messageInput.value = '';
+
+        renderMessage("", false, false, true); // Show Thinking
+
+        try {
+            const response = await fetch(API_BASE_URL + encodeURIComponent(text));
+            const data = await response.json();
+            
+            const thinking = document.getElementById('thinking-bubble');
+            if (thinking) thinking.remove();
+            
+            if (data.success) {
+                renderMessage(data.text, false, true);
+                saveToStorage(data.text, false);
+            }
+        } catch (err) {
+            const thinking = document.getElementById('thinking-bubble');
+            if (thinking) thinking.remove();
+            renderMessage("Connection error.", false);
+        }
+    }
+
+    // New Chat Function
+    newChatBtn.onclick = () => {
+        if(confirm("Start a new chat? This will clear current history.")) {
+            localStorage.removeItem('elitepro_chat');
+            chatHistory = [];
+            chatMessages.innerHTML = '<div class="message"><div class="avatar bot-avatar"><i class="fas fa-robot"></i></div><div class="message-text">Welcome back. How can I help you today?</div></div>';
+        }
+    };
+
+    sendButton.onclick = sendMessage;
+    messageInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+</script>
+</body>
+  </html>
+  
