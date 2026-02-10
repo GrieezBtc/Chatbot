@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ElitePro AI | Voice & Cyber-Glass</title>
+    <title>ElitePro AI | Master Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --purple-glow: #b22cff;
             --accent: #5436da;
-            --glass: rgba(15, 18, 25, 0.88);
+            --glass: rgba(15, 18, 25, 0.9);
             --border: rgba(255, 255, 255, 0.1);
         }
 
@@ -31,15 +31,10 @@
             padding: 20px; transition: transform 0.3s ease; z-index: 2000;
         }
 
-        .new-chat-btn {
-            background: var(--accent); color: white; border: none; padding: 12px;
-            border-radius: 25px; cursor: pointer; font-weight: 600; margin-bottom: 20px;
-        }
-
         /* --- MAIN VIEW --- */
         .main-content {
             flex: 1; display: flex; flex-direction: column;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.55);
             height: 100%; min-width: 0;
         }
 
@@ -49,13 +44,17 @@
             background: rgba(0,0,0,0.3); flex-shrink: 0;
         }
 
-        /* --- CHAT AREA --- */
-        .chat-area { 
-            flex: 1; overflow-y: auto; padding: 20px; 
-            -webkit-overflow-scrolling: touch; 
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+
+        .mute-btn {
+            background: none; border: none; color: #888;
+            font-size: 1.1rem; cursor: pointer; transition: 0.3s;
         }
-        
+        .mute-btn.active { color: var(--purple-glow); }
+
+        .chat-area { flex: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
         .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        
         .message { display: flex; gap: 12px; align-items: flex-start; }
         .avatar { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .bot-avatar { background: #10a37f; box-shadow: 0 0 15px rgba(16, 163, 127, 0.3); }
@@ -65,7 +64,12 @@
             background: rgba(255, 255, 255, 0.08); padding: 12px 16px; 
             border-radius: 14px; border: 1px solid var(--border);
             line-height: 1.5; font-size: 0.95rem; flex: 1;
-            word-wrap: break-word; overflow-wrap: break-word;
+            position: relative;
+        }
+
+        .copy-btn {
+            display: inline-block; margin-top: 8px; font-size: 0.7rem; 
+            color: #666; cursor: pointer;
         }
 
         /* --- INPUT BAR --- */
@@ -77,14 +81,10 @@
             border-radius: 30px; display: flex; align-items: center; gap: 12px;
         }
 
-        #messageInput {
-            flex: 1; background: none; border: none; color: white;
-            outline: none; font-size: 1rem; padding: 8px 0;
-        }
-
-        /* MIC ANIMATION */
+        #messageInput { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; padding: 8px 0; }
+        
         .mic-btn { color: #888; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
-        .mic-btn.recording { color: #ff4b4b; text-shadow: 0 0 10px rgba(255, 75, 75, 0.5); transform: scale(1.2); }
+        .mic-btn.recording { color: #ff4b4b; transform: scale(1.2); text-shadow: 0 0 8px red; }
 
         #sendButton {
             background: var(--purple-glow); color: white; border: none;
@@ -108,15 +108,19 @@
             <h2 style="font-size:1.2rem; letter-spacing:1px;">ElitePro AI</h2>
             <button id="closeSidebar"><i class="fas fa-times"></i></button>
         </div>
-        <button class="new-chat-btn" onclick="location.reload()">+ New Chat</button>
-        <p style="color:#666; font-size:0.75rem;">HISTORY</p>
+        <button onclick="location.reload()" style="background:var(--accent); color:white; border:none; padding:10px; border-radius:25px; cursor:pointer; font-weight:600; width:100%;">+ New Chat</button>
     </aside>
 
     <main class="main-content">
         <nav class="top-nav">
             <button id="menuBtn"><i class="fas fa-bars"></i></button>
-            <span style="font-weight:600; font-size:0.9rem;">ElitePro Assistant</span>
-            <img src="https://i.pravatar.cc/100" style="width:32px; height:32px; border-radius:50%; border:1px solid var(--purple-glow);">
+            <span style="font-weight:600; font-size:0.9rem;">ElitePro Workspace</span>
+            <div class="nav-right">
+                <button id="muteToggle" class="mute-btn" title="Toggle AI Voice">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <img src="https://i.pravatar.cc/100" style="width:32px; height:32px; border-radius:50%; border:1px solid var(--purple-glow);">
+            </div>
         </nav>
 
         <div class="chat-area" id="chatArea">
@@ -126,7 +130,7 @@
         <div class="input-wrapper">
             <div class="input-box">
                 <i class="fas fa-microphone mic-btn" id="micBtn"></i>
-                <input type="text" id="messageInput" placeholder="Talk or type..." autocomplete="off">
+                <input type="text" id="messageInput" placeholder="How can I help you today?" autocomplete="off">
                 <button id="sendButton"><i class="fas fa-arrow-up"></i></button>
             </div>
         </div>
@@ -137,14 +141,23 @@
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         const micBtn = document.getElementById('micBtn');
+        const muteToggle = document.getElementById('muteToggle');
         const API_BASE_URL = 'https://eliteprotech-apis.zone.id/copilot?q=';
 
-        // 1. VOICE RECOGNITION LOGIC
+        let isMuted = false;
+
+        // --- 1. MUTE TOGGLE LOGIC ---
+        muteToggle.onclick = () => {
+            isMuted = !isMuted;
+            muteToggle.classList.toggle('active', isMuted);
+            muteToggle.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            if(isMuted) window.speechSynthesis.cancel();
+        };
+
+        // --- 2. VOICE TO TEXT (RECORDING) ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
         if (SpeechRecognition) {
             const recognition = new SpeechRecognition();
-            recognition.continuous = false;
             recognition.lang = 'en-US';
 
             micBtn.onclick = () => {
@@ -153,36 +166,45 @@
             };
 
             recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                messageInput.value = transcript;
+                messageInput.value = event.results[0][0].transcript;
                 micBtn.classList.remove('recording');
+                sendMessage();
             };
 
-            recognition.onspeechend = () => {
-                recognition.stop();
-                micBtn.classList.remove('recording');
-            };
-
-            recognition.onerror = () => {
-                micBtn.classList.remove('recording');
-                alert("Voice search failed. Check microphone permissions.");
-            };
-        } else {
-            micBtn.style.display = 'none'; // Hide if browser doesn't support it
+            recognition.onerror = () => micBtn.classList.remove('recording');
+            recognition.onspeechend = () => recognition.stop();
         }
 
-        // 2. CHAT LOGIC
+        // --- 3. TEXT TO SPEECH (TALKING) ---
+        function speak(text) {
+            if (isMuted) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voices = window.speechSynthesis.getVoices();
+            utterance.voice = voices.find(v => v.name.includes('Google') || v.lang === 'en-US') || voices[0];
+            utterance.rate = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- 4. CHAT LOGIC ---
         function addMessage(text, isUser = false) {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message';
+            
+            const copyHtml = !isUser ? `<span class="copy-btn" onclick="copyText(this, \`${text.replace(/'/g, "\\'")}\`)"><i class="far fa-copy"></i> Copy</span>` : '';
+
             msgDiv.innerHTML = `
                 <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}">
                     <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
                 </div>
-                <div class="message-text">${text}</div>
+                <div class="message-text">
+                    ${text}
+                    ${copyHtml}
+                </div>
             `;
             chatMessages.appendChild(msgDiv);
             document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+            if(!isUser) speak(text);
         }
 
         async function sendMessage() {
@@ -190,11 +212,18 @@
             if(!val) return;
             addMessage(val, true);
             messageInput.value = "";
+
             try {
                 const res = await fetch(API_BASE_URL + encodeURIComponent(val));
                 const data = await res.json();
                 if(data.success) addMessage(data.text);
             } catch(e) { addMessage("Connection error."); }
+        }
+
+        function copyText(btn, text) {
+            navigator.clipboard.writeText(text);
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+            setTimeout(() => { btn.innerHTML = '<i class="far fa-copy"></i> Copy'; }, 2000);
         }
 
         document.getElementById('menuBtn').onclick = () => document.getElementById('sidebar').classList.add('active');
