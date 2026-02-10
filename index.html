@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ElitePro AI | Cyber Edition</title>
+    <title>ElitePro AI | Voice & Cyber-Glass</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --purple-glow: #b22cff;
             --accent: #5436da;
-            --glass: rgba(15, 18, 25, 0.85); /* Darker glass for better readability */
+            --glass: rgba(15, 18, 25, 0.88);
             --border: rgba(255, 255, 255, 0.1);
         }
 
@@ -31,10 +31,15 @@
             padding: 20px; transition: transform 0.3s ease; z-index: 2000;
         }
 
+        .new-chat-btn {
+            background: var(--accent); color: white; border: none; padding: 12px;
+            border-radius: 25px; cursor: pointer; font-weight: 600; margin-bottom: 20px;
+        }
+
         /* --- MAIN VIEW --- */
         .main-content {
             flex: 1; display: flex; flex-direction: column;
-            background: rgba(0, 0, 0, 0.4); /* Dark overlay so chat is visible */
+            background: rgba(0, 0, 0, 0.5);
             height: 100%; min-width: 0;
         }
 
@@ -51,26 +56,16 @@
         }
         
         .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-
-        .message { display: flex; gap: 12px; align-items: flex-start; max-width: 100%; }
-
-        .avatar { 
-            width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
-        }
+        .message { display: flex; gap: 12px; align-items: flex-start; }
+        .avatar { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .bot-avatar { background: #10a37f; box-shadow: 0 0 15px rgba(16, 163, 127, 0.3); }
         .user-avatar { background: var(--accent); }
 
         .message-text {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 12px 16px; border-radius: 14px; border: 1px solid var(--border);
-            line-height: 1.5; font-size: 0.95rem; position: relative;
-            word-wrap: break-word; overflow-wrap: break-word; flex: 1;
-        }
-
-        .copy-btn {
-            display: block; margin-top: 8px; font-size: 0.7rem; color: #888;
-            cursor: pointer; text-align: right;
+            background: rgba(255, 255, 255, 0.08); padding: 12px 16px; 
+            border-radius: 14px; border: 1px solid var(--border);
+            line-height: 1.5; font-size: 0.95rem; flex: 1;
+            word-wrap: break-word; overflow-wrap: break-word;
         }
 
         /* --- INPUT BAR --- */
@@ -87,21 +82,23 @@
             outline: none; font-size: 1rem; padding: 8px 0;
         }
 
-        .mic-btn { color: #888; cursor: pointer; font-size: 1.1rem; }
+        /* MIC ANIMATION */
+        .mic-btn { color: #888; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
+        .mic-btn.recording { color: #ff4b4b; text-shadow: 0 0 10px rgba(255, 75, 75, 0.5); transform: scale(1.2); }
+
         #sendButton {
             background: var(--purple-glow); color: white; border: none;
             width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
             box-shadow: 0 0 15px rgba(178, 44, 255, 0.4);
         }
 
-        /* --- MOBILE MENU FIX --- */
         @media (max-width: 768px) {
             .sidebar { position: absolute; left: 0; transform: translateX(-100%); height: 100%; }
             .sidebar.active { transform: translateX(0); }
             .main-content { width: 100vw; }
         }
 
-        #menuBtn, #closeSidebar { background:none; border:none; color:white; font-size:1.3rem; cursor:pointer; }
+        #menuBtn, #closeSidebar { background:none; border:none; color:white; font-size:1.3rem; }
     </style>
 </head>
 <body>
@@ -112,8 +109,7 @@
             <button id="closeSidebar"><i class="fas fa-times"></i></button>
         </div>
         <button class="new-chat-btn" onclick="location.reload()">+ New Chat</button>
-        <p style="color:#666; font-size:0.75rem; margin-bottom:10px;">RECENT HISTORY</p>
-        <div id="history" style="color:#888; font-size:0.85rem;">No recent chats</div>
+        <p style="color:#666; font-size:0.75rem;">HISTORY</p>
     </aside>
 
     <main class="main-content">
@@ -129,8 +125,8 @@
 
         <div class="input-wrapper">
             <div class="input-box">
-                <i class="fas fa-microphone mic-btn" onclick="alert('Voice recording coming soon!')"></i>
-                <input type="text" id="messageInput" placeholder="Ask ElitePro anything..." autocomplete="off">
+                <i class="fas fa-microphone mic-btn" id="micBtn"></i>
+                <input type="text" id="messageInput" placeholder="Talk or type..." autocomplete="off">
                 <button id="sendButton"><i class="fas fa-arrow-up"></i></button>
             </div>
         </div>
@@ -140,27 +136,53 @@
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
-        const chatArea = document.getElementById('chatArea');
+        const micBtn = document.getElementById('micBtn');
         const API_BASE_URL = 'https://eliteprotech-apis.zone.id/copilot?q=';
 
+        // 1. VOICE RECOGNITION LOGIC
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            micBtn.onclick = () => {
+                recognition.start();
+                micBtn.classList.add('recording');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                messageInput.value = transcript;
+                micBtn.classList.remove('recording');
+            };
+
+            recognition.onspeechend = () => {
+                recognition.stop();
+                micBtn.classList.remove('recording');
+            };
+
+            recognition.onerror = () => {
+                micBtn.classList.remove('recording');
+                alert("Voice search failed. Check microphone permissions.");
+            };
+        } else {
+            micBtn.style.display = 'none'; // Hide if browser doesn't support it
+        }
+
+        // 2. CHAT LOGIC
         function addMessage(text, isUser = false) {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message';
-            
-            const copyBtn = !isUser ? `<span class="copy-btn" onclick="copyText(this, \`${text}\`)"><i class="far fa-copy"></i> Copy</span>` : '';
-
             msgDiv.innerHTML = `
                 <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}">
                     <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
                 </div>
-                <div class="message-text">
-                    ${text}
-                    ${copyBtn}
-                </div>
+                <div class="message-text">${text}</div>
             `;
-            
             chatMessages.appendChild(msgDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
+            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
         }
 
         async function sendMessage() {
@@ -168,18 +190,11 @@
             if(!val) return;
             addMessage(val, true);
             messageInput.value = "";
-
             try {
                 const res = await fetch(API_BASE_URL + encodeURIComponent(val));
                 const data = await res.json();
                 if(data.success) addMessage(data.text);
-            } catch(e) { addMessage("Error connecting..."); }
-        }
-
-        function copyText(btn, text) {
-            navigator.clipboard.writeText(text);
-            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-            setTimeout(() => { btn.innerHTML = '<i class="far fa-copy"></i> Copy'; }, 2000);
+            } catch(e) { addMessage("Connection error."); }
         }
 
         document.getElementById('menuBtn').onclick = () => document.getElementById('sidebar').classList.add('active');
