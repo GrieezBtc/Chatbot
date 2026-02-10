@@ -3,190 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ElitePro AI | Universal Fit</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>ElitePro AI | Cyber-Glass Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --sidebar-bg: #0b0e11;
-            --main-bg: #13171c;
-            --accent: #5436da;
-            --bot-green: #10a37f;
-            --text: #ececec;
+            --purple-glow: #b22cff;
+            --accent-blue: #5436da;
+            --glass-bg: rgba(19, 23, 28, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
         }
 
-        /* 1. LOCK THE VIEWPORT */
+        /* 1. FUTURISTIC BACKGROUND */
         html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Prevents the whole page from bouncing/scrolling */
-            background-color: var(--main-bg);
+            height: 100%; width: 100%; margin: 0; padding: 0;
+            overflow: hidden;
+            background: #05070a;
+            /* This mimics the city/nebula look in your image */
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(84, 54, 218, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(178, 44, 255, 0.15) 0px, transparent 50%),
+                url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
         }
 
-        body {
-            display: flex;
-            font-family: 'Inter', sans-serif;
-            color: var(--text);
-        }
+        body { display: flex; font-family: 'Inter', sans-serif; color: #ececec; }
 
-        /* --- SIDEBAR --- */
+        /* --- GLASS SIDEBAR --- */
         .sidebar {
-            width: 260px;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid rgba(255,255,255,0.1);
+            width: 280px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 20px;
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
+            padding: 25px;
+            transition: 0.3s ease;
             z-index: 2000;
         }
 
-        /* --- MAIN CONTENT --- */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100%; /* Important for mobile */
-            width: 100%;
-            position: relative;
-            min-width: 0; /* Prevents flex items from overflowing */
+        .new-chat-btn {
+            background: linear-gradient(45deg, var(--accent-blue), var(--purple-glow));
+            color: white; border: none; padding: 12px; border-radius: 25px;
+            cursor: pointer; font-weight: 600; margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(178, 44, 255, 0.3);
         }
 
-        /* --- MOBILE FIXES --- */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: absolute;
-                left: 0;
-                transform: translateX(-100%);
-                height: 100%;
-            }
-            .sidebar.active { transform: translateX(0); }
+        /* --- MAIN CONTENT AREA --- */
+        .main-content {
+            flex: 1; display: flex; flex-direction: column;
+            background: rgba(0,0,0,0.2);
+            position: relative;
         }
 
         .top-nav {
-            height: 60px;
-            padding: 0 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(0,0,0,0.2);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            flex-shrink: 0;
+            height: 70px; padding: 0 25px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border);
         }
 
-        /* 2. SCROLLABLE CHAT AREA */
-        .chat-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            -webkit-overflow-scrolling: touch; /* Smooth scroll for iOS */
-        }
+        /* --- CHAT BUBBLES --- */
+        .chat-area { flex: 1; overflow-y: auto; padding: 20px; }
+        
+        .message-wrapper { max-width: 850px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
 
-        .message-wrapper {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+        .message { display: flex; gap: 15px; position: relative; }
 
-        .message {
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-            word-wrap: break-word;
-            overflow-wrap: break-word; /* Fixes text overflow */
-            max-width: 100%;
-        }
-
-        .avatar { width: 32px; height: 32px; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-        .bot-avatar { background: var(--bot-green); }
-        .user-avatar { background: var(--accent); }
+        .avatar { width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .bot-avatar { background: #10a37f; box-shadow: 0 0 10px rgba(16, 163, 127, 0.4); }
+        .user-avatar { background: var(--accent-blue); }
 
         .message-text {
-            line-height: 1.5;
-            font-size: 0.95rem;
-            flex: 1;
-            min-width: 0; /* Crucial for text wrapping */
-        }
-
-        /* --- THINKING --- */
-        .thinking-bubble {
-            background: rgba(255,255,255,0.05);
-            padding: 10px 15px;
-            border-radius: 10px;
-            display: inline-flex;
-            gap: 5px;
-            animation: pulse 1.5s infinite;
-        }
-        .dot { width: 5px; height: 5px; background: #888; border-radius: 50%; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-
-        /* 3. STICKY INPUT AREA */
-        .input-wrapper {
+            background: rgba(255, 255, 255, 0.05);
             padding: 15px;
-            background: var(--main-bg);
-            border-top: 1px solid rgba(255,255,255,0.05);
-            flex-shrink: 0;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            line-height: 1.6;
+            max-width: 85%;
+            position: relative;
         }
 
+        /* COPY BUTTON */
+        .copy-btn {
+            position: absolute; bottom: -20px; right: 5px;
+            font-size: 0.75rem; color: #888; cursor: pointer;
+            transition: 0.2s; visibility: hidden;
+        }
+        .message:hover .copy-btn { visibility: visible; }
+        .copy-btn:hover { color: white; }
+
+        /* --- GLASS INPUT BOX --- */
+        .input-wrapper { padding: 30px; }
         .input-box {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            gap: 10px;
-            background: #22272e;
-            border: 1px solid #444;
-            padding: 8px 12px;
-            border-radius: 12px;
+            max-width: 800px; margin: 0 auto;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            padding: 10px 15px;
+            border-radius: 30px;
+            display: flex; align-items: center; gap: 15px;
         }
 
         #messageInput {
-            flex: 1;
-            background: none;
-            border: none;
-            color: white;
-            outline: none;
-            padding: 8px 0;
-            font-size: 1rem;
+            flex: 1; background: none; border: none; color: white;
+            outline: none; font-size: 1rem;
         }
+
+        .mic-btn { color: #888; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+        .mic-btn:hover { color: var(--purple-glow); }
 
         #sendButton {
-            background: var(--accent);
-            color: white;
-            border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            cursor: pointer;
-            flex-shrink: 0;
+            background: var(--purple-glow); color: white; border: none;
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
         }
 
-        #closeSidebar { display: none; color: white; background: none; border: none; font-size: 1.2rem; }
-        @media (max-width: 768px) { #closeSidebar { display: block; } }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        /* MOBILE FIXES */
+        @media (max-width: 768px) {
+            .sidebar { position: absolute; left: -280px; }
+            .sidebar.active { left: 0; }
+            .message-text { max-width: 90%; }
+        }
     </style>
 </head>
 <body>
 
     <aside class="sidebar" id="sidebar">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 style="font-size: 1.1rem;">ElitePro AI</h2>
-            <button id="closeSidebar"><i class="fas fa-times"></i></button>
-        </div>
-        <button onclick="location.reload()" style="background:var(--accent); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">+ New Chat</button>
+        <h2 style="margin-bottom: 20px; letter-spacing: 1px;">ElitePro AI</h2>
+        <button class="new-chat-btn" onclick="location.reload()">+ New Chat</button>
+        <p style="color: #555; font-size: 0.8rem;">RECENT HISTORY</p>
     </aside>
 
     <main class="main-content">
         <nav class="top-nav">
-            <button id="menuBtn" style="background:none; border:none; color:white; font-size:1.2rem;"><i class="fas fa-bars"></i></button>
-            <span style="font-weight:600; font-size:0.9rem;">ElitePro Assistant</span>
-            <div style="width:20px;"></div>
+            <button id="menuBtn" style="background:none; border:none; color:white; font-size:1.3rem;"><i class="fas fa-bars"></i></button>
+            <span style="font-weight: 600;">ElitePro Assistant</span>
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: #444; overflow: hidden;">
+                <img src="https://i.pravatar.cc/100" style="width:100%">
+            </div>
         </nav>
 
         <div class="chat-area" id="chatArea">
@@ -195,67 +149,37 @@
 
         <div class="input-wrapper">
             <div class="input-box">
-                <input type="text" id="messageInput" placeholder="Message..." autocomplete="off">
-                <button id="sendButton"><i class="fas fa-arrow-up"></i></button>
+                <i class="fas fa-microphone mic-btn" title="Voice Input"></i>
+                <input type="text" id="messageInput" placeholder="Ask anything..." autocomplete="off">
+                <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
 
     <script>
         const chatMessages = document.getElementById('chatMessages');
-        const chatArea = document.getElementById('chatArea');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
-        const sidebar = document.getElementById('sidebar');
         const API_BASE_URL = 'https://eliteprotech-apis.zone.id/copilot?q=';
 
-        let chatHistory = JSON.parse(localStorage.getItem('elite_fit_history')) || [];
-
-        window.onload = () => {
-            if (chatHistory.length === 0) {
-                addMessage("Ready to assist on any device. What's on your mind?", false);
-            } else {
-                chatHistory.forEach(msg => addMessage(msg.text, msg.isUser, false));
-            }
-        };
-
-        function typeWriter(element, text) {
-            let i = 0;
-            element.textContent = "";
-            function type() {
-                if (i < text.length) {
-                    element.textContent += text.charAt(i);
-                    i++;
-                    chatArea.scrollTop = chatArea.scrollHeight;
-                    setTimeout(type, 15);
-                }
-            }
-            type();
-        }
-
-        function addMessage(text, isUser = false, useType = true, isThinking = false) {
+        function addMessage(text, isUser = false) {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message';
-            if(isThinking) msgDiv.id = 'thinking-node';
             
+            const copyHtml = !isUser ? `<span class="copy-btn" onclick="copyText(this, \`${text.replace(/'/g, "\\'")}\`)"><i class="far fa-copy"></i> Copy</span>` : '';
+
             msgDiv.innerHTML = `
                 <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}">
                     <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
                 </div>
-                <div class="message-text"></div>
+                <div class="message-text">
+                    ${text}
+                    ${copyHtml}
+                </div>
             `;
             
-            const textContainer = msgDiv.querySelector('.message-text');
             chatMessages.appendChild(msgDiv);
-
-            if (isThinking) {
-                textContainer.innerHTML = `<div class="thinking-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-            } else if (!isUser && useType) {
-                typeWriter(textContainer, text);
-            } else {
-                textContainer.textContent = text;
-            }
-            chatArea.scrollTop = chatArea.scrollHeight;
+            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
         }
 
         async function sendMessage() {
@@ -264,31 +188,25 @@
 
             addMessage(text, true);
             messageInput.value = "";
-            chatHistory.push({text, isUser: true});
-            
-            addMessage("", false, false, true);
 
             try {
                 const res = await fetch(API_BASE_URL + encodeURIComponent(text));
                 const data = await res.json();
-                if(document.getElementById('thinking-node')) document.getElementById('thinking-node').remove();
-
-                if(data.success) {
-                    addMessage(data.text, false, true);
-                    chatHistory.push({text: data.text, isUser: false});
-                    localStorage.setItem('elite_fit_history', JSON.stringify(chatHistory));
-                }
+                if(data.success) addMessage(data.text);
             } catch(e) {
-                if(document.getElementById('thinking-node')) document.getElementById('thinking-node').remove();
-                addMessage("Connection error.");
+                addMessage("Connectivity error.");
             }
         }
 
-        document.getElementById('menuBtn').onclick = () => sidebar.classList.add('active');
-        document.getElementById('closeSidebar').onclick = () => sidebar.classList.remove('active');
+        function copyText(btn, text) {
+            navigator.clipboard.writeText(text);
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+            setTimeout(() => { btn.innerHTML = '<i class="far fa-copy"></i> Copy'; }, 2000);
+        }
+
         sendButton.onclick = sendMessage;
         messageInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
+        document.getElementById('menuBtn').onclick = () => document.getElementById('sidebar').classList.toggle('active');
     </script>
 </body>
-    </html>
-    
+</html>
