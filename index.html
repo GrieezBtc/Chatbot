@@ -20,63 +20,53 @@
         .nav-btn { background: none; border: none; color: var(--text); cursor: pointer; font-size: 1.2rem; }
 
         .chat-area { flex: 1; overflow-y: auto; padding: 15px; scroll-behavior: smooth; }
-        .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
+        .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
         .message { display: flex; gap: 10px; align-items: flex-start; width: 100%; position: relative; }
         
         .avatar { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .bot-avatar { background: #10a37f; }
         .user-avatar { background: var(--accent); }
 
-        .message-text { background: rgba(255, 255, 255, 0.1); padding: 12px 16px; border-radius: 14px; border: 1px solid var(--border); font-size: 0.95rem; flex: 1; line-height: 1.6; word-wrap: break-word; overflow: hidden; }
+        .message-text { background: rgba(255, 255, 255, 0.1); padding: 12px 16px; border-radius: 14px; border: 1px solid var(--border); font-size: 0.95rem; flex: 1; line-height: 1.6; word-wrap: break-word; }
         
-        /* CODE BLOCK PROTECTION */
-        pre { background: #000 !important; color: #00ff00 !important; padding: 15px; border-radius: 8px; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.85rem; margin: 10px 0; border: 1px solid #333; white-space: pre-wrap; word-break: break-all; }
-        code { font-family: 'Courier New', monospace; background: rgba(0,0,0,0.3); padding: 2px 5px; border-radius: 4px; }
-
-        .message-text h3 { color: var(--purple-glow); margin: 12px 0 6px 0; font-size: 1.1rem; border-left: 3px solid var(--purple-glow); padding-left: 8px; }
-        .message-text b { color: #fff; font-weight: 600; }
-        .message-text ul { margin: 8px 0 8px 18px; }
-        .message-text li { margin-bottom: 6px; list-style-type: disc; color: #ddd; }
-
-        .copy-btn { position: absolute; right: 5px; bottom: -22px; font-size: 0.7rem; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: #888; padding: 2px 10px; border-radius: 5px; cursor: pointer; }
+        /* Code & Image Styles */
+        pre { background: #000; color: #00ff00; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 10px 0; font-family: monospace; border: 1px solid #333; }
+        .gen-image { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--purple-glow); }
         
-        .mic-active { color: #ff4b4b !important; animation: mic-pulse 1s infinite; }
-        @keyframes mic-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .download-btn { background: var(--accent); color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin-top: 5px; display: inline-flex; align-items: center; gap: 5px; }
 
-        .thinking-emoji { font-size: 1.5rem; animation: pulse 1.5s infinite; display: inline-block; }
-        @keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+        .copy-btn { position: absolute; right: 5px; bottom: -25px; font-size: 0.7rem; color: #888; background: none; border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; cursor: pointer; }
+
+        .mic-active { color: #ff4b4b !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
         .input-wrapper { padding: 15px; background: rgba(0,0,0,0.2); padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
         .input-box { max-width: 800px; margin: 0 auto; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border); padding: 10px 15px; border-radius: 30px; display: flex; align-items: center; gap: 10px; }
         #messageInput { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; width: 100%; }
-        #sendButton { background: var(--purple-glow); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        #sendButton { background: var(--purple-glow); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
 
-        @media (max-width: 768px) { 
-            .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); width: 260px; }
-            .sidebar.active { transform: translateX(0); }
-            .sidebar.active ~ .sidebar-overlay { display: block; }
-        }
+        @media (max-width: 768px) { .sidebar { position: fixed; left: 0; transform: translateX(-100%); } .sidebar.active { transform: translateX(0); } }
     </style>
 </head>
 <body>
     <div class="sidebar-overlay" id="overlay"></div>
     <aside class="sidebar" id="sidebar">
-        <h2 style="color: var(--purple-glow); margin-bottom: 20px;">ELITEPRO</h2>
-        <button onclick="newChat()" style="background: var(--accent); color: white; border: none; padding: 12px; border-radius: 25px; margin-bottom: 10px; cursor: pointer; width:100%;">+ New Chat</button>
-        <button onclick="clearHistory()" style="background: rgba(255,0,0,0.1); color: #ff4b4b; border: 1px solid red; padding: 12px; border-radius: 25px; cursor: pointer; width:100%;">Clear Memory</button>
+        <h2 style="color: var(--purple-glow);">ELITEPRO</h2>
+        <button onclick="location.reload()" style="background: var(--accent); color: white; border: none; padding: 12px; border-radius: 25px; margin: 20px 0; cursor: pointer;">New Chat</button>
+        <button onclick="localStorage.clear(); location.reload();" style="background: rgba(255,0,0,0.1); color: #ff4b4b; border: 1px solid red; padding: 12px; border-radius: 25px; cursor: pointer;">Clear Data</button>
     </aside>
 
     <main class="main-content">
         <nav class="top-nav">
             <button id="menuBtn" class="nav-btn"><i class="fas fa-bars"></i></button>
-            <span style="font-weight: 600;">ELITEPRO AI</span>
+            <span>ELITEPRO AI</span>
             <button id="muteToggle" class="nav-btn"><i class="fas fa-volume-up" id="muteIcon"></i></button>
         </nav>
         <div class="chat-area" id="chatArea"><div class="message-wrapper" id="chatMessages"></div></div>
         <div class="input-wrapper">
             <div class="input-box">
                 <i class="fas fa-microphone nav-btn" id="micBtn"></i>
-                <input type="text" id="messageInput" placeholder="Message ElitePro..." autocomplete="off">
+                <input type="text" id="messageInput" placeholder="Ask ElitePro or generate an image..." autocomplete="off">
                 <button id="sendButton"><i class="fas fa-arrow-up"></i></button>
             </div>
         </div>
@@ -95,74 +85,58 @@
         let isMuted = false, isLocked = false;
         const API_URL = 'https://eliteprotech-apis.zone.id/copilot?q=';
 
-        // --- NEW SECURE FORMATTER ---
-        function formatText(text) {
-            // First, protect the code by escaping HTML characters so they don't render as real elements
-            let escaped = text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
+        function formatContent(text) {
+            // Protect HTML code from rendering
+            let secureText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            
+            // Check for code blocks to add Download Button
+            if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+                let codeMatch = text.match(/<html>[\s\S]*?<\/html>|<!DOCTYPE[\s\S]*?<\/html>/i);
+                if (codeMatch) {
+                    let downloadHtml = `<br><button class="download-btn" onclick="downloadFile(\`${btoa(codeMatch[0])}\`)"><i class="fas fa-file-download"></i> Download as HTML</button>`;
+                    secureText += downloadHtml;
+                }
+            }
 
-            // Then, format the AI's markdown
-            let formatted = escaped
-                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>') // Multi-line code
-                .replace(/`([^`]+)`/g, '<code>$1</code>') // Single line code
-                .replace(/### (.*?)(\n|$)/g, '<h3>$1</h3>')
+            return secureText
+                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
                 .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
                 .replace(/^- (.*?)(\n|$)/gm, '<li>$1</li>')
-                .replace(/\n\n/g, '<br>')
-                .replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>')
-                .replace(/<\/ul>\s*<ul>/g, '');
-            
-            return formatted;
+                .replace(/\n\n/g, '<br>');
         }
 
-        function toggleSidebar() { sidebar.classList.toggle('active'); }
-        function closeSidebar() { sidebar.classList.remove('active'); }
-        function newChat() { closeSidebar(); location.reload(); }
-        function clearHistory() { closeSidebar(); localStorage.removeItem('elitepro_v9'); location.reload(); }
-
-        menuBtn.onclick = (e) => { e.stopPropagation(); toggleSidebar(); };
-        overlay.onclick = closeSidebar;
-        chatArea.onclick = closeSidebar;
-
-        function saveToMemory(role, text) {
-            let history = JSON.parse(localStorage.getItem('elitepro_v9')) || [];
-            history.push({ role, text });
-            localStorage.setItem('elitepro_v9', JSON.stringify(history.slice(-50)));
+        function downloadFile(base64) {
+            const link = document.createElement('a');
+            link.href = 'data:text/html;base64,' + base64;
+            link.download = 'ElitePro_Project.html';
+            link.click();
         }
 
-        function loadMemory() {
-            const history = JSON.parse(localStorage.getItem('elitepro_v9')) || [];
-            history.forEach(msg => createMessageElement(msg.text, msg.role === 'user', true));
+        function speak(text) {
+            if (isMuted) return;
+            window.speechSynthesis.cancel(); // Clear previous speech
+            const utterance = new SpeechSynthesisUtterance(text.replace(/[#*`_-]/g, ''));
+            window.speechSynthesis.speak(utterance);
         }
 
-        function copyText(btn, text) {
-            navigator.clipboard.writeText(text);
-            btn.textContent = "Done!";
-            setTimeout(() => btn.textContent = "Copy", 1500);
-        }
-
-        function createMessageElement(text, isUser, skipTypewriter = false) {
+        function createMessageElement(text, isUser, skipTypewriter = false, isImage = false) {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message';
-            const htmlContent = isUser ? text : formatText(text);
             
+            let content = isImage ? `<img src="${text}" class="gen-image">` : formatContent(text);
+
             msgDiv.innerHTML = `
-                <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}">
-                    <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
-                </div>
+                <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}"><i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i></div>
                 <div class="message-text">
                     <span class="msg-content"></span>
-                    ${!isUser ? `<button class="copy-btn" onclick="copyText(this, \`${text.replace(/`/g, "'")}\`)">Copy</button>` : ''}
+                    ${!isUser ? `<button class="copy-btn" onclick="navigator.clipboard.writeText(\`${text.replace(/`/g, "'")}\`)">Copy</button>` : ''}
                 </div>
             `;
             chatMessages.appendChild(msgDiv);
             const contentSpan = msgDiv.querySelector('.msg-content');
 
-            if (isUser || skipTypewriter) {
-                contentSpan.innerHTML = htmlContent;
-                if (!skipTypewriter) saveToMemory('user', text);
+            if (isUser || skipTypewriter || isImage) {
+                contentSpan.innerHTML = content;
             } else {
                 let i = 0;
                 const interval = setInterval(() => {
@@ -172,66 +146,66 @@
                         chatArea.scrollTop = chatArea.scrollHeight;
                     } else {
                         clearInterval(interval);
-                        contentSpan.innerHTML = htmlContent; // Now applies the secure code blocks
-                        saveToMemory('bot', text);
+                        contentSpan.innerHTML = content;
+                        speak(text);
                         isLocked = false;
-                        sendBtn.disabled = false;
                     }
                 }, 15);
             }
             chatArea.scrollTop = chatArea.scrollHeight;
         }
 
-        async function handleSend(textOverride = null) {
-            const query = textOverride || messageInput.value.trim();
+        async function handleSend() {
+            const query = messageInput.value.trim();
             if (!query || isLocked) return;
-            closeSidebar();
+            sidebar.classList.remove('active');
             isLocked = true;
-            sendBtn.disabled = true;
             messageInput.value = "";
             createMessageElement(query, true);
 
-            const lowQ = query.toLowerCase();
-            if (lowQ === "elitepro" || lowQ.includes("your name")) {
-                setTimeout(() => createMessageElement("I am **ElitePro**, developed by **Yusuf**.", false), 500);
+            // Image Generation Trigger
+            if (query.toLowerCase().startsWith("generate image") || query.toLowerCase().includes("draw")) {
+                const imgPrompt = query.replace(/generate image|draw/gi, "").trim();
+                createMessageElement(`https://pollinations.ai/p/${encodeURIComponent(imgPrompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*1000)}`, false, true, true);
+                isLocked = false;
                 return;
             }
 
-            const loader = document.createElement('div');
-            loader.className = 'message'; loader.id = 'active-loader';
-            loader.innerHTML = `<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div><div class="message-text"><span class="thinking-emoji">🤔</span></div>`;
-            chatMessages.appendChild(loader);
-            chatArea.scrollTop = chatArea.scrollHeight;
+            // Local Identity
+            if (query.toLowerCase().includes("your name")) {
+                setTimeout(() => { createMessageElement("I am **ElitePro**, developed by **Yusuf**.", false); isLocked = false; }, 500);
+                return;
+            }
 
             try {
                 const response = await fetch(API_URL + encodeURIComponent(query));
                 const data = await response.json();
-                document.getElementById('active-loader')?.remove();
-
                 if (data.success) {
-                    createMessageElement(data.text.replace(/Copilot/gi, "ElitePro").replace(/Microsoft/gi, "Yusuf's Tech"), false);
-                } else {
-                    createMessageElement("I hit a snag. Try again.", false);
-                    isLocked = false; sendBtn.disabled = false;
-                }
-            } catch (err) {
-                document.getElementById('active-loader')?.remove();
-                createMessageElement("Connection error.", false);
-                isLocked = false; sendBtn.disabled = false;
+                    createMessageElement(data.text.replace(/Copilot/gi, "ElitePro"), false);
+                } else { throw new Error(); }
+            } catch {
+                createMessageElement("Connection snag. Try again!", false);
+                isLocked = false;
             }
         }
 
+        // Logic for Mic and Buttons
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRec) {
             const rec = new SpeechRec();
-            micBtn.onclick = () => { if(!isLocked) { rec.start(); micBtn.classList.add('mic-active'); } };
+            micBtn.onclick = () => { rec.start(); micBtn.classList.add('mic-active'); };
             rec.onresult = (e) => handleSend(e.results[0][0].transcript);
             rec.onend = () => micBtn.classList.remove('mic-active');
         }
 
-        window.onload = loadMemory;
-        sendBtn.onclick = () => handleSend();
+        sendBtn.onclick = handleSend;
         messageInput.onkeypress = (e) => { if(e.key === 'Enter') handleSend(); };
+        menuBtn.onclick = () => sidebar.classList.toggle('active');
+        overlay.onclick = () => sidebar.classList.remove('active');
+        document.getElementById('muteToggle').onclick = () => {
+            isMuted = !isMuted;
+            document.getElementById('muteIcon').className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+        };
     </script>
 </body>
 </html>
