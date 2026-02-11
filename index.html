@@ -2,74 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ElitePro AI | Yusuf Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --purple: #b22cff; --accent: #5436da; --bg: #05070a; --glass: rgba(15, 18, 25, 0.98); --border: rgba(255, 255, 255, 0.1); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #000; color: #ececec; height: 100vh; overflow: hidden; display: flex; }
         
-        /* Layout */
-        .sidebar { width: 280px; background: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: 0.3s; z-index: 2001; }
-        .main { flex: 1; display: flex; flex-direction: column; background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072') center/cover; position: relative; }
-        .main::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.7); z-index: 0; }
+        /* SCREEN FIT FIX */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; width: 100vw; overflow: hidden; position: fixed; background: #000; }
         
-        /* UI Components */
-        .top-nav { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--border); z-index: 1; background: rgba(0,0,0,0.3); }
-        .chat-area { flex: 1; overflow-y: auto; padding: 20px; z-index: 1; scroll-behavior: smooth; }
-        .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
+        body { display: flex; color: #ececec; }
         
-        /* Messages */
-        .message { display: flex; gap: 12px; animation: fadeIn 0.3s ease; }
-        .avatar { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        /* SIDEBAR AUTO-HIDE STYLES */
+        .sidebar { width: 280px; background: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2001; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 2000; backdrop-filter: blur(4px); }
+        
+        .main { flex: 1; display: flex; flex-direction: column; background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072') center/cover; position: relative; width: 100%; height: 100%; }
+        .main::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.75); z-index: 0; }
+        
+        .top-nav { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid var(--border); z-index: 1; background: rgba(0,0,0,0.4); padding-top: env(safe-area-inset-top); }
+        .chat-area { flex: 1; overflow-y: auto; padding: 15px; z-index: 1; scroll-behavior: smooth; padding-bottom: 20px; }
+        .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; width: 100%; }
+        
+        .message { display: flex; gap: 10px; width: 100%; }
+        .avatar { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .bot-avatar { background: #10a37f; }
         .user-avatar { background: var(--accent); }
-        .text-box { background: rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 15px; border: 1px solid var(--border); flex: 1; font-size: 0.95rem; line-height: 1.6; position: relative; }
+        .text-box { background: rgba(255,255,255,0.08); padding: 10px 14px; border-radius: 14px; border: 1px solid var(--border); flex: 1; font-size: 0.9rem; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word; max-width: calc(100% - 44px); }
         
-        /* Code Box */
-        pre { background: #000 !important; color: #0f0 !important; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid #333; font-family: monospace; white-space: pre-wrap; }
-        .dl-btn { background: var(--purple); color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
-        
-        /* Image Generator Output */
-        .ai-img { width: 100%; border-radius: 12px; border: 2px solid var(--purple); margin-top: 10px; }
+        /* UI FIXES */
+        pre { background: #000; color: #0f0; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0; border: 1px solid #333; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all; }
+        .ai-img { width: 100%; border-radius: 10px; border: 1px solid var(--purple); margin-top: 8px; }
+        .dl-btn { background: var(--purple); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin-top: 8px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; }
 
-        /* Thinking & Mic */
-        .thinking { font-size: 1.2rem; animation: pulse 1s infinite; }
-        .mic-on { color: #ff4b4b !important; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .input-wrap { padding: 10px 15px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); z-index: 1; }
+        .input-box { max-width: 800px; margin: 0 auto; background: rgba(255,255,255,0.12); border: 1px solid var(--border); padding: 8px 15px; border-radius: 25px; display: flex; align-items: center; gap: 10px; }
+        input { flex: 1; background: none; border: none; color: #fff; outline: none; font-size: 1rem; width: 100%; }
+        .send-btn { background: var(--purple); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* Input Bar */
-        .input-wrap { padding: 20px; z-index: 1; }
-        .input-box { max-width: 800px; margin: 0 auto; background: rgba(255,255,255,0.1); border: 1px solid var(--border); padding: 10px 18px; border-radius: 30px; display: flex; align-items: center; gap: 12px; }
-        input { flex: 1; background: none; border: none; color: #fff; outline: none; font-size: 1rem; }
-        .send-btn { background: var(--purple); color: #fff; border: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; }
-
-        @media (max-width: 768px) { .sidebar { position: fixed; left: -280px; height: 100%; } .sidebar.open { left: 0; } }
+        @media (max-width: 768px) { 
+            .sidebar { position: fixed; left: 0; transform: translateX(-100%); height: 100%; }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar.open + .sidebar-overlay { display: block; }
+        }
     </style>
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
         <h2 style="color: var(--purple);">ELITEPRO</h2>
-        <button onclick="location.reload()" style="margin-top: 30px; padding: 12px; border-radius: 20px; border: none; background: var(--accent); color: #fff; cursor: pointer;">+ New Chat</button>
+        <button onclick="newChat()" style="margin-top: 25px; padding: 12px; border-radius: 15px; border: none; background: var(--accent); color: #fff; width: 100%;">New Chat</button>
+        <button onclick="clearChat()" style="margin-top: 10px; padding: 12px; border-radius: 15px; border: 1px solid red; background: rgba(255,0,0,0.1); color: #ff4b4b; width: 100%;">Clear History</button>
     </aside>
+    <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
     <main class="main">
         <nav class="top-nav">
-            <button onclick="document.getElementById('sidebar').classList.toggle('open')" style="background:none; border:none; color:#fff; font-size:1.5rem;"><i class="fas fa-bars"></i></button>
-            <span style="font-weight: 600; letter-spacing: 1px;">ELITEPRO AI</span>
-            <button id="muteBtn" style="background:none; border:none; color:#fff; font-size:1.2rem;"><i class="fas fa-volume-up"></i></button>
+            <button onclick="toggleSidebar()" style="background:none; border:none; color:#fff; font-size:1.3rem;"><i class="fas fa-bars"></i></button>
+            <span style="font-weight: 600;">ELITEPRO AI</span>
+            <button id="muteBtn" style="background:none; border:none; color:#fff; font-size:1.1rem;"><i class="fas fa-volume-up"></i></button>
         </nav>
 
-        <div class="chat-area" id="chatArea"><div class="message-wrapper" id="chatMessages"></div></div>
+        <div class="chat-area" id="chatArea" onclick="closeSidebar()"><div class="message-wrapper" id="chatMessages"></div></div>
 
         <div class="input-wrap">
             <div class="input-box">
                 <i class="fas fa-microphone" id="micBtn" style="cursor:pointer; color:#888;"></i>
-                <input type="text" id="userInput" placeholder="Ask ElitePro or 'Draw a dragon'..." autocomplete="off">
-                <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+                <input type="text" id="userInput" placeholder="Message ElitePro..." autocomplete="off">
+                <button class="send-btn" id="sendBtn"><i class="fas fa-arrow-up"></i></button>
             </div>
         </div>
     </main>
@@ -78,41 +79,37 @@
         const chatMessages = document.getElementById('chatMessages');
         const userInput = document.getElementById('userInput');
         const chatArea = document.getElementById('chatArea');
-        const sendBtn = document.getElementById('sendBtn');
+        const sidebar = document.getElementById('sidebar');
         const micBtn = document.getElementById('micBtn');
         
         let isMuted = false, isBusy = false;
 
-        function formatText(text) {
-            // Protect HTML/Code tags from executing
-            let safe = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            
-            // Detect Code Blocks
-            if (text.includes("&lt;html") || text.includes("&lt;!DOCTYPE")) {
-                let code = text.match(/(&lt;html[\s\S]*?&lt;\/html&gt;)|(&lt;!DOCTYPE[\s\S]*?&lt;\/html&gt;)/i);
-                if (code) {
-                    safe += `<br><button class="dl-btn" onclick="downloadCode(\`${btoa(text)}\`)"><i class="fas fa-download"></i> Download HTML</button>`;
-                }
-            }
+        // SIDEBAR CONTROLS
+        function toggleSidebar() { sidebar.classList.toggle('open'); }
+        function closeSidebar() { sidebar.classList.remove('open'); }
+        function newChat() { closeSidebar(); location.reload(); }
+        function clearChat() { closeSidebar(); localStorage.clear(); location.reload(); }
 
-            return safe
-                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-                .replace(/\n/g, '<br>');
+        function formatText(text) {
+            let safe = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+                safe += `<br><button class="dl-btn" onclick="downloadCode(\`${btoa(text)}\`)"><i class="fas fa-download"></i> Download HTML</button>`;
+            }
+            return safe.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                       .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                       .replace(/\n/g, '<br>');
         }
 
-        function downloadCode(base64) {
-            const blob = new Blob([atob(base64)], {type: 'text/html'});
-            const url = URL.createObjectURL(blob);
+        function downloadCode(b64) {
             const a = document.createElement('a');
-            a.href = url; a.download = 'ElitePro_Web_File.html'; a.click();
+            a.href = 'data:text/html;base64,' + b64;
+            a.download = 'ElitePro_Site.html'; a.click();
         }
 
         function speak(text) {
             if (isMuted) return;
             window.speechSynthesis.cancel();
-            const speech = new SpeechSynthesisUtterance(text.replace(/[#*`_-]/g, ''));
-            window.speechSynthesis.speak(speech);
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(text.replace(/[#*`_-]/g, '')));
         }
 
         function addMessage(text, isUser, isImage = false) {
@@ -122,93 +119,62 @@
             
             div.innerHTML = `
                 <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}"><i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i></div>
-                <div class="text-box">${isUser ? text : '<span class="typing-target"></span>'}</div>
+                <div class="text-box">${isUser ? text : '<span class="typing"></span>'}</div>
             `;
             chatMessages.appendChild(div);
             
             if (!isUser && !isImage) {
-                let i = 0;
-                const target = div.querySelector('.typing-target');
+                let i = 0; const target = div.querySelector('.typing');
                 const timer = setInterval(() => {
-                    if (i < text.length) {
-                        target.textContent += text.charAt(i);
-                        i++;
-                        chatArea.scrollTop = chatArea.scrollHeight;
-                    } else {
-                        clearInterval(timer);
-                        target.innerHTML = content;
-                        speak(text);
-                        isBusy = false;
-                    }
-                }, 10);
-            } else if (isImage) {
-                div.querySelector('.text-box').innerHTML = content;
-                isBusy = false;
-            }
+                    if (i < text.length) { target.textContent += text.charAt(i++); chatArea.scrollTop = chatArea.scrollHeight; }
+                    else { clearInterval(timer); target.innerHTML = content; speak(text); isBusy = false; }
+                }, 12);
+            } else if (isImage) { div.querySelector('.text-box').innerHTML = content; isBusy = false; }
             chatArea.scrollTop = chatArea.scrollHeight;
         }
 
-        async function startFlow() {
+        async function handleSend() {
             const val = userInput.value.trim();
             if (!val || isBusy) return;
-            isBusy = true;
-            userInput.value = "";
+            closeSidebar();
+            isBusy = true; userInput.value = "";
             addMessage(val, true);
 
-            // Thinking Logic restored
             const loader = document.createElement('div');
-            loader.className = 'message'; loader.id = 'loader';
-            loader.innerHTML = `<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div><div class="text-box thinking">🤔 ElitePro is thinking...</div>`;
+            loader.className = 'message'; loader.id = 'temp-loader';
+            loader.innerHTML = `<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div><div class="text-box">🤔 Thinking...</div>`;
             chatMessages.appendChild(loader);
             chatArea.scrollTop = chatArea.scrollHeight;
 
-            const lowVal = val.toLowerCase();
-            
-            // Image Engine Fix
-            if (lowVal.includes("draw") || lowVal.includes("generate image")) {
-                document.getElementById('loader').remove();
-                const prompt = val.replace(/draw|generate image/gi, "").trim();
-                const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true`;
-                addMessage(imgUrl, false, true);
-                return;
-            }
-
-            // Identity Fix
-            if (lowVal.includes("your name") || lowVal === "elitepro") {
-                document.getElementById('loader').remove();
-                addMessage("I am **ElitePro**, your AI assistant developed by **Yusuf**.", false);
+            if (val.toLowerCase().includes("draw") || val.toLowerCase().includes("generate image")) {
+                document.getElementById('temp-loader').remove();
+                const p = val.replace(/draw|generate image/gi, "").trim();
+                addMessage(`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?nologo=true`, false, true);
                 return;
             }
 
             try {
                 const res = await fetch('https://eliteprotech-apis.zone.id/copilot?q=' + encodeURIComponent(val));
                 const data = await res.json();
-                document.getElementById('loader').remove();
-                if (data.success) {
-                    addMessage(data.text.replace(/Copilot/gi, "ElitePro"), false);
-                } else { throw new Error(); }
+                document.getElementById('temp-loader').remove();
+                addMessage(data.text.replace(/Copilot/gi, "ElitePro"), false);
             } catch {
-                document.getElementById('loader').remove();
-                addMessage("I hit a connection snag. Please try again!", false);
+                document.getElementById('temp-loader').remove();
+                addMessage("Connection snag. Try again!", false);
                 isBusy = false;
             }
         }
 
-        // Voice Recognition Fix
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRec) {
             const rec = new SpeechRec();
-            micBtn.onclick = () => { rec.start(); micBtn.classList.add('mic-on'); };
-            rec.onresult = (e) => {
-                userInput.value = e.results[0][0].transcript;
-                micBtn.classList.remove('mic-on');
-                startFlow(); // Auto-send after speaking
-            };
-            rec.onend = () => micBtn.classList.remove('mic-on');
+            micBtn.onclick = () => { rec.start(); micBtn.style.color = 'red'; };
+            rec.onresult = (e) => { userInput.value = e.results[0][0].transcript; micBtn.style.color = '#888'; handleSend(); };
+            rec.onend = () => micBtn.style.color = '#888';
         }
 
-        sendBtn.onclick = startFlow;
-        userInput.onkeypress = (e) => { if(e.key === 'Enter') startFlow(); };
+        document.getElementById('sendBtn').onclick = handleSend;
+        userInput.onkeypress = (e) => { if(e.key === 'Enter') handleSend(); };
         document.getElementById('muteBtn').onclick = () => {
             isMuted = !isMuted;
             document.getElementById('muteBtn').innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
