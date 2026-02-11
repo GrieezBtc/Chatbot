@@ -28,14 +28,15 @@
 
         .message-text { background: rgba(255, 255, 255, 0.1); padding: 12px 16px; border-radius: 14px; border: 1px solid var(--border); font-size: 0.95rem; flex: 1; line-height: 1.6; word-wrap: break-word; }
         
-        /* Markdown Style Lists */
         .message-text h3 { color: var(--purple-glow); margin: 12px 0 6px 0; font-size: 1.1rem; border-left: 3px solid var(--purple-glow); padding-left: 8px; }
         .message-text b { color: #fff; font-weight: 600; }
         .message-text ul { margin: 8px 0 8px 18px; }
         .message-text li { margin-bottom: 6px; list-style-type: disc; color: #ddd; }
 
-        .copy-btn { position: absolute; right: 5px; bottom: -22px; font-size: 0.7rem; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: #888; padding: 2px 10px; border-radius: 5px; cursor: pointer; opacity: 0.6; }
-        .copy-btn:hover { opacity: 1; background: var(--purple-glow); color: white; }
+        .copy-btn { position: absolute; right: 5px; bottom: -22px; font-size: 0.7rem; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: #888; padding: 2px 10px; border-radius: 5px; cursor: pointer; }
+        
+        .mic-active { color: #ff4b4b !important; animation: mic-pulse 1s infinite; }
+        @keyframes mic-pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
         .thinking-emoji { font-size: 1.5rem; animation: pulse 1.5s infinite; display: inline-block; }
         @keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
@@ -44,14 +45,14 @@
         .input-box { max-width: 800px; margin: 0 auto; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border); padding: 10px 15px; border-radius: 30px; display: flex; align-items: center; gap: 10px; }
         #messageInput { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; width: 100%; }
         #sendButton { background: var(--purple-glow); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        #sendButton:disabled { opacity: 0.2; }
+        #sendButton:disabled { opacity: 0.2; cursor: default; }
 
         @media (max-width: 768px) { .sidebar { position: absolute; left: 0; transform: translateX(-100%); height: 100%; } .sidebar.active { transform: translateX(0); } }
     </style>
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
-        <h2 style="color: var(--purple-glow);">ELITEPRO AI</h2>
+        <h2 style="color: var(--purple-glow);">ELITEPRO</h2>
         <button onclick="location.reload()" style="background: var(--accent); color: white; border: none; padding: 12px; border-radius: 25px; margin-top: 30px; cursor: pointer; width:100%;">New Chat</button>
         <button onclick="clearHistory()" style="background: rgba(255,0,0,0.1); color: #ff4b4b; border: 1px solid red; padding: 12px; border-radius: 25px; margin-top: 10px; cursor: pointer; width:100%;">Clear Memory</button>
     </aside>
@@ -59,7 +60,7 @@
     <main class="main-content">
         <nav class="top-nav">
             <button id="menuBtn" class="nav-btn"><i class="fas fa-bars"></i></button>
-            <span style="font-weight: 600;">ELITEPRO AI CHATBOT</span>
+            <span style="font-weight: 600;">ELITEPRO AI</span>
             <button id="muteToggle" class="nav-btn"><i class="fas fa-volume-up" id="muteIcon"></i></button>
         </nav>
         <div class="chat-area" id="chatArea"><div class="message-wrapper" id="chatMessages"></div></div>
@@ -91,21 +92,21 @@
                 .replace(/^- (.*?)(\n|$)/gm, '<li>$1</li>')
                 .replace(/\n\n/g, '<br>')
                 .replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>')
-                .replace(/<\/ul>\s*<ul>/g, ''); // Join adjacent lists
+                .replace(/<\/ul>\s*<ul>/g, '');
         }
 
         function saveToMemory(role, text) {
-            let history = JSON.parse(localStorage.getItem('elitepro_v6')) || [];
+            let history = JSON.parse(localStorage.getItem('elitepro_v7')) || [];
             history.push({ role, text });
-            localStorage.setItem('elitepro_v6', JSON.stringify(history.slice(-50)));
+            localStorage.setItem('elitepro_v7', JSON.stringify(history.slice(-50)));
         }
 
         function loadMemory() {
-            const history = JSON.parse(localStorage.getItem('elitepro_v6')) || [];
+            const history = JSON.parse(localStorage.getItem('elitepro_v7')) || [];
             history.forEach(msg => createMessageElement(msg.text, msg.role === 'user', true));
         }
 
-        function clearHistory() { localStorage.removeItem('elitepro_v6'); location.reload(); }
+        function clearHistory() { localStorage.removeItem('elitepro_v7'); location.reload(); }
 
         function copyText(btn, text) {
             navigator.clipboard.writeText(text);
@@ -133,6 +134,7 @@
             if (isUser || skipTypewriter) {
                 contentSpan.innerHTML = htmlContent;
                 if (!skipTypewriter) saveToMemory('user', text);
+                if (isUser && !skipTypewriter) chatArea.scrollTop = chatArea.scrollHeight;
             } else {
                 let i = 0;
                 const interval = setInterval(() => {
@@ -156,8 +158,8 @@
             chatArea.scrollTop = chatArea.scrollHeight;
         }
 
-        async function handleSend() {
-            const query = messageInput.value.trim();
+        async function handleSend(textOverride = null) {
+            const query = textOverride || messageInput.value.trim();
             if (!query || isLocked) return;
 
             isLocked = true;
@@ -165,23 +167,12 @@
             messageInput.value = "";
             createMessageElement(query, true);
 
-            // --- IDENTITY FIX: Answer locally and STOP ---
             const lowQ = query.toLowerCase();
             if (lowQ === "elitepro" || lowQ.includes("your name") || lowQ.includes("who are you")) {
-                setTimeout(() => {
-                    createMessageElement("I am **ElitePro**, your AI assistant developed by **Yusuf**. I'm here to help you with anything you need!", false);
-                }, 500);
-                return; // THIS STOPS THE DOUBLE REPLY
+                setTimeout(() => createMessageElement("I am **ElitePro**, your AI assistant developed by **Yusuf**.", false), 500);
+                return;
             }
 
-            if (lowQ.includes("founder") || lowQ.includes("created you")) {
-                setTimeout(() => {
-                    createMessageElement("I was created and developed by **Yusuf**.", false);
-                }, 500);
-                return; // THIS STOPS THE DOUBLE REPLY
-            }
-
-            // --- SERVER FETCH ---
             const loader = document.createElement('div');
             loader.className = 'message'; loader.id = 'active-loader';
             loader.innerHTML = `<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div><div class="message-text"><span class="thinking-emoji">🤔</span></div>`;
@@ -191,30 +182,52 @@
             try {
                 const response = await fetch(API_URL + encodeURIComponent(query));
                 const data = await response.json();
-                
-                const activeLoader = document.getElementById('active-loader');
-                if (activeLoader) {
-                    activeLoader.remove();
-                    if (data.success) {
-                        let filtered = data.text.replace(/Copilot/gi, "ElitePro").replace(/Microsoft/gi, "Yusuf's Tech");
-                        createMessageElement(filtered, false);
-                    } else {
-                        createMessageElement("I'm sorry, I couldn't process that. Try again.", false);
-                        isLocked = false; sendBtn.disabled = false;
-                    }
+                document.getElementById('active-loader')?.remove();
+
+                if (data.success) {
+                    createMessageElement(data.text.replace(/Copilot/gi, "ElitePro").replace(/Microsoft/gi, "Yusuf's Tech"), false);
+                } else {
+                    createMessageElement("I couldn't process that. Try again.", false);
+                    isLocked = false; sendBtn.disabled = false;
                 }
             } catch (err) {
-                const activeLoader = document.getElementById('active-loader');
-                if (activeLoader) {
-                    activeLoader.remove();
-                    createMessageElement("Connection error. Check your internet.", false);
-                }
+                document.getElementById('active-loader')?.remove();
+                createMessageElement("Connection error.", false);
                 isLocked = false; sendBtn.disabled = false;
             }
         }
 
+        // --- FIXED SPEECH RECOGNITION ---
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRec) {
+            const recognition = new SpeechRec();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            micBtn.onclick = () => {
+                if (isLocked) return;
+                try {
+                    recognition.start();
+                    micBtn.classList.add('mic-active');
+                } catch (e) { recognition.stop(); }
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                handleSend(transcript);
+            };
+
+            recognition.onend = () => {
+                micBtn.classList.remove('mic-active');
+            };
+
+            recognition.onerror = () => {
+                micBtn.classList.remove('mic-active');
+            };
+        }
+
         window.onload = loadMemory;
-        sendBtn.onclick = handleSend;
+        sendBtn.onclick = () => handleSend();
         messageInput.onkeypress = (e) => { if(e.key === 'Enter') handleSend(); };
         menuBtn.onclick = () => sidebar.classList.toggle('active');
         document.getElementById('muteToggle').onclick = () => {
