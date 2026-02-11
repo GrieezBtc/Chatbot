@@ -66,7 +66,6 @@
             line-height: 1.5; font-size: 0.95rem; flex: 1;
         }
 
-        /* THINKING ANIMATION */
         .thinking { display: flex; gap: 5px; padding: 5px 0; }
         .dot { width: 7px; height: 7px; background: var(--purple-glow); border-radius: 50%; animation: pulse 1.2s infinite; }
         .dot:nth-child(2) { animation-delay: 0.2s; }
@@ -82,7 +81,7 @@
         }
 
         #messageInput { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; }
-        #sendButton { background: var(--purple-glow); color: white; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; }
+        #sendButton { background: var(--purple-glow); color: white; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         @media (max-width: 768px) {
             .sidebar { position: absolute; left: 0; transform: translateX(-100%); height: 100%; width: 280px; }
@@ -124,10 +123,23 @@
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const chatArea = document.getElementById('chatArea');
+        const sendBtn = document.getElementById('sendButton');
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.getElementById('menuBtn');
         const API_BASE_URL = 'https://eliteprotech-apis.zone.id/copilot?q=';
 
         let isMuted = false;
         let botIsTyping = false;
+        let currentAbortController = null;
+
+        // SPEECH CLEANER: Removes #, *, -, and Emojis for natural voice
+        function cleanTextForSpeech(text) {
+            return text
+                .replace(/[#*`_~-]/g, '') 
+                .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '') 
+                .replace(/\s+/g, ' ') 
+                .trim();
+        }
 
         document.getElementById('muteToggle').onclick = () => {
             isMuted = !isMuted;
@@ -136,8 +148,9 @@
         };
 
         document.getElementById('themeToggle').onclick = () => document.body.classList.toggle('light-mode');
+        menuBtn.onclick = (e) => { e.stopPropagation(); sidebar.classList.add('active'); };
+        document.body.onclick = () => { if (window.innerWidth <= 768) sidebar.classList.remove('active'); };
 
-        // TYPEWRITER ENGINE
         function typeWriter(element, text) {
             let i = 0;
             element.textContent = ""; 
@@ -169,7 +182,8 @@
                 typeWriter(span, text);
                 if(!isMuted) {
                     window.speechSynthesis.cancel();
-                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+                    const speechText = cleanTextForSpeech(text);
+                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(speechText));
                 }
             }
             chatArea.scrollTop = chatArea.scrollHeight;
@@ -179,14 +193,27 @@
             const val = messageInput.value.trim();
             if(!val || botIsTyping) return; 
 
+            // Kill previous request to prevent double replies
+            if (currentAbortController) currentAbortController.abort();
+            currentAbortController = new AbortController();
+
             botIsTyping = true;
             addMessage(val, true);
             messageInput.value = "";
 
-            // 1. ADD THINKING LOADER
+            // Custom Identity Check
+            const lowerVal = val.toLowerCase();
+            if (lowerVal === "elitepro" || lowerVal.includes("what is your name")) {
+                const hour = new Date().getHours();
+                let greet = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+                setTimeout(() => {
+                    addMessage(`${greet}! I am ElitePro, your personal assistant. How can I help you today?`);
+                }, 500);
+                return; 
+            }
+
             const loader = document.createElement('div');
-            loader.className = 'message';
-            loader.id = 'temp-loader';
+            loader.className = 'message'; loader.id = 'temp-loader';
             loader.innerHTML = `
                 <div class="avatar bot-avatar"><i class="fas fa-robot"></i></div>
                 <div class="message-text"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
@@ -195,32 +222,26 @@
             chatArea.scrollTop = chatArea.scrollHeight;
 
             try {
-                // 2. FETCH WITH STRICT ERROR CATCHING
-                const response = await fetch(API_BASE_URL + encodeURIComponent(val));
+                const response = await fetch(API_BASE_URL + encodeURIComponent(val), { signal: currentAbortController.signal });
                 const data = await response.json();
                 
-                // Remove loader ONLY when data arrives
                 const currentLoader = document.getElementById('temp-loader');
                 if(currentLoader) currentLoader.remove();
 
                 if(data.success) {
-                    addMessage(data.text);
-                    return; // CRITICAL: Stop the code here so it NEVER hits the catch block.
-                } else {
-                    addMessage("Sorry, I couldn't process that.");
+                    // Filter "Copilot" name and show success message
+                    let cleanedText = data.text.replace(/Copilot/gi, "ElitePro");
+                    addMessage(cleanedText);
+                    return; 
                 }
             } catch(e) { 
-                // ONLY triggers if the server is physically down
+                if (e.name === 'AbortError') return;
                 const currentLoader = document.getElementById('temp-loader');
                 if(currentLoader) {
                     currentLoader.remove();
                     addMessage("Connection error. Please try again.");
                 }
-            } finally {
-                // Safely reset state if no typewriter started
-                if(!document.querySelector('.message:last-child .msg-content').textContent) {
-                    botIsTyping = false;
-                }
+                botIsTyping = false;
             }
         }
 
@@ -237,8 +258,7 @@
             recog.onend = () => document.getElementById('micBtn').classList.remove('recording');
         }
 
-        document.getElementById('menuBtn').onclick = () => document.getElementById('sidebar').classList.add('active');
-        document.getElementById('sendButton').onclick = sendMessage;
+        sendBtn.onclick = sendMessage;
         messageInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
     </script>
 </body>
