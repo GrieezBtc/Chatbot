@@ -12,7 +12,10 @@
         html, body { height: 100%; width: 100%; overflow: hidden; background: #05070a; position: fixed; }
         body { display: flex; color: var(--text); background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072') no-repeat center center fixed; background-size: cover; }
 
-        .sidebar { width: 280px; background: var(--glass); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: transform 0.3s ease; z-index: 2000; }
+        /* Sidebar & Backdrop */
+        .sidebar { width: 280px; background: var(--glass); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2001; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 2000; }
+        
         .main-content { flex: 1; display: flex; flex-direction: column; background: rgba(0, 0, 0, 0.6); height: 100%; width: 100%; position: relative; }
         
         .top-nav { height: 60px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.4); }
@@ -45,16 +48,20 @@
         .input-box { max-width: 800px; margin: 0 auto; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border); padding: 10px 15px; border-radius: 30px; display: flex; align-items: center; gap: 10px; }
         #messageInput { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; width: 100%; }
         #sendButton { background: var(--purple-glow); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        #sendButton:disabled { opacity: 0.2; cursor: default; }
 
-        @media (max-width: 768px) { .sidebar { position: absolute; left: 0; transform: translateX(-100%); height: 100%; } .sidebar.active { transform: translateX(0); } }
+        @media (max-width: 768px) { 
+            .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); width: 260px; }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar.active ~ .sidebar-overlay { display: block; }
+        }
     </style>
 </head>
 <body>
+    <div class="sidebar-overlay" id="overlay"></div>
     <aside class="sidebar" id="sidebar">
-        <h2 style="color: var(--purple-glow);">ELITEPRO</h2>
-        <button onclick="location.reload()" style="background: var(--accent); color: white; border: none; padding: 12px; border-radius: 25px; margin-top: 30px; cursor: pointer; width:100%;">New Chat</button>
-        <button onclick="clearHistory()" style="background: rgba(255,0,0,0.1); color: #ff4b4b; border: 1px solid red; padding: 12px; border-radius: 25px; margin-top: 10px; cursor: pointer; width:100%;">Clear Memory</button>
+        <h2 style="color: var(--purple-glow); margin-bottom: 20px;">ELITEPRO</h2>
+        <button onclick="newChat()" style="background: var(--accent); color: white; border: none; padding: 12px; border-radius: 25px; margin-bottom: 10px; cursor: pointer; width:100%;">+ New Chat</button>
+        <button onclick="clearHistory()" style="background: rgba(255,0,0,0.1); color: #ff4b4b; border: 1px solid red; padding: 12px; border-radius: 25px; cursor: pointer; width:100%;">Clear Memory</button>
     </aside>
 
     <main class="main-content">
@@ -81,10 +88,36 @@
         const micBtn = document.getElementById('micBtn');
         const menuBtn = document.getElementById('menuBtn');
         const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
         
         let isMuted = false, isLocked = false;
         const API_URL = 'https://eliteprotech-apis.zone.id/copilot?q=';
 
+        // --- SIDEBAR UI LOGIC ---
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+        }
+
+        function newChat() {
+            closeSidebar();
+            location.reload();
+        }
+
+        function clearHistory() {
+            closeSidebar();
+            localStorage.removeItem('elitepro_v8');
+            location.reload();
+        }
+
+        menuBtn.onclick = (e) => { e.stopPropagation(); toggleSidebar(); };
+        overlay.onclick = closeSidebar;
+        chatArea.onclick = closeSidebar;
+
+        // --- FORMATTING & MEMORY ---
         function formatText(text) {
             return text
                 .replace(/### (.*?)(\n|$)/g, '<h3>$1</h3>')
@@ -96,17 +129,15 @@
         }
 
         function saveToMemory(role, text) {
-            let history = JSON.parse(localStorage.getItem('elitepro_v7')) || [];
+            let history = JSON.parse(localStorage.getItem('elitepro_v8')) || [];
             history.push({ role, text });
-            localStorage.setItem('elitepro_v7', JSON.stringify(history.slice(-50)));
+            localStorage.setItem('elitepro_v8', JSON.stringify(history.slice(-50)));
         }
 
         function loadMemory() {
-            const history = JSON.parse(localStorage.getItem('elitepro_v7')) || [];
+            const history = JSON.parse(localStorage.getItem('elitepro_v8')) || [];
             history.forEach(msg => createMessageElement(msg.text, msg.role === 'user', true));
         }
-
-        function clearHistory() { localStorage.removeItem('elitepro_v7'); location.reload(); }
 
         function copyText(btn, text) {
             navigator.clipboard.writeText(text);
@@ -134,7 +165,6 @@
             if (isUser || skipTypewriter) {
                 contentSpan.innerHTML = htmlContent;
                 if (!skipTypewriter) saveToMemory('user', text);
-                if (isUser && !skipTypewriter) chatArea.scrollTop = chatArea.scrollHeight;
             } else {
                 let i = 0;
                 const interval = setInterval(() => {
@@ -162,6 +192,7 @@
             const query = textOverride || messageInput.value.trim();
             if (!query || isLocked) return;
 
+            closeSidebar(); // Close sidebar if user sends a message while it's open
             isLocked = true;
             sendBtn.disabled = true;
             messageInput.value = "";
@@ -197,39 +228,21 @@
             }
         }
 
-        // --- FIXED SPEECH RECOGNITION ---
+        // --- SPEECH ---
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRec) {
             const recognition = new SpeechRec();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
             micBtn.onclick = () => {
                 if (isLocked) return;
-                try {
-                    recognition.start();
-                    micBtn.classList.add('mic-active');
-                } catch (e) { recognition.stop(); }
+                try { recognition.start(); micBtn.classList.add('mic-active'); } catch (e) { recognition.stop(); }
             };
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                handleSend(transcript);
-            };
-
-            recognition.onend = () => {
-                micBtn.classList.remove('mic-active');
-            };
-
-            recognition.onerror = () => {
-                micBtn.classList.remove('mic-active');
-            };
+            recognition.onresult = (e) => handleSend(e.results[0][0].transcript);
+            recognition.onend = () => micBtn.classList.remove('mic-active');
         }
 
         window.onload = loadMemory;
         sendBtn.onclick = () => handleSend();
         messageInput.onkeypress = (e) => { if(e.key === 'Enter') handleSend(); };
-        menuBtn.onclick = () => sidebar.classList.toggle('active');
         document.getElementById('muteToggle').onclick = () => {
             isMuted = !isMuted;
             document.getElementById('muteIcon').className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
