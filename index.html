@@ -3,113 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ElitePro AI | Final Master</title>
+    <title>ElitePro AI | Yusuf Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --purple-glow: #b22cff;
-            --accent: #5436da;
-            --glass: rgba(15, 18, 25, 0.9);
-            --border: rgba(255, 255, 255, 0.1);
-            --text: #ececec;
-        }
-
-        body.light-mode {
-            --glass: rgba(240, 240, 245, 0.95);
-            --border: rgba(0, 0, 0, 0.1);
-            --text: #1a1a1a;
-        }
-
+        :root { --purple-glow: #b22cff; --accent: #5436da; --glass: rgba(15, 18, 25, 0.9); --border: rgba(255, 255, 255, 0.1); --text: #ececec; }
+        body.light-mode { --glass: rgba(240, 240, 245, 0.95); --border: rgba(0, 0, 0, 0.1); --text: #1a1a1a; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
-        html, body {
-            height: 100%; width: 100%; overflow: hidden;
-            background: #05070a url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072') no-repeat center center fixed;
-            background-size: cover;
-        }
-
+        html, body { height: 100%; width: 100%; overflow: hidden; background: #05070a url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072') no-repeat center center fixed; background-size: cover; }
         body { display: flex; color: var(--text); }
-
-        .sidebar {
-            width: 280px; background: var(--glass); backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border); display: flex; flex-direction: column;
-            padding: 20px; transition: transform 0.3s ease; z-index: 2000;
-        }
-
-        .main-content {
-            flex: 1; display: flex; flex-direction: column;
-            background: rgba(0, 0, 0, 0.55);
-            height: 100%; min-width: 0;
-        }
-
-        .top-nav {
-            height: 60px; padding: 0 20px; display: flex; align-items: center;
-            justify-content: space-between; border-bottom: 1px solid var(--border);
-            background: rgba(0,0,0,0.3); flex-shrink: 0;
-        }
-
+        .sidebar { width: 280px; background: var(--glass); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: transform 0.3s ease; z-index: 2000; }
+        .main-content { flex: 1; display: flex; flex-direction: column; background: rgba(0, 0, 0, 0.55); height: 100%; }
+        .top-nav { height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.3); }
         .nav-btn { background: none; border: none; color: var(--text); cursor: pointer; font-size: 1.2rem; }
-        .mic-btn.recording { color: #ff4b4b; text-shadow: 0 0 8px red; }
-
         .chat-area { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
         .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-        
         .message { display: flex; gap: 12px; align-items: flex-start; }
         .avatar { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-        .bot-avatar { background: #10a37f; box-shadow: 0 0 15px rgba(16, 163, 127, 0.3); }
+        .bot-avatar { background: #10a37f; }
         .user-avatar { background: var(--accent); }
-
-        .message-text {
-            background: rgba(255, 255, 255, 0.08); padding: 12px 16px; 
-            border-radius: 14px; border: 1px solid var(--border);
-            line-height: 1.5; font-size: 0.95rem; flex: 1;
-        }
-
+        .message-text { background: rgba(255, 255, 255, 0.08); padding: 12px 16px; border-radius: 14px; border: 1px solid var(--border); font-size: 0.95rem; flex: 1; line-height: 1.5; }
         .thinking { display: flex; gap: 5px; padding: 5px 0; }
         .dot { width: 7px; height: 7px; background: var(--purple-glow); border-radius: 50%; animation: pulse 1.2s infinite; }
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
-
+        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         .input-wrapper { padding: 20px; }
-        .input-box {
-            max-width: 800px; margin: 0 auto;
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            border: 1px solid var(--border); padding: 10px 18px;
-            border-radius: 30px; display: flex; align-items: center; gap: 12px;
-        }
-
+        .input-box { max-width: 800px; margin: 0 auto; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid var(--border); padding: 10px 18px; border-radius: 30px; display: flex; align-items: center; gap: 12px; }
         #messageInput { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; }
         #sendButton { background: var(--purple-glow); color: white; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-        @media (max-width: 768px) {
-            .sidebar { position: absolute; left: 0; transform: translateX(-100%); height: 100%; width: 280px; }
-            .sidebar.active { transform: translateX(0); }
-        }
+        @media (max-width: 768px) { .sidebar { position: absolute; left: 0; transform: translateX(-100%); height: 100%; width: 280px; } .sidebar.active { transform: translateX(0); } }
     </style>
 </head>
 <body>
-
     <aside class="sidebar" id="sidebar">
         <h2 style="font-size: 1.1rem; color: var(--purple-glow);">ELITEPRO</h2>
-        <button onclick="location.reload()" style="background: var(--accent); color: white; border: none; padding: 12px; border-radius: 25px; margin-top: 25px; cursor: pointer; width: 100%;">New Chat</button>
+        <button onclick="location.reload()" style="background: var(--accent); color: white; border: none; padding: 12px; border-radius: 25px; margin-top: 25px; cursor: pointer; width: 100%; font-weight: 600;">+ New Chat</button>
+        <button id="clearChat" style="background: rgba(255,0,0,0.2); color: #ff4b4b; border: 1px solid rgba(255,0,0,0.3); padding: 12px; border-radius: 25px; margin-top: 10px; cursor: pointer; width: 100%;">Clear Memory</button>
     </aside>
 
     <main class="main-content">
         <nav class="top-nav">
             <button id="menuBtn" class="nav-btn"><i class="fas fa-bars"></i></button>
-            <span style="font-weight: 600; font-size: 0.9rem;">ELITEPRO MASTER EDITION</span>
+            <span style="font-weight: 600; font-size: 0.9rem;">ELITEPRO AI CHATBOT</span>
             <div style="display: flex; gap: 15px;">
                 <button id="themeToggle" class="nav-btn"><i class="fas fa-moon"></i></button>
                 <button id="muteToggle" class="nav-btn"><i class="fas fa-volume-up" id="muteIcon"></i></button>
             </div>
         </nav>
-
-        <div class="chat-area" id="chatArea">
-            <div class="message-wrapper" id="chatMessages"></div>
-        </div>
-
+        <div class="chat-area" id="chatArea"><div class="message-wrapper" id="chatMessages"></div></div>
         <div class="input-wrapper">
             <div class="input-box">
                 <i class="fas fa-microphone nav-btn" id="micBtn"></i>
@@ -128,17 +70,12 @@
         const menuBtn = document.getElementById('menuBtn');
         const API_BASE_URL = 'https://eliteprotech-apis.zone.id/copilot?q=';
 
-        let isMuted = false;
-        let botIsTyping = false;
-        let currentAbortController = null;
+        let isMuted = false, botIsTyping = false, currentAbortController = null;
+        let userMemory = JSON.parse(localStorage.getItem('elitepro_memory')) || { name: "User", history: [] };
 
-        // SPEECH CLEANER: Removes #, *, -, and Emojis for natural voice
+        // VOICE CLEANER: Strips markdown and symbols so bot doesn't say "Hash Hash"
         function cleanTextForSpeech(text) {
-            return text
-                .replace(/[#*`_~-]/g, '') 
-                .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '') 
-                .replace(/\s+/g, ' ') 
-                .trim();
+            return text.replace(/[#*`_~-]/g, '').replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').replace(/\s+/g, ' ').trim();
         }
 
         document.getElementById('muteToggle').onclick = () => {
@@ -147,43 +84,41 @@
             if(isMuted) window.speechSynthesis.cancel();
         };
 
+        document.getElementById('clearChat').onclick = () => { localStorage.removeItem('elitepro_memory'); location.reload(); };
         document.getElementById('themeToggle').onclick = () => document.body.classList.toggle('light-mode');
-        menuBtn.onclick = (e) => { e.stopPropagation(); sidebar.classList.add('active'); };
+        menuBtn.onclick = (e) => { e.stopPropagation(); sidebar.classList.toggle('active'); };
         document.body.onclick = () => { if (window.innerWidth <= 768) sidebar.classList.remove('active'); };
 
         function typeWriter(element, text) {
-            let i = 0;
-            element.textContent = ""; 
+            let i = 0; element.textContent = ""; 
             const interval = setInterval(() => {
                 if (i < text.length) {
                     element.textContent += text.charAt(i);
-                    i++;
-                    chatArea.scrollTop = chatArea.scrollHeight;
-                } else { 
-                    clearInterval(interval);
-                    botIsTyping = false;
-                }
-            }, 25);
+                    i++; chatArea.scrollTop = chatArea.scrollHeight;
+                } else { clearInterval(interval); botIsTyping = false; }
+            }, 20);
         }
 
-        function addMessage(text, isUser = false) {
+        function addMessage(text, isUser = false, isLoadingHistory = false) {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'message';
-            msgDiv.innerHTML = `
-                <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}"><i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i></div>
-                <div class="message-text"><span class="msg-content"></span></div>
-            `;
+            msgDiv.innerHTML = `<div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}"><i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i></div><div class="message-text"><span class="msg-content"></span></div>`;
             chatMessages.appendChild(msgDiv);
             const span = msgDiv.querySelector('.msg-content');
 
             if (isUser) {
                 span.textContent = text;
+                if(!isLoadingHistory) { userMemory.history.push({ role: "user", text: text }); localStorage.setItem('elitepro_memory', JSON.stringify(userMemory)); }
             } else {
-                typeWriter(span, text);
-                if(!isMuted) {
-                    window.speechSynthesis.cancel();
-                    const speechText = cleanTextForSpeech(text);
-                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(speechText));
+                if(isLoadingHistory) { span.textContent = text; } 
+                else {
+                    typeWriter(span, text);
+                    userMemory.history.push({ role: "bot", text: text });
+                    localStorage.setItem('elitepro_memory', JSON.stringify(userMemory));
+                    if(!isMuted) {
+                        window.speechSynthesis.cancel();
+                        window.speechSynthesis.speak(new SpeechSynthesisUtterance(cleanTextForSpeech(text)));
+                    }
                 }
             }
             chatArea.scrollTop = chatArea.scrollHeight;
@@ -193,7 +128,6 @@
             const val = messageInput.value.trim();
             if(!val || botIsTyping) return; 
 
-            // Kill previous request to prevent double replies
             if (currentAbortController) currentAbortController.abort();
             currentAbortController = new AbortController();
 
@@ -201,63 +135,59 @@
             addMessage(val, true);
             messageInput.value = "";
 
-            // Custom Identity Check
             const lowerVal = val.toLowerCase();
-            if (lowerVal === "elitepro" || lowerVal.includes("what is your name")) {
-                const hour = new Date().getHours();
-                let greet = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-                setTimeout(() => {
-                    addMessage(`${greet}! I am ElitePro, your personal assistant. How can I help you today?`);
-                }, 500);
-                return; 
+
+            // 1. HARD IDENTITY OVERRIDE (Intercepts name/origin questions)
+            if (lowerVal.includes("who is your founder") || lowerVal.includes("who created you") || lowerVal.includes("who made you")) {
+                setTimeout(() => addMessage("Yusuf is my founder and the developer who created ElitePro AI."), 500);
+                return;
+            }
+            if (lowerVal === "elitepro" || lowerVal === "what is your name" || lowerVal.includes("your name")) {
+                setTimeout(() => addMessage(`My name is ElitePro. I am an AI assistant developed by Yusuf. How can I help you today?`), 500);
+                return;
+            }
+
+            // 2. NAME STORAGE
+            if (lowerVal.includes("my name is ")) {
+                const name = val.split(/is /i)[1];
+                userMemory.name = name;
+                localStorage.setItem('elitepro_memory', JSON.stringify(userMemory));
+                setTimeout(() => addMessage(`Nice to meet you, ${name}! I've updated my memory.`), 500);
+                return;
+            }
+            if (lowerVal.includes("what is my name")) {
+                setTimeout(() => addMessage(`According to my records, your name is ${userMemory.name}.`), 500);
+                return;
             }
 
             const loader = document.createElement('div');
             loader.className = 'message'; loader.id = 'temp-loader';
-            loader.innerHTML = `
-                <div class="avatar bot-avatar"><i class="fas fa-robot"></i></div>
-                <div class="message-text"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-            `;
+            loader.innerHTML = `<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div><div class="message-text"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
             chatMessages.appendChild(loader);
             chatArea.scrollTop = chatArea.scrollHeight;
 
             try {
-                const response = await fetch(API_BASE_URL + encodeURIComponent(val), { signal: currentAbortController.signal });
-                const data = await response.json();
+                const res = await fetch(API_BASE_URL + encodeURIComponent(val), { signal: currentAbortController.signal });
+                const data = await res.json();
                 
                 const currentLoader = document.getElementById('temp-loader');
-                if(currentLoader) currentLoader.remove();
-
-                if(data.success) {
-                    // Filter "Copilot" name and show success message
-                    let cleanedText = data.text.replace(/Copilot/gi, "ElitePro");
-                    addMessage(cleanedText);
-                    return; 
+                if(currentLoader) {
+                    currentLoader.remove();
+                    if(data.success) {
+                        // REPLACEMENT FILTER: Scrubs "Copilot" and "Microsoft" from any text that slips through
+                        let filtered = data.text.replace(/Copilot/gi, "ElitePro").replace(/Microsoft/gi, "Yusuf's Tech");
+                        addMessage(filtered);
+                    }
                 }
             } catch(e) { 
                 if (e.name === 'AbortError') return;
                 const currentLoader = document.getElementById('temp-loader');
-                if(currentLoader) {
-                    currentLoader.remove();
-                    addMessage("Connection error. Please try again.");
-                }
+                if(currentLoader) { currentLoader.remove(); addMessage("Connection error."); }
                 botIsTyping = false;
             }
         }
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            const recog = new SpeechRecognition();
-            document.getElementById('micBtn').onclick = () => { 
-                if(!botIsTyping) { recog.start(); document.getElementById('micBtn').classList.add('recording'); }
-            };
-            recog.onresult = (e) => { 
-                messageInput.value = e.results[0][0].transcript; 
-                sendMessage(); 
-            };
-            recog.onend = () => document.getElementById('micBtn').classList.remove('recording');
-        }
-
+        window.onload = () => { if(userMemory.history.length > 0) userMemory.history.forEach(msg => addMessage(msg.text, msg.role === 'user', true)); };
         sendBtn.onclick = sendMessage;
         messageInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
     </script>
