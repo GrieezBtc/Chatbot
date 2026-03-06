@@ -9,98 +9,98 @@
     <style>
         :root { 
             --accent: #00f2ff; 
-            --accent-glow: rgba(0, 242, 255, 0.4);
+            --accent-glow: rgba(0, 242, 255, 0.3);
             --bg-deep: #050a10; 
-            --panel: rgba(17, 27, 33, 0.9);
-            --border: rgba(255, 255, 255, 0.05);
+            --panel: rgba(17, 27, 33, 0.95);
+            --border: rgba(255, 255, 255, 0.08);
             --text-main: #e9edef;
             --user-bubble: #005c4b; 
             --bot-bubble: #202c33; 
+            --input-bg: #2a3942;
+        }
+
+        .light-theme {
+            --bg-deep: #efeae2;
+            --panel: #f0f2f5;
+            --border: rgba(0, 0, 0, 0.1);
+            --text-main: #111b21;
+            --user-bubble: #d9fdd3;
+            --bot-bubble: #ffffff;
+            --accent: #00a884;
+            --input-bg: #ffffff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100dvh; width: 100vw; background: var(--bg-deep); color: var(--text-main); overflow: hidden; position: fixed; transition: 0.3s ease; }
         
-        html, body { height: 100dvh; width: 100vw; background: var(--bg-deep); color: var(--text-main); overflow: hidden; position: fixed; }
-        
-        /* Pro Background */
-        body { 
-            display: flex; 
-            background: radial-gradient(circle at 0% 0%, rgba(0, 242, 255, 0.05) 0%, transparent 50%),
-                        radial-gradient(circle at 100% 100%, rgba(0, 242, 255, 0.03) 0%, transparent 50%), #050a10;
-        }
-
-        body::before {
-            content: ""; position: fixed; inset: 0;
-            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 40px 40px; opacity: 0.15; pointer-events: none;
-        }
+        body { display: flex; }
 
         /* Sidebar */
         .sidebar { width: 280px; background: var(--panel); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 25px; transition: 0.4s; z-index: 2001; }
         .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 2000; backdrop-filter: blur(5px); }
 
-        /* Layout */
+        /* Main View */
         .main { flex: 1; display: flex; flex-direction: column; height: 100%; width: 100%; position: relative; }
-        .top-nav { height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(11, 20, 26, 0.6); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); z-index: 10; }
+        .top-nav { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: var(--panel); border-bottom: 1px solid var(--border); z-index: 10; }
 
         .chat-area { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
-        .message-wrapper { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+        .message-wrapper { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
 
-        /* Alignment */
-        .message-row { display: flex; width: 100%; align-items: flex-end; gap: 12px; animation: msgFade 0.3s ease; }
-        @keyframes msgFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        /* Bubbles */
+        .message-row { display: flex; width: 100%; align-items: flex-end; gap: 10px; animation: msgFade 0.3s ease; }
+        @keyframes msgFade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .bot-row { justify-content: flex-start; }
         .user-row { justify-content: flex-end; }
 
-        .avatar { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; border: 1px solid var(--border); transition: 0.3s; }
+        .avatar { width: 35px; height: 35px; border-radius: 50%; flex-shrink: 0; transition: 0.3s; }
         .bot-avatar { background: var(--accent); color: #000; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
-        
-        /* Talking Glow Animation */
-        .bot-avatar.talking { box-shadow: 0 0 20px var(--accent-glow); animation: glowPulse 1.5s infinite; }
-        @keyframes glowPulse { 0% { box-shadow: 0 0 5px var(--accent-glow); } 50% { box-shadow: 0 0 25px var(--accent); } 100% { box-shadow: 0 0 5px var(--accent-glow); } }
+        .bot-avatar.talking { box-shadow: 0 0 15px var(--accent); animation: glow 1s infinite alternate; }
+        @keyframes glow { from { transform: scale(1); } to { transform: scale(1.1); } }
 
-        .chat-bubble { padding: 12px 16px; border-radius: 20px; line-height: 1.5; font-size: 0.95rem; max-width: 75%; position: relative; }
+        .chat-bubble { padding: 12px 16px; border-radius: 18px; line-height: 1.5; font-size: 0.95rem; max-width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .bot-msg { background: var(--bot-bubble); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
         .user-msg { background: var(--user-bubble); border-bottom-right-radius: 4px; }
 
-        /* Thinking State UI */
-        .thinking-box { font-size: 0.85rem; color: var(--accent); opacity: 0.8; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-        .thinking-box i { animation: rotate 2s linear infinite; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* Thinking */
+        .thinking { font-size: 0.8rem; color: var(--accent); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; font-weight: 600; }
 
-        /* Code Blocks */
-        .code-container { margin: 12px 0; background: #0d1117; border-radius: 10px; border: 1px solid #30363d; overflow: hidden; position: relative; }
-        .code-header { background: #161b22; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; }
-        .copy-btn { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); padding: 4px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; cursor: pointer; }
-        pre { padding: 15px; color: #c9d1d9; overflow-x: auto; font-size: 0.85rem; font-family: 'Fira Code', monospace; }
+        /* CODE BLOCK FIX */
+        .code-block { margin: 10px 0; background: #0d1117; border-radius: 8px; border: 1px solid #30363d; overflow: hidden; color: #c9d1d9; }
+        .code-header { background: #161b22; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; font-size: 0.7rem; }
+        .copy-btn { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.6rem; }
+        pre { padding: 15px; overflow-x: auto; font-family: 'Fira Code', monospace; white-space: pre; font-size: 0.85rem; }
 
-        /* Input System */
-        .input-wrap { padding: 15px 20px; background: rgba(11, 20, 26, 0.95); border-top: 1px solid var(--border); }
-        .input-box { max-width: 900px; margin: 0 auto; background: #2a3942; border-radius: 30px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; }
-        input { flex: 1; background: none; border: none; color: white; outline: none; font-size: 1rem; padding: 8px; }
-        
-        .action-btn { background: none; border: none; color: #8696a0; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        
-        #stopBtn { display: none; color: #ff3b3b; background: rgba(255, 59, 59, 0.1); }
-        .send-btn { background: var(--accent); color: #000; font-size: 1.1rem; }
+        /* Inputs */
+        .input-wrap { padding: 10px 15px; background: var(--panel); border-top: 1px solid var(--border); }
+        .input-box { max-width: 900px; margin: 0 auto; background: var(--input-bg); border-radius: 25px; padding: 5px 10px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); }
+        input { flex: 1; background: none; border: none; color: var(--text-main); outline: none; font-size: 1rem; padding: 8px; }
+        .action-btn { background: none; border: none; color: #8696a0; cursor: pointer; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        #stopBtn { display: none; color: #ff3b3b; }
+        .send-btn { background: var(--accent); color: #000; }
+
+        .theme-toggle { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; }
 
         @media (max-width: 768px) { .sidebar { position: fixed; left: -280px; height: 100dvh; } .sidebar.open { left: 0; } .sidebar.open + .sidebar-overlay { display: block; } }
-        select { width: 100%; padding: 12px; border-radius: 8px; background: #202c33; color: white; border: 1px solid var(--border); margin: 10px 0; outline: none; }
     </style>
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
         <h2 style="color: var(--accent);">GrieezBoy</h2>
-        <p style="font-size: 0.6rem; color: var(--accent); opacity: 0.5; margin-bottom: 30px; letter-spacing: 2px;">V11 PRO NEURAL</p>
-        <button onclick="location.reload()" style="padding: 12px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: 700; width: 100%;">NEW SESSION</button>
-        <div style="margin-top: 30px;">
-            <label style="font-size: 0.65rem; font-weight: 800; opacity: 0.4;">VOICE SELECTION</label>
-            <select id="voiceSelect">
-                <option value="Rex">Rex (Elite)</option>
+        <p style="font-size: 0.6rem; opacity: 0.5; letter-spacing: 2px; margin-bottom: 20px;">V12 | YUSUF EDITION</p>
+        
+        <button onclick="location.reload()" style="padding: 12px; border: none; border-radius: 8px; background: var(--accent); color: #000; font-weight: 700; width: 100%; cursor: pointer;">NEW CHAT</button>
+
+        <div class="theme-toggle" onclick="toggleTheme()">
+            <span style="font-size: 0.8rem; font-weight: 600;">Theme Mode</span>
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <label style="font-size: 0.65rem; font-weight: 800; opacity: 0.4;">VOICE ENGINE</label>
+            <select id="voiceSelect" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; background: #202c33; color: white; border: none;">
+                <option value="Rex">Rex (Pro)</option>
                 <option value="malev1">Male V1</option>
                 <option value="femalev1">Female V1</option>
-                <option value="malev2">Male V2</option>
-                <option value="femalev2">Female V2</option>
             </select>
         </div>
     </aside>
@@ -108,16 +108,16 @@
 
     <main class="main">
         <nav class="top-nav">
-            <i class="fas fa-bars action-btn" onclick="toggleSidebar()" style="color:white"></i>
-            <span style="font-weight: 600; font-size: 0.9rem; letter-spacing: 1px;">GRIEEZBOY PRO</span>
-            <div style="width: 40px;"></div>
+            <i class="fas fa-bars action-btn" onclick="toggleSidebar()" style="color: var(--text-main)"></i>
+            <span style="font-weight: 600; font-size: 0.9rem;">GRIEEZBOY PRO</span>
+            <div style="width: 35px;"></div>
         </nav>
 
         <div class="chat-area" id="chatArea">
             <div class="message-wrapper" id="chatMessages">
                 <div class="message-row bot-row">
-                    <div class="avatar bot-avatar" id="mainAvatar"><i class="fas fa-robot"></i></div>
-                    <div class="chat-bubble bot-msg">Neural link active. I am <b>GrieezBoy</b>. How can I help you, Yusuf?</div>
+                    <div class="avatar bot-avatar"><i class="fas fa-robot"></i></div>
+                    <div class="chat-bubble bot-msg">System Active. <b>GrieezBoy</b> ready for commands.</div>
                 </div>
             </div>
         </div>
@@ -126,7 +126,7 @@
             <div class="input-box">
                 <button class="action-btn" id="micBtn" onclick="startMic()"><i class="fas fa-microphone"></i></button>
                 <button class="action-btn" id="stopBtn" onclick="stopSpeech()"><i class="fas fa-stop-circle"></i></button>
-                <input type="text" id="userInput" placeholder="Command GrieezBoy..." autocomplete="off">
+                <input type="text" id="userInput" placeholder="Type a message..." autocomplete="off">
                 <button class="action-btn send-btn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
@@ -143,31 +143,15 @@
 
         let isBusy = false, currentAudio = null;
 
-        // --- TTS & GLOW ---
-        function speak(text) {
-            stopSpeech();
-            const cleanText = text.replace(/```([\s\S]*?)```/g, ' Code block ').replace(/[#*`_-]/g, '');
-            const voice = voiceSelect.value;
-            const url = `https://eliteprotech-apis.zone.id/tts?text=${encodeURIComponent(cleanText)}&voice=${voice}`;
-            
-            currentAudio = new Audio(url);
-            
-            currentAudio.onplay = () => { 
-                stopBtn.style.display = 'flex'; 
-                micBtn.style.display = 'none';
-                document.querySelectorAll('.bot-avatar').forEach(a => a.classList.add('talking'));
-            };
-            
-            currentAudio.onended = () => { 
-                stopSpeech();
-            };
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const icon = document.getElementById('themeIcon');
+            icon.className = document.body.classList.contains('light-theme') ? 'fas fa-sun' : 'fas fa-moon';
+        }
 
-            currentAudio.play().catch(e => {
-                const utter = new SpeechSynthesisUtterance(cleanText);
-                utter.onstart = () => { stopBtn.style.display = 'flex'; micBtn.style.display = 'none'; document.querySelectorAll('.bot-avatar').forEach(a => a.classList.add('talking')); };
-                utter.onend = () => stopSpeech();
-                window.speechSynthesis.speak(utter);
-            });
+        function toggleSidebar() { 
+            sidebar.classList.toggle('open'); 
+            document.getElementById('overlay').style.display = sidebar.classList.contains('open') ? 'block' : 'none'; 
         }
 
         function stopSpeech() {
@@ -178,22 +162,45 @@
             document.querySelectorAll('.bot-avatar').forEach(a => a.classList.remove('talking'));
         }
 
-        // --- UI LOGIC ---
-        function toggleSidebar() { sidebar.classList.toggle('open'); document.getElementById('overlay').style.display = sidebar.classList.contains('open') ? 'block' : 'none'; }
-        
-        function copyCode(btn, b64) {
-            navigator.clipboard.writeText(atob(b64)).then(() => {
-                btn.innerText = "COPIED!";
-                setTimeout(() => btn.innerText = "COPY", 2000);
+        function speak(text) {
+            stopSpeech();
+            const cleanText = text.replace(/```([\s\S]*?)```/g, ' Code snippet ').replace(/[#*`_-]/g, '');
+            const url = `https://eliteprotech-apis.zone.id/tts?text=${encodeURIComponent(cleanText)}&voice=${voiceSelect.value}`;
+            currentAudio = new Audio(url);
+            currentAudio.onplay = () => { 
+                stopBtn.style.display = 'flex'; micBtn.style.display = 'none';
+                document.querySelectorAll('.bot-avatar').forEach(a => a.classList.add('talking'));
+            };
+            currentAudio.onended = () => stopSpeech();
+            currentAudio.play().catch(() => {
+                const utter = new SpeechSynthesisUtterance(cleanText);
+                utter.onstart = () => { stopBtn.style.display = 'flex'; micBtn.style.display = 'none'; };
+                utter.onend = () => stopSpeech();
+                window.speechSynthesis.speak(utter);
             });
         }
 
         function formatMsg(text) {
-            let res = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-                          .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-            return res.replace(/```([\s\S]*?)```/g, (m, code) => {
+            // Fix the common API character encoding issues
+            let clean = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/<br\s*\/?>/gi, '\n');
+            
+            // Format Bold
+            clean = clean.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            
+            // Format Code Blocks properly
+            return clean.replace(/```([\s\S]*?)```/g, (m, code) => {
                 const b64 = btoa(unescape(encodeURIComponent(code.trim())));
-                return `<div class="code-container"><div class="code-header"><span style="font-size:0.7rem;opacity:0.5">GRIIEZBOY CODE</span><button class="copy-btn" onclick="copyCode(this,'${b64}')">COPY</button></div><pre><code>${code.trim()}</code></pre></div>`;
+                return `<div class="code-block">
+                    <div class="code-header"><span>GRIEEZBOY CODE</span><button class="copy-btn" onclick="copyCode(this,'${b64}')">COPY</button></div>
+                    <pre><code>${code.trim()}</code></pre>
+                </div>`;
+            });
+        }
+
+        function copyCode(btn, b64) {
+            navigator.clipboard.writeText(atob(b64)).then(() => {
+                btn.innerText = "COPIED";
+                setTimeout(() => btn.innerText = "COPY", 2000);
             });
         }
 
@@ -202,58 +209,52 @@
             if (!val || isBusy) return;
             isBusy = true; userInput.value = "";
 
-            // Add User Message
-            const userDiv = document.createElement('div');
-            userDiv.className = 'message-row user-row';
-            userDiv.innerHTML = `<div class="chat-bubble user-msg">${val}</div><img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Yusuf" class="avatar">`;
-            chatMessages.appendChild(userDiv);
+            // User Message
+            const uRow = document.createElement('div');
+            uRow.className = 'message-row user-row';
+            uRow.innerHTML = `<div class="chat-bubble user-msg">${val}</div><img src="https://api.dicebear.com/7.x/bottts/svg?seed=Yusuf" class="avatar">`;
+            chatMessages.appendChild(uRow);
             chatArea.scrollTo(0, chatArea.scrollHeight);
 
-            // Add Thinking State
-            const botDiv = document.createElement('div');
-            botDiv.className = 'message-row bot-row';
-            botDiv.innerHTML = `
-                <div class="avatar bot-avatar"><i class="fas fa-robot"></i></div>
-                <div class="chat-bubble bot-msg">
-                    <div class="thinking-box"><i class="fas fa-brain"></i> GrieezBoy is thinking...</div>
-                    <span class="typing"></span>
-                </div>`;
-            chatMessages.appendChild(botDiv);
+            // Bot Thinking
+            const bRow = document.createElement('div');
+            bRow.className = 'message-row bot-row';
+            bRow.innerHTML = `<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div><div class="chat-bubble bot-msg"><div class="thinking"><i class="fas fa-brain fa-spin"></i> GrieezBoy thinking...</div><span class="txt"></span></div>`;
+            chatMessages.appendChild(bRow);
             chatArea.scrollTo(0, chatArea.scrollHeight);
 
             try {
                 const res = await fetch('https://eliteprotech-apis.zone.id/copilot?q=' + encodeURIComponent(val));
                 const data = await res.json();
-                botDiv.querySelector('.thinking-box').remove(); // Remove thinking text
+                bRow.querySelector('.thinking').remove();
                 
-                let clean = data.text.replace(/Copilot/gi, "GrieezBoy").replace(/Microsoft/gi, "Yusuf's Tech");
-                const target = botDiv.querySelector('.typing');
+                const reply = data.text.replace(/Copilot/gi, "GrieezBoy");
+                const target = bRow.querySelector('.txt');
+                speak(reply);
+
                 let i = 0;
-                speak(clean); 
-                
                 const timer = setInterval(() => {
-                    if (i < clean.length) {
-                        target.textContent += clean.charAt(i++);
+                    if (i < reply.length) {
+                        target.textContent += reply.charAt(i++);
                         chatArea.scrollTop = chatArea.scrollHeight;
                     } else {
                         clearInterval(timer);
-                        target.parentElement.innerHTML = formatMsg(clean);
+                        target.parentElement.innerHTML = formatMsg(reply);
                         isBusy = false;
-                        chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
                     }
                 }, 10);
             } catch {
-                botDiv.innerHTML = `<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div><div class="chat-bubble bot-msg">Offline mode triggered. Check API connection.</div>`;
+                bRow.innerHTML = `<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div><div class="chat-bubble bot-msg">Connection Error.</div>`;
                 isBusy = false;
             }
         }
 
         function startMic() {
             const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Rec) return alert("Mic not supported.");
+            if(!Rec) return;
             const s = new Rec();
-            s.onstart = () => micBtn.classList.add('mic-active');
-            s.onend = () => micBtn.classList.remove('mic-active');
+            s.onstart = () => micBtn.style.color = 'var(--accent)';
+            s.onend = () => micBtn.style.color = '#8696a0';
             s.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
             s.start();
         }
