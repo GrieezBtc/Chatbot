@@ -17,8 +17,7 @@
             --code-bg: #010409;
             --disclaimer: #8696a0;
             --card-bg: rgba(255, 255, 255, 0.03);
-            /* System font stack for a cleaner look */
-            --system-fonts: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            --system-fonts: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         .light-mode {
@@ -39,7 +38,7 @@
         body { 
             height: 100dvh; width: 100vw; overflow: hidden; 
             background: var(--bg); display: flex; transition: background 0.3s ease; 
-            font-size: 14px; /* Hardcoded smaller text size */
+            font-size: 14px; 
         }
 
         .sidebar { 
@@ -71,7 +70,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 60vh; text-align: center; gap: 18px; padding: 20px;
         }
-        .welcome-screen h1 { font-weight: 700; color: var(--accent); font-size: 1.4rem; letter-spacing: -0.3px; }
+        .welcome-screen h1 { font-weight: 700; color: var(--accent); font-size: 1.4rem; }
         .suggestions-grid {
             display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 500px;
         }
@@ -80,9 +79,9 @@
             padding: 12px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
             align-items: flex-start; gap: 5px; text-align: left;
         }
-        .suggestion-card:active { transform: scale(0.97); background: rgba(66, 133, 244, 0.1); }
+        .suggestion-card:active { transform: scale(0.97); }
         .suggestion-card i { color: var(--accent); font-size: 0.95rem; }
-        .suggestion-card span { font-size: 0.78rem; font-weight: 500; color: var(--text); line-height: 1.2; }
+        .suggestion-card span { font-size: 0.78rem; font-weight: 500; color: var(--text); }
 
         .message-row { display: flex; width: 100%; gap: 10px; animation: slideIn 0.2s ease; align-items: flex-start; }
         .user-row { flex-direction: row-reverse; }
@@ -101,14 +100,13 @@
             width: fit-content; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1); color: var(--text);
         }
-        .bot-msg { background: var(--bot-bubble); border-top-left-radius: 2px; white-space: pre-wrap; }
+        .bot-msg { background: var(--bot-bubble); border-top-left-radius: 2px; }
         .user-msg { background: var(--user-bubble); border-top-right-radius: 2px; }
 
-        /* Final Processed Code Styling */
         .code-container {
             margin-top: 10px; border-radius: 8px; overflow: hidden;
             border: 1px solid var(--border); background: var(--code-bg);
-            width: 100%; display: block; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            width: 100%; display: block;
         }
         .code-header {
             background: rgba(255,255,255,0.05); padding: 6px 12px; 
@@ -117,12 +115,12 @@
             text-transform: uppercase; font-weight: 700;
         }
         pre {
-            padding: 12px; overflow-x: auto; font-family: inherit;
+            padding: 12px; overflow-x: auto; font-family: ui-monospace, monospace;
             font-size: 0.8rem; color: #e1e1e1; white-space: pre; width: 100%;
         }
         .copy-btn {
             background: var(--accent); color: white; border: none;
-            padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.6rem; font-weight: 600;
+            padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.6rem;
         }
 
         .thinking-ui {
@@ -131,13 +129,9 @@
         }
         .dot-loader { display: flex; gap: 3px; }
         .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; animation: pulse 1s infinite ease-in-out; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.3; } }
 
-        .bot-disclaimer {
-            font-size: 0.65rem; color: var(--disclaimer); margin-top: 5px; font-style: italic; opacity: 0.7;
-        }
+        .bot-disclaimer { font-size: 0.65rem; color: var(--disclaimer); margin-top: 5px; font-style: italic; opacity: 0.7; }
 
         .speak-btn {
             background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);
@@ -147,7 +141,6 @@
         }
         .speak-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        /* Input Bar */
         .input-wrap { padding: 8px 12px 14px 12px; background: var(--glass); border-top: 1px solid var(--border); flex-shrink: 0; }
         .input-box { 
             max-width: 650px; margin: 0 auto; background: var(--bg); 
@@ -174,9 +167,9 @@
 <body>
     <aside class="sidebar" id="sidebar">
         <h2 style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">GrieezBot AI</h2>
-        <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 25px;">Professional AI Suite</p>
+        <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 25px;">Professional AI Chatbot</p>
         
-        <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px;">Voice Engine</label>
+        <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Voice Engine</label>
         <select id="voiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.75rem;"></select>
 
         <div style="margin-top: 20px; display: flex; align-items: center; justify-content: space-between;">
@@ -185,7 +178,7 @@
         </div>
 
         <button onclick="location.reload()" style="margin-top: auto; padding: 12px; background: var(--accent); border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; font-size: 0.8rem;">
-            <i class="fas fa-redo"></i> Reset Chat
+            <i class="fas fa-redo"></i> Reset System
         </button>
     </aside>
 
@@ -194,7 +187,7 @@
     <main class="main">
         <nav class="top-nav">
             <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text); font-size: 1rem; cursor:pointer;"><i class="fas fa-bars-staggered"></i></button>
-            <div style="font-weight: 700; letter-spacing: 0.3px; color: var(--accent); font-size: 0.95rem;">GRIEEZBOT AI</div>
+            <div style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">GRIEEZBOT AI</div>
             <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size: 1rem; cursor:pointer;"><i class="fas fa-moon"></i></button>
         </nav>
 
@@ -257,9 +250,19 @@
         function toggleSidebar() { sidebar.classList.toggle('open'); }
         function toggleTheme() { document.body.classList.toggle('light-mode'); }
 
+        // Cleans text to prevent bot from reading #, *, &, /, etc.
+        function cleanTextForSpeech(text) {
+            return text
+                .replace(/```[\s\S]*?```/g, ' [Code Block] ') // Ignore code blocks content
+                .replace(/[#*&/\\<>\[\]{}|_+=-]/g, ' ')      // Replace symbols with space
+                .replace(/\s+/g, ' ')                        // Clean up double spaces
+                .trim();
+        }
+
         function speakText(text, btn) {
             if (synth.speaking) synth.cancel();
-            const utter = new SpeechSynthesisUtterance(text.replace(/```[\s\S]*?```/g, ' [Code Snippet] '));
+            const cleaned = cleanTextForSpeech(text);
+            const utter = new SpeechSynthesisUtterance(cleaned);
             utter.voice = voices[voiceSelect.value];
             utter.onstart = () => btn?.classList.add('active');
             utter.onend = () => btn?.classList.remove('active');
@@ -270,11 +273,9 @@
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
-        // Professional formatting for the FINAL message state
         function renderFinalContent(text) {
             const codeRegex = /```(\w*)\n?([\s\S]*?)```/g;
             let parts = [], lastIdx = 0, match;
-            
             while ((match = codeRegex.exec(text)) !== null) {
                 if (match.index > lastIdx) parts.push(simpleFormat(text.substring(lastIdx, match.index)));
                 parts.push(`
@@ -289,7 +290,6 @@
             return parts.join('');
         }
 
-        // Basic formatting for the TYPING message state (prevents code execution)
         function simpleFormat(t) { 
             return t.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); 
         }
@@ -362,13 +362,11 @@
                 let i = 0;
                 const interval = setInterval(() => {
                     if (i < fullText.length) {
-                        // WHILE TYPING: Use escapeHTML + simple formatting to keep it as raw text
                         bubble.innerHTML = simpleFormat(escapeHTML(fullText.substring(0, i + 1)));
-                        i += 3; // Type faster for long blocks
+                        i += 3;
                         chatArea.scrollTop = chatArea.scrollHeight;
                     } else {
                         clearInterval(interval);
-                        // FINISHED: Render the professional code blocks
                         bubble.innerHTML = renderFinalContent(fullText);
                         disclaimer.style.display = 'block';
                         speakBtn.style.display = 'flex';
