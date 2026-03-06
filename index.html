@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GrieezBot Pro | Google Engine</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>GrieezBot Pro | Powered by GrieezBoy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
-            --accent: #4285f4; /* Google Blue */
+            --accent: #4285f4; 
             --bg: #0b141a; 
             --glass: #111b21;
             --border: rgba(255, 255, 255, 0.1);
             --text: #e9edef;
             --user-bubble: #005c4b; 
             --bot-bubble: #202c33; 
+            --code-bg: #1e1e1e;
         }
 
         .light-mode {
@@ -25,6 +26,7 @@
             --accent: #1a73e8;
             --user-bubble: #e8f0fe; 
             --bot-bubble: #f1f3f4; 
+            --code-bg: #f5f5f5;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -34,12 +36,12 @@
             background: var(--bg); display: flex; transition: background 0.3s ease; 
         }
 
+        /* Sidebar Styling */
         .sidebar { 
             width: 280px; background: var(--glass); border-right: 1px solid var(--border); 
             display: flex; flex-direction: column; padding: 20px; 
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2001;
         }
-
         .sidebar-overlay { 
             position: fixed; inset: 0; background: rgba(0,0,0,0.6); 
             display: none; z-index: 2000; backdrop-filter: blur(2px);
@@ -47,33 +49,63 @@
 
         .main { flex: 1; display: flex; flex-direction: column; height: 100dvh; position: relative; width: 100%; }
 
+        /* Top Navigation */
         .top-nav { 
             height: 65px; display: flex; align-items: center; justify-content: space-between; 
             padding: 0 15px; background: var(--glass); border-bottom: 1px solid var(--border);
         }
 
+        /* Chat Layout */
         .chat-area { 
             flex: 1; overflow-y: auto; padding: 20px 10px; 
             background-image: radial-gradient(var(--border) 1px, transparent 1px);
             background-size: 20px 20px;
         }
+        .message-wrapper { max-width: 850px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-        .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
-
-        .message-row { display: flex; width: 100%; animation: slideIn 0.3s ease; align-items: flex-start; gap: 10px; }
-        .user-row { justify-content: flex-end; }
+        .message-row { display: flex; width: 100%; animation: slideIn 0.3s ease; gap: 12px; }
+        .user-row { flex-direction: row-reverse; }
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Avatars */
+        .avatar {
+            width: 35px; height: 35px; border-radius: 50%; object-fit: cover;
+            flex-shrink: 0; border: 1px solid var(--border);
+        }
+
+        /* Bubbles */
         .chat-bubble { 
             padding: 14px 18px; border-radius: 18px; line-height: 1.6; font-size: 0.95rem; 
             max-width: 80%; position: relative; word-wrap: break-word;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
-
         .bot-msg { background: var(--bot-bubble); color: var(--text); border-top-left-radius: 4px; }
         .user-msg { background: var(--user-bubble); color: var(--text); border-top-right-radius: 4px; }
 
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg); color: #d4d4d4; padding: 15px; border-radius: 8px;
+            margin: 10px 0; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.85rem;
+            border: 1px solid var(--border); position: relative;
+        }
+        .copy-btn {
+            position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.1);
+            border: none; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; cursor: pointer;
+        }
+
+        /* Thinking Indicator */
+        .thinking {
+            font-size: 0.8rem; font-style: italic; opacity: 0.6; margin-bottom: 5px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .dot-flashing {
+            position: relative; width: 6px; height: 6px; border-radius: 5px;
+            background-color: var(--accent); animation: dot-flashing 1s infinite linear alternate;
+        }
+        @keyframes dot-flashing { 0% { background-color: var(--accent); } 50%, 100% { background-color: rgba(66, 133, 244, 0.2); } }
+
+        /* Speak Button */
         .speak-btn {
             background: none; border: 1px solid var(--border); color: var(--text);
             width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
@@ -82,6 +114,7 @@
         }
         .speak-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
+        /* Input Bar */
         .input-wrap { padding: 15px; background: var(--glass); border-top: 1px solid var(--border); }
         .input-box { 
             max-width: 850px; margin: 0 auto; background: var(--bg); 
@@ -93,9 +126,6 @@
         .action-btn { background: none; border: none; color: #8696a0; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; }
         .send-btn { background: var(--accent); color: white; }
 
-        #micBtn.listening { color: #ea4335; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
         @media (max-width: 768px) { 
             .sidebar { position: fixed; left: -280px; height: 100dvh; }
             .sidebar.open { transform: translateX(280px); }
@@ -105,22 +135,18 @@
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
-        <h2 style="color: var(--accent); font-weight: 800;">GrieezBoy AI</h2>
-        <p style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 20px;">Powered by Google Speech</p>
+        <h2 style="color: var(--accent); font-weight: 800;">GrieezBoy Pro</h2>
+        <p style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 25px;">Official AI Environment</p>
         
-        <div style="margin-bottom: 20px;">
-            <label style="font-size: 0.7rem; font-weight: 700;">AUTO-READ RESPONSES</label>
-            <input type="checkbox" id="autoRead" checked style="margin-left: 10px;">
+        <label style="font-size: 0.7rem; font-weight: 700;">VOICE SELECTION</label>
+        <select id="voiceSelect" style="width: 100%; padding: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 5px; outline: none;"></select>
+
+        <div style="margin-top: 20px; display: flex; align-items: center; justify-content: space-between;">
+            <label style="font-size: 0.7rem; font-weight: 700;">AUTO-READ</label>
+            <input type="checkbox" id="autoRead" checked>
         </div>
 
-        <label style="font-size: 0.7rem; font-weight: 700;">VOICE SELECTION</label>
-        <select id="voiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border-radius: 8px; margin-top: 5px;"></select>
-
-        <label style="font-size: 0.7rem; font-weight: 700; display: block; margin-top: 15px;">PITCH</label>
-        <input type="range" id="pitch" min="0" max="2" step="0.1" value="1" style="width: 100%;">
-
-        <label style="font-size: 0.7rem; font-weight: 700; display: block; margin-top: 15px;">SPEED</label>
-        <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1" style="width: 100%;">
+        <button onclick="location.reload()" style="margin-top: auto; padding: 12px; background: var(--accent); border: none; border-radius: 8px; color: white; font-weight: 700; cursor: pointer;">NEW CHAT</button>
     </aside>
 
     <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
@@ -128,15 +154,19 @@
     <main class="main">
         <nav class="top-nav">
             <button onclick="toggleSidebar()" class="action-btn" style="color: var(--text);"><i class="fas fa-bars"></i></button>
-            <div style="font-weight: 700;">GrieezBot Pro</div>
+            <div style="font-weight: 700; font-size: 0.9rem;">GrieezBot Pro</div>
             <button onclick="toggleTheme()" class="action-btn"><i class="fas fa-adjust"></i></button>
         </nav>
 
         <div class="chat-area" id="chatArea">
             <div class="message-wrapper" id="chatMessages">
+                <!-- Welcome Message -->
                 <div class="message-row bot-row">
-                    <div class="chat-bubble bot-msg">Welcome. I am <b>GrieezBoy's Pro AI</b>. I am now using Google's native Speech Synthesis for clearer, faster voice responses.</div>
-                    <button class="speak-btn" onclick="speakText(this.previousElementSibling.innerText, this)"><i class="fas fa-volume-up"></i></button>
+                    <img src="https://i.ibb.co/L5VfHqT/bot-avatar.png" class="avatar" alt="Bot" onerror="this.src='https://ui-avatars.com/api/?name=GB&background=4285f4&color=fff'">
+                    <div style="width: 100%;">
+                        <div class="chat-bubble bot-msg">Hello. I am <b>GrieezBot Pro</b>. Developed by <b>GrieezBoy</b>. How can I assist you today?</div>
+                        <button class="speak-btn" onclick="speakText(this.previousElementSibling.innerText, this)"><i class="fas fa-volume-up"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -144,8 +174,8 @@
         <div class="input-wrap">
             <div class="input-box">
                 <button id="micBtn" class="action-btn"><i class="fas fa-microphone"></i></button>
-                <input type="text" id="userInput" placeholder="Ask GrieezBoy anything...">
-                <button class="action-btn send-btn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
+                <input type="text" id="userInput" placeholder="Message GrieezBoy..." autocomplete="off">
+                <button class="action-btn send-btn" id="sendBtn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
@@ -160,8 +190,8 @@
         const autoRead = document.getElementById('autoRead');
 
         let voices = [];
+        let isBusy = false;
 
-        // --- Load Google Voices ---
         function populateVoices() {
             voices = synth.getVoices();
             voiceSelect.innerHTML = '';
@@ -169,84 +199,122 @@
                 const option = document.createElement('option');
                 option.textContent = `${voice.name} (${voice.lang})`;
                 option.value = i;
-                if(voice.name.includes("Google")) option.selected = true;
+                if(voice.name.includes("Google") || voice.name.includes("Natural")) option.selected = true;
                 voiceSelect.appendChild(option);
             });
         }
         populateVoices();
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = populateVoices;
-        }
+        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
 
         function toggleSidebar() { sidebar.classList.toggle('open'); }
         function toggleTheme() { document.body.classList.toggle('light-mode'); }
 
-        // --- Google TTS Function ---
         function speakText(text, btn) {
             if (synth.speaking) synth.cancel();
-            
-            const utter = new SpeechSynthesisUtterance(text);
+            const cleanText = text.replace(/[*_#`~]/g, '').replace(/```[\s\S]*?```/g, 'code block');
+            const utter = new SpeechSynthesisUtterance(cleanText);
             utter.voice = voices[voiceSelect.value];
-            utter.pitch = document.getElementById('pitch').value;
-            utter.rate = document.getElementById('rate').value;
-
             utter.onstart = () => btn?.classList.add('active');
             utter.onend = () => btn?.classList.remove('active');
-            
             synth.speak(utter);
         }
 
-        function addMessage(text, isUser) {
-            const row = document.createElement('div');
-            row.className = `message-row ${isUser ? 'user-row' : 'bot-row'}`;
-            
-            if (isUser) {
-                row.innerHTML = `<div class="chat-bubble user-msg">${text}</div>`;
-            } else {
-                row.innerHTML = `
-                    <div class="chat-bubble bot-msg">${text}</div>
-                    <button class="speak-btn"><i class="fas fa-volume-up"></i></button>
-                `;
-                const btn = row.querySelector('.speak-btn');
-                btn.onclick = () => speakText(text, btn);
-                
-                // Trigger Auto-Read if enabled
-                if(autoRead.checked) speakText(text, btn);
-            }
+        // Logic to detect and render code blocks
+        function formatMessage(text) {
+            // Check for code blocks ```language ... ```
+            const codeRegex = /```(\w+)?\n([\s\S]*?)```/g;
+            let formatted = text.replace(codeRegex, (match, lang, code) => {
+                return `<pre><code>${code.trim()}</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>`;
+            });
+            // Handle bold and new lines
+            return formatted.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        }
 
-            chatMessages.appendChild(row);
-            chatArea.scrollTop = chatArea.scrollHeight;
+        function copyCode(btn) {
+            const code = btn.previousElementSibling.innerText;
+            const el = document.createElement('textarea');
+            el.value = code;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            btn.innerText = "Copied!";
+            setTimeout(() => btn.innerText = "Copy", 2000);
         }
 
         async function handleSend() {
             const val = userInput.value.trim();
-            if(!val) return;
+            if(!val || isBusy) return;
+            isBusy = true;
             userInput.value = '';
-            addMessage(val, true);
+
+            // User message
+            const userRow = document.createElement('div');
+            userRow.className = 'message-row user-row';
+            userRow.innerHTML = `
+                <img src="https://ui-avatars.com/api/?name=User&background=005c4b&color=fff" class="avatar" alt="User">
+                <div class="chat-bubble user-msg">${val}</div>
+            `;
+            chatMessages.appendChild(userRow);
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // Bot "Thinking" state
+            const botRow = document.createElement('div');
+            botRow.className = 'message-row bot-row';
+            botRow.innerHTML = `
+                <img src="https://ui-avatars.com/api/?name=GB&background=4285f4&color=fff" class="avatar" alt="Bot">
+                <div style="width: 100%;">
+                    <div class="thinking"><div class="dot-flashing"></div> GrieezBot is thinking...</div>
+                    <div class="chat-bubble bot-msg"><span class="cursor"></span></div>
+                    <button class="speak-btn" style="display:none;"><i class="fas fa-volume-up"></i></button>
+                </div>
+            `;
+            chatMessages.appendChild(botRow);
+            chatArea.scrollTop = chatArea.scrollHeight;
 
             try {
                 const res = await fetch(`https://eliteprotech-apis.zone.id/copilot?q=${encodeURIComponent(val)}`);
                 const data = await res.json();
-                let reply = data.text.replace(/Copilot/gi, "GrieezBot");
-                addMessage(reply, false);
+                let fullText = data.text.replace(/Copilot/gi, "GrieezBot");
+                
+                // Hide thinking and start typewriter
+                botRow.querySelector('.thinking').style.display = 'none';
+                const bubble = botRow.querySelector('.bot-msg');
+                const speakBtn = botRow.querySelector('.speak-btn');
+                
+                let i = 0;
+                bubble.innerHTML = '';
+                const interval = setInterval(() => {
+                    if (i < fullText.length) {
+                        // Batch rendering for better performance
+                        bubble.innerHTML = formatMessage(fullText.substring(0, i + 1));
+                        i += 2; // Type faster
+                        chatArea.scrollTop = chatArea.scrollHeight;
+                    } else {
+                        clearInterval(interval);
+                        bubble.innerHTML = formatMessage(fullText);
+                        speakBtn.style.display = 'flex';
+                        speakBtn.onclick = () => speakText(fullText, speakBtn);
+                        if(autoRead.checked) speakText(fullText, speakBtn);
+                        isBusy = false;
+                    }
+                }, 10);
+
             } catch {
-                addMessage("I am having trouble connecting to the GrieezBoy brain.", false);
+                botRow.querySelector('.thinking').style.display = 'none';
+                botRow.querySelector('.bot-msg').innerText = "Connection lost to GrieezBoy services.";
+                isBusy = false;
             }
         }
 
-        // --- Mic Logic ---
+        // Mic Integration
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRec) {
-            const recognition = new SpeechRec();
-            document.getElementById('micBtn').onclick = () => {
-                recognition.start();
-                document.getElementById('micBtn').classList.add('listening');
-            };
-            recognition.onresult = (e) => {
-                userInput.value = e.results[0][0].transcript;
-                handleSend();
-            };
-            recognition.onend = () => document.getElementById('micBtn').classList.remove('listening');
+            const rec = new SpeechRec();
+            document.getElementById('micBtn').onclick = () => rec.start();
+            rec.onstart = () => document.getElementById('micBtn').style.color = 'red';
+            rec.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
+            rec.onend = () => document.getElementById('micBtn').style.color = '#8696a0';
         }
 
         userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleSend(); });
