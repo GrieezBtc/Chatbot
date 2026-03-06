@@ -4,91 +4,175 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GrieezBoy AI | Yusuf Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
-            --accent: #00f2ff; /* Cyber Cyan */
-            --accent-glow: rgba(0, 242, 255, 0.3);
-            --bg: #05070a;
-            --glass: rgba(15, 18, 25, 0.98);
-            --border: rgba(255, 255, 255, 0.1);
-            --text: #ececec;
+            --accent: #00f2ff; 
+            --accent-glow: rgba(0, 242, 255, 0.4);
+            --bg: #0b141a; /* WhatsApp Dark Mode BG */
+            --glass: #111b21;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #e9edef;
+            --user-bubble: #005c4b; /* WhatsApp Sent Green */
+            --bot-bubble: #202c33; /* WhatsApp Received Dark */
         }
 
         .light-mode {
-            --bg: #f4f7f6;
-            --glass: rgba(255, 255, 255, 0.95);
-            --border: rgba(0, 0, 0, 0.1);
-            --text: #1a1a1a;
-            --accent: #007bff;
+            --bg: #efeae2; /* WhatsApp Light Mode BG */
+            --glass: #f0f2f5;
+            --border: rgba(0, 0, 0, 0.08);
+            --text: #111b21;
+            --accent: #00a884;
+            --user-bubble: #d9fdd3; /* WhatsApp Sent Light */
+            --bot-bubble: #ffffff; /* WhatsApp Received Light */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        html, body { height: 100%; width: 100vw; overflow: hidden; position: fixed; background: var(--bg); transition: background 0.3s; }
-        
-        body { display: flex; color: var(--text); }
-        
+
+        body { 
+            height: 100vh; width: 100vw; background: var(--bg); color: var(--text); 
+            display: flex; overflow: hidden; transition: background 0.3s ease;
+        }
+
         /* Sidebar */
-        .sidebar { width: 280px; background: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: transform 0.3s ease; z-index: 2001; }
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 2000; }
-        
-        .main { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; height: 100%; }
-        
-        .top-nav { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid var(--border); z-index: 1; background: var(--glass); }
-        .nav-icons { display: flex; gap: 15px; align-items: center; }
+        .sidebar { 
+            width: 300px; background: var(--glass); border-right: 1px solid var(--border); 
+            display: flex; flex-direction: column; padding: 25px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2001;
+        }
 
-        .chat-area { flex: 1; overflow-y: auto; padding: 15px; z-index: 1; scroll-behavior: smooth; }
-        .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-        
-        /* Messages */
-        .message { display: flex; gap: 10px; width: 100%; }
-        .avatar { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem; }
-        .bot-avatar { background: var(--accent); color: #000; box-shadow: 0 0 10px var(--accent-glow); }
-        .user-avatar { background: #555; color: #fff; }
-        .text-box { background: rgba(128,128,128,0.1); padding: 12px 16px; border-radius: 15px; border: 1px solid var(--border); flex: 1; font-size: 0.95rem; line-height: 1.5; color: var(--text); }
-        
-        /* Code Box Fix */
-        pre { background: #000 !important; color: #0f0 !important; padding: 15px; border-radius: 8px; overflow-x: auto; margin: 10px 0; border: 1px solid #333; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
-        .dl-btn { background: var(--accent); color: #000; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+        .sidebar-overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); 
+            display: none; z-index: 2000;
+        }
 
-        .input-wrap { padding: 15px; z-index: 1; }
-        .input-box { max-width: 800px; margin: 0 auto; background: rgba(128,128,128,0.15); border: 1px solid var(--border); padding: 10px 18px; border-radius: 30px; display: flex; align-items: center; gap: 12px; }
-        input { flex: 1; background: none; border: none; color: var(--text); outline: none; font-size: 1rem; }
-        .send-btn { background: var(--accent); color: #000; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        /* Main Chat Layout */
+        .main { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; }
+
+        .top-nav { 
+            height: 65px; display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 20px; background: var(--glass); border-bottom: 1px solid var(--border);
+        }
+
+        .chat-area { 
+            flex: 1; overflow-y: auto; padding: 20px 5%; scroll-behavior: smooth; 
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Subtle WhatsApp pattern */
+            background-size: contain; opacity: 0.95;
+        }
+
+        .message-wrapper { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+
+        /* WHATSAPP STYLE ALIGNMENT */
+        .message-row { display: flex; width: 100%; animation: fadeIn 0.3s ease; }
+        .user-row { justify-content: flex-end; }
+        .bot-row { justify-content: flex-start; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+
+        .chat-bubble { 
+            padding: 10px 14px; border-radius: 12px; 
+            line-height: 1.5; font-size: 0.95rem; max-width: 80%; 
+            position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+            word-wrap: break-word;
+        }
+
+        .bot-msg { 
+            background: var(--bot-bubble); 
+            color: var(--text);
+            border-top-left-radius: 0; /* Tail effect */
+        }
+
+        .user-msg { 
+            background: var(--user-bubble); 
+            color: var(--text);
+            border-top-right-radius: 0; /* Tail effect */
+        }
+
+        /* Optional GrieezBoy accent on bot messages */
+        .light-mode .user-msg { color: #111b21; }
+        .light-mode .bot-msg { color: #111b21; }
+
+        /* Voice Selector */
+        .setting-label { font-size: 0.75rem; margin: 15px 0 8px; opacity: 0.6; font-weight: 600; letter-spacing: 0.5px; }
+        select {
+            width: 100%; padding: 12px; border-radius: 8px; background: var(--bg);
+            color: var(--text); border: 1px solid var(--border); outline: none; margin-bottom: 20px; cursor: pointer;
+        }
+
+        /* Input Bar */
+        .input-wrap { padding: 15px 5%; background: var(--glass); }
+        .input-box { 
+            max-width: 900px; margin: 0 auto; background: var(--bg); 
+            border: 1px solid var(--border); padding: 8px 12px; 
+            border-radius: 24px; display: flex; align-items: center; gap: 12px;
+        }
+        input { flex: 1; background: none; border: none; color: var(--text); outline: none; font-size: 1rem; padding-left: 10px; }
+
+        .action-btn { 
+            background: none; border: none; color: #8696a0; cursor: pointer; 
+            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; font-size: 1.2rem;
+        }
+        .send-btn { background: var(--accent); color: #fff; width: 42px; height: 42px; }
+
+        /* Code Blocks */
+        pre { background: #111b21; color: #e9edef; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0; font-family: monospace; border: 1px solid #202c33; }
+        .dl-btn { background: var(--accent); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; margin-top: 8px; }
 
         @media (max-width: 768px) { 
-            .sidebar { position: fixed; left: -280px; height: 100%; }
+            .sidebar { position: fixed; left: -300px; height: 100%; }
             .sidebar.open { left: 0; }
             .sidebar.open + .sidebar-overlay { display: block; }
+            .chat-bubble { max-width: 90%; }
         }
     </style>
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
-        <h2 style="color: var(--accent);">GrieezBot</h2>
-        <p style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px;">by Yusuf</p>
-        <button onclick="location.reload()" style="padding: 12px; border-radius: 15px; border: none; background: var(--accent); color: #000; font-weight: 600; cursor: pointer; width: 100%;">+ New Chat</button>
+        <h2 style="color: var(--accent); letter-spacing: -0.5px;">GrieezBoy</h2>
+        <p style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 30px;">AI System by Yusuf</p>
+
+        <button onclick="location.reload()" style="padding: 12px; border-radius: 8px; border: none; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; margin-bottom: 25px;">
+            <i class="fas fa-plus"></i> New Chat
+        </button>
+
+        <div class="setting-label"><i class="fas fa-headset"></i> SELECT AI VOICE</div>
+        <select id="voiceSelect">
+            <option value="Rex">Rex</option>
+            <option value="Male v1">Male v1</option>
+            <option value="Female v1">Female v1</option>
+            <option value="Male v2">Male v2</option>
+            <option value="Female v2">Female v2</option>
+        </select>
+
+        <div style="margin-top: auto; font-size: 0.7rem; opacity: 0.3; text-align: center;">GrieezBoy Engine 3.0</div>
     </aside>
     <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
     <main class="main">
         <nav class="top-nav">
-            <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text); font-size:1.3rem;"><i class="fas fa-bars"></i></button>
-            <span style="font-weight: 600; letter-spacing: 1px;">GrieezBoy CHATBOT AI</span>
-            <div class="nav-icons">
-                <i class="fas fa-moon" id="themeBtn" style="cursor:pointer;" onclick="toggleTheme()"></i>
-                <i class="fas fa-volume-up" id="muteIcon" style="cursor:pointer;" onclick="toggleMute()"></i>
+            <button onclick="toggleSidebar()" class="action-btn" style="color: var(--text);"><i class="fas fa-bars"></i></button>
+            <span style="font-weight: 600; font-size: 1rem;">GrieezBoy AI</span>
+            <div style="display: flex; gap: 5px;">
+                <button onclick="toggleTheme()" class="action-btn" id="themeBtn"><i class="fas fa-moon"></i></button>
+                <button onclick="toggleMute()" class="action-btn" id="muteIcon"><i class="fas fa-volume-up"></i></button>
             </div>
         </nav>
 
-        <div class="chat-area" id="chatArea" onclick="closeSidebar()"><div class="message-wrapper" id="chatMessages"></div></div>
+        <div class="chat-area" id="chatArea">
+            <div class="message-wrapper" id="chatMessages">
+                <div class="message-row bot-row">
+                    <div class="chat-bubble bot-msg">System Online. Welcome back, I am <b>GrieezBoy</b>. How can I assist you today?</div>
+                </div>
+            </div>
+        </div>
 
         <div class="input-wrap">
             <div class="input-box">
-                <i class="fas fa-microphone" id="micBtn" style="cursor:pointer; color:var(--accent);"></i>
-                <input type="text" id="userInput" placeholder="Ask GrieezBot..." autocomplete="off">
-                <button class="send-btn" id="sendBtn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
+                <button id="micBtn" class="action-btn"><i class="fas fa-microphone"></i></button>
+                <input type="text" id="userInput" placeholder="Message GrieezBoy..." autocomplete="off">
+                <button class="action-btn send-btn" id="sendBtn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
@@ -98,121 +182,158 @@
         const userInput = document.getElementById('userInput');
         const chatArea = document.getElementById('chatArea');
         const sidebar = document.getElementById('sidebar');
-        const muteIcon = document.getElementById('muteIcon');
-        
-        let isMuted = false, isBusy = false;
+        const voiceSelect = document.getElementById('voiceSelect');
 
+        let isMuted = false, isBusy = false;
+        let currentAudio = null;
+
+        // CUSTOM API TEXT TO SPEECH
+        function speak(text) {
+            if (isMuted) return;
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            // Clean text for speech
+            const cleanTextForSpeech = text.replace(/```([\s\S]*?)```/g, ' Code Block ').replace(/[#*`_-]/g, '');
+            const selectedVoice = voiceSelect.value;
+
+            // Appending the voice to your API url. (Adjust '&voice=' if your API uses a different parameter)
+            const url = `https://eliteprotech-apis.zone.id/tts?text=${encodeURIComponent(cleanTextForSpeech)}&voice=${encodeURIComponent(selectedVoice)}`;
+
+            currentAudio = new Audio(url);
+            currentAudio.play().catch(e => console.log("Audio playback blocked or failed:", e));
+        }
+
+        // UI Logic
         function toggleSidebar() { sidebar.classList.toggle('open'); }
         function closeSidebar() { sidebar.classList.remove('open'); }
-
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
-            const themeBtn = document.getElementById('themeBtn');
-            themeBtn.className = document.body.classList.contains('light-mode') ? 'fas fa-sun' : 'fas fa-moon';
+            document.getElementById('themeBtn').innerHTML = document.body.classList.contains('light-mode') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
         }
-
         function toggleMute() {
             isMuted = !isMuted;
-            muteIcon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-            if (isMuted) window.speechSynthesis.cancel();
+            document.getElementById('muteIcon').innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            if (isMuted && currentAudio) currentAudio.pause();
         }
 
+        // Text Formatting
         function formatText(text) {
             let safe = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            if (text.includes("<!DOCTYPE") || text.includes("<html")) {
-                safe += `<br><button class="dl-btn" onclick="downloadCode(\`${btoa(text)}\`)"><i class="fas fa-download"></i> Download HTML</button>`;
-            }
-            return safe.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+            safe = safe.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
                        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
                        .replace(/\n/g, '<br>');
+
+            if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+                safe += `<br><button class="dl-btn" onclick="downloadCode(\`${btoa(text)}\`)"><i class="fas fa-download"></i> Download GrieezBoy Code</button>`;
+            }
+            return safe;
         }
 
         function downloadCode(b64) {
             const a = document.createElement('a');
             a.href = 'data:text/html;base64,' + b64;
-            a.download = 'ElitePro_Code.html'; a.click();
+            a.download = 'GrieezBoy_Output.html';
+            a.click();
         }
 
-        function speak(text) {
-            if (isMuted) return;
-            window.speechSynthesis.cancel();
-            const speech = new SpeechSynthesisUtterance(text.replace(/[#*`_-]/g, ''));
-            window.speechSynthesis.speak(speech);
-        }
-
+        // Add Message with TYPEWRITER effect
         function addMessage(text, isUser, isImage = false) {
             const div = document.createElement('div');
-            div.className = 'message';
-            const content = isImage ? `<img src="${text}" style="width:100%; border-radius:12px; border:1px solid var(--accent); margin-top:10px;">` : formatText(text);
-            
+            div.className = `message-row ${isUser ? 'user-row' : 'bot-row'}`;
+
+            const formattedContent = isImage ? `<img src="${text}" style="width:100%; border-radius:8px; margin-top:5px;">` : formatText(text);
+
             div.innerHTML = `
-                <div class="avatar ${isUser ? 'user-avatar' : 'bot-avatar'}"><i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i></div>
-                <div class="text-box">${isUser ? text : '<span class="typing"></span>'}</div>
+                <div class="chat-bubble ${isUser ? 'user-msg' : 'bot-msg'}">
+                    ${isUser ? text : (isImage ? formattedContent : '<span class="typing"></span>')}
+                </div>
             `;
+
             chatMessages.appendChild(div);
-            
+            chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
+
             if (!isUser && !isImage) {
-                let i = 0; const target = div.querySelector('.typing');
-                const timer = setInterval(() => {
-                    if (i < text.length) { target.textContent += text.charAt(i++); chatArea.scrollTop = chatArea.scrollHeight; }
-                    else { clearInterval(timer); target.innerHTML = content; speak(text); isBusy = false; }
-                }, 10);
-            } else if (isImage) { div.querySelector('.text-box').innerHTML = content; isBusy = false; }
-            chatArea.scrollTop = chatArea.scrollHeight;
+                const target = div.querySelector('.typing');
+                let i = 0;
+
+                // TYPEWRITER EFFECT LOGIC
+                const typeTimer = setInterval(() => {
+                    if (i < text.length) {
+                        target.textContent += text.charAt(i);
+                        i++;
+                        chatArea.scrollTop = chatArea.scrollHeight;
+                    } else {
+                        clearInterval(typeTimer);
+                        // Once typing is done, inject fully formatted HTML (for code blocks/bolding)
+                        target.parentElement.innerHTML = formattedContent;
+                        speak(text);
+                        isBusy = false;
+                        chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
+                    }
+                }, 15); // Speed of typing: 15ms per character
+            } else if (isImage) {
+                isBusy = false;
+            }
         }
 
         async function handleSend() {
             const val = userInput.value.trim();
             if (!val || isBusy) return;
-            closeSidebar();
-            isBusy = true; userInput.value = "";
+
+            isBusy = true;
+            userInput.value = "";
             addMessage(val, true);
 
-            // Thinking Logic
-            const loader = document.createElement('div');
-            loader.className = 'message'; loader.id = 'loader';
-            loader.innerHTML = `<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div><div class="text-box">🤔 Thinking...</div>`;
-            chatMessages.appendChild(loader);
-            chatArea.scrollTop = chatArea.scrollHeight;
-
             const lowVal = val.toLowerCase();
-            
-            // Image Generation Logic
+
+            // Image Generation
             if (lowVal.includes("draw") || lowVal.includes("generate image")) {
-                document.getElementById('loader').remove();
                 const p = val.replace(/draw|generate image/gi, "").trim();
                 addMessage(`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?nologo=true`, false, true);
                 return;
             }
 
-            // HARD-CODED IDENTITY CHECK
-            if (lowVal.includes("who are you") || lowVal.includes("your name") || lowVal === "GrieezBot") {
-                document.getElementById('loader').remove();
-                addMessage("I am **GrieezBot**, your professional AI assistant developed by **Yusuf**. I'm here to help you with coding, creative tasks, and more.", false);
+            // Identity logic
+            if (lowVal.includes("who are you") || lowVal.includes("your name")) {
+                addMessage("I am **GrieezBoy**, a specialized AI model developed by **Yusuf**.", false);
                 return;
             }
 
+            // Fetch AI Response
             try {
+                // Temporary thinking indicator
+                const tempDiv = document.createElement('div');
+                tempDiv.className = 'message-row bot-row temp-typing';
+                tempDiv.innerHTML = `<div class="chat-bubble bot-msg"><i>Typing...</i></div>`;
+                chatMessages.appendChild(tempDiv);
+                chatArea.scrollTop = chatArea.scrollHeight;
+
                 const res = await fetch('https://eliteprotech-apis.zone.id/copilot?q=' + encodeURIComponent(val));
                 const data = await res.json();
-                document.getElementById('loader').remove();
-                // Replace any leaked Copilot/Microsoft names with GrieezBot/Yusuf
-                let cleanText = data.text.replace(/Copilot/gi, "GrieezBot").replace(/Microsoft/gi, "Yusuf's Tech");
+
+                // Remove temp indicator
+                document.querySelector('.temp-typing').remove();
+
+                // Replace external tags with GrieezBoy
+                let cleanText = data.text.replace(/Copilot/gi, "GrieezBoy").replace(/Microsoft/gi, "Yusuf's Tech");
                 addMessage(cleanText, false);
             } catch {
-                document.getElementById('loader').remove();
-                addMessage("Connection error. Try again!", false);
+                document.querySelector('.temp-typing')?.remove();
+                addMessage("Network error. Please ensure Yusuf's API is reachable.", false);
                 isBusy = false;
             }
         }
 
-        // Speech Recognition
+        // Voice Rec
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRec) {
             const rec = new SpeechRec();
-            document.getElementById('micBtn').onclick = () => { rec.start(); document.getElementById('micBtn').style.color = 'red'; };
+            document.getElementById('micBtn').onclick = () => { rec.start(); document.getElementById('micBtn').style.color = 'var(--accent)'; };
             rec.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
-            rec.onend = () => { document.getElementById('micBtn').style.color = 'var(--accent)'; };
+            rec.onend = () => { document.getElementById('micBtn').style.color = '#8696a0'; };
         }
 
         userInput.onkeypress = (e) => { if(e.key === 'Enter') handleSend(); };
