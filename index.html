@@ -38,7 +38,6 @@
             background: var(--bg); display: flex; transition: background 0.3s ease; 
         }
 
-        /* Layout Structure */
         .sidebar { 
             width: 280px; background: var(--glass); border-right: 1px solid var(--border); 
             display: flex; flex-direction: column; padding: 20px; 
@@ -49,113 +48,114 @@
             display: none; z-index: 2000; backdrop-filter: blur(2px);
         }
 
-        .main { flex: 1; display: flex; flex-direction: column; height: 100dvh; position: relative; }
+        .main { flex: 1; display: flex; flex-direction: column; height: 100dvh; position: relative; overflow: hidden; }
 
         .top-nav { 
             height: 60px; display: flex; align-items: center; justify-content: space-between; 
             padding: 0 15px; background: var(--glass); border-bottom: 1px solid var(--border); flex-shrink: 0;
         }
 
-        /* Chat Content */
         .chat-area { 
             flex: 1; overflow-y: auto; padding: 15px; 
             background-image: radial-gradient(var(--border) 1px, transparent 1px);
             background-size: 25px 25px;
             scroll-behavior: smooth;
         }
-        .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-        .message-row { display: flex; width: 100%; gap: 12px; animation: slideIn 0.3s ease; }
+        .message-wrapper { max-width: 100%; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+        .message-row { display: flex; width: 100%; gap: 10px; animation: slideIn 0.3s ease; }
         .user-row { flex-direction: row-reverse; }
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Avatars */
         .avatar {
-            width: 38px; height: 38px; border-radius: 12px; object-fit: cover;
-            flex-shrink: 0; border: 2px solid var(--border);
+            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--border);
         }
 
-        /* Bubbles */
+        .content-column { flex: 1; display: flex; flex-direction: column; max-width: calc(100% - 46px); }
+
         .chat-bubble { 
             padding: 12px 16px; border-radius: 18px; line-height: 1.6; font-size: 0.95rem; 
-            max-width: 85%; position: relative; word-wrap: break-word;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            color: var(--text);
+            width: fit-content; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: var(--text);
         }
         .bot-msg { background: var(--bot-bubble); border-top-left-radius: 4px; }
-        .user-msg { background: var(--user-bubble); border-top-right-radius: 4px; }
+        .user-msg { background: var(--user-bubble); border-top-right-radius: 4px; align-self: flex-end; }
 
-        /* Code Block Rendering - FIXED */
+        /* FIXED CODE SNIPPET STYLING */
         .code-container {
-            margin: 12px 0; border-radius: 10px; overflow: hidden;
+            margin: 10px 0; border-radius: 8px; overflow: hidden;
             border: 1px solid var(--border); background: var(--code-bg);
-            max-width: 100%;
+            width: 100%; max-width: 100%;
         }
         .code-header {
-            background: var(--code-header); padding: 8px 15px; 
+            background: var(--code-header); padding: 6px 12px; 
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.75rem; color: var(--text); font-weight: 600;
+            font-size: 0.7rem; color: var(--text); font-weight: 600;
         }
         pre {
-            padding: 15px; overflow-x: auto; font-family: 'Fira Code', monospace;
+            padding: 12px; overflow-x: auto; font-family: 'Fira Code', monospace;
             font-size: 0.85rem; color: #d4d4d4; white-space: pre;
+            width: 100%;
         }
         .copy-btn {
             background: var(--accent); color: white; border: none;
-            padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem;
+            padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.65rem;
         }
 
         /* Thinking State */
-        .thinking-box {
-            display: flex; align-items: center; gap: 10px; font-size: 0.8rem;
+        .thinking-ui {
+            display: flex; align-items: center; gap: 8px; font-size: 0.8rem;
             color: var(--accent); margin-bottom: 5px; font-weight: 600;
         }
-        .pulse-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; scale: 1; } 50% { opacity: 0.3; scale: 1.5; } 100% { opacity: 1; scale: 1; } }
+        .thinking-dots { display: flex; gap: 3px; }
+        .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; animation: dotPulse 1s infinite ease-in-out; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dotPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.3; } }
 
-        /* Actions */
+        /* Controls */
         .speak-btn {
             background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);
             width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.85rem; margin-top: 8px; transition: 0.2s;
+            font-size: 0.85rem; margin-top: 5px; transition: 0.2s;
         }
-        .speak-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .speak-btn.active { background: var(--accent); color: white; }
 
-        /* Input Area */
-        .input-wrap { padding: 12px; background: var(--glass); border-top: 1px solid var(--border); }
+        .input-wrap { padding: 10px; background: var(--glass); border-top: 1px solid var(--border); flex-shrink: 0; }
         .input-box { 
             max-width: 800px; margin: 0 auto; background: var(--bg); 
-            border: 1px solid var(--border); padding: 6px 15px; 
-            border-radius: 30px; display: flex; align-items: center; gap: 10px;
+            border: 1px solid var(--border); padding: 5px 12px; 
+            border-radius: 30px; display: flex; align-items: center; gap: 8px;
         }
         input { flex: 1; background: none; border: none; color: var(--text); outline: none; font-size: 1rem; padding: 10px 0; }
-        .action-btn { background: none; border: none; color: #8696a0; cursor: pointer; width: 40px; height: 40px; font-size: 1.2rem; }
-        .send-btn { background: var(--accent); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .send-btn { background: var(--accent); color: white; border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
 
         @media (max-width: 768px) { 
             .sidebar { position: fixed; left: -280px; height: 100dvh; }
             .sidebar.open { transform: translateX(280px); }
             .sidebar.open + .sidebar-overlay { display: block; }
+            .chat-bubble { max-width: 95%; }
         }
     </style>
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
-        <h2 style="color: var(--accent); font-weight: 800;">GrieezBoy Pro</h2>
-        <p style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 25px;">Advanced AI Assistant</p>
+        <h2 style="color: var(--accent); font-weight: 800; font-size: 1.4rem;">GrieezBoy</h2>
+        <p style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 25px;">AI Pro Suite</p>
         
-        <label style="font-size: 0.7rem; font-weight: 800; opacity: 0.6;">GOOGLE VOICE ENGINE</label>
+        <label style="font-size: 0.7rem; font-weight: 800; opacity: 0.6;">NATIVE VOICE</label>
         <select id="voiceSelect" style="width: 100%; padding: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; margin-top: 8px; outline: none;"></select>
 
         <div style="margin-top: 25px; display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-size: 0.8rem; font-weight: 600;">Auto-Read</span>
+            <span style="font-size: 0.8rem; font-weight: 600;">Voice Auto-Read</span>
             <input type="checkbox" id="autoRead" checked>
         </div>
 
         <button onclick="location.reload()" style="margin-top: auto; padding: 14px; background: var(--accent); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer;">
-            <i class="fas fa-rotate"></i> Reset Chat
+            <i class="fas fa-trash-alt"></i> Clear Chat
         </button>
     </aside>
 
@@ -163,19 +163,19 @@
 
     <main class="main">
         <nav class="top-nav">
-            <button onclick="toggleSidebar()" class="action-btn" style="color: var(--text);"><i class="fas fa-bars-staggered"></i></button>
-            <div style="font-weight: 800; letter-spacing: 1px; color: var(--accent);">GRIEEZBOT PRO</div>
-            <button onclick="toggleTheme()" class="action-btn"><i class="fas fa-moon"></i></button>
+            <button onclick="toggleSidebar()" class="action-btn" style="background:none; border:none; color: var(--text); font-size: 1.2rem;"><i class="fas fa-bars"></i></button>
+            <div style="font-weight: 800; color: var(--accent);">GRIEEZBOT PRO</div>
+            <button onclick="toggleTheme()" class="action-btn" style="background:none; border:none; color: var(--text); font-size: 1.2rem;"><i class="fas fa-moon"></i></button>
         </nav>
 
         <div class="chat-area" id="chatArea">
             <div class="message-wrapper" id="chatMessages">
                 <!-- Welcome -->
                 <div class="message-row bot-row">
-                    <img src="https://ui-avatars.com/api/?name=GB&background=4285f4&color=fff&rounded=true" class="avatar">
-                    <div style="width: 100%;">
-                        <div class="chat-bubble bot-msg">Welcome to <b>GrieezBot Pro</b>. Built by <b>GrieezBoy</b>. How can I help you code today?</div>
-                        <button class="speak-btn" onclick="speakText(this.previousElementSibling.innerText, this)"><i class="fas fa-volume-up"></i></button>
+                    <img src="https://ui-avatars.com/api/?name=GB&background=4285f4&color=fff" class="avatar">
+                    <div class="content-column">
+                        <div class="chat-bubble bot-msg">System Ready. I am <b>GrieezBot Pro</b>. Developed by <b>GrieezBoy</b>. How can I help you?</div>
+                        <button class="speak-btn" onclick="speakText(this.parentElement.querySelector('.chat-bubble').innerText, this)"><i class="fas fa-volume-up"></i></button>
                     </div>
                 </div>
             </div>
@@ -183,21 +183,21 @@
 
         <div class="input-wrap">
             <div class="input-box">
-                <button id="micBtn" class="action-btn"><i class="fas fa-microphone"></i></button>
+                <button id="micBtn" style="background:none; border:none; color: #8696a0; font-size: 1.2rem;"><i class="fas fa-microphone"></i></button>
                 <input type="text" id="userInput" placeholder="Message GrieezBoy..." autocomplete="off">
-                <button class="action-btn send-btn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
+                <button class="send-btn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
 
     <script>
         const synth = window.speechSynthesis;
-        const voiceSelect = document.getElementById('voiceSelect');
         const chatMessages = document.getElementById('chatMessages');
         const userInput = document.getElementById('userInput');
         const chatArea = document.getElementById('chatArea');
         const sidebar = document.getElementById('sidebar');
         const autoRead = document.getElementById('autoRead');
+        const voiceSelect = document.getElementById('voiceSelect');
 
         let voices = [];
         let isBusy = false;
@@ -207,52 +207,47 @@
             voiceSelect.innerHTML = '';
             voices.forEach((voice, i) => {
                 const option = document.createElement('option');
-                option.textContent = `${voice.name} (${voice.lang})`;
+                option.textContent = `${voice.name}`;
                 option.value = i;
                 if(voice.name.includes("Google") || i === 0) option.selected = true;
                 voiceSelect.appendChild(option);
             });
         }
-        populateVoices();
         if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
+        populateVoices();
 
         function toggleSidebar() { sidebar.classList.toggle('open'); }
         function toggleTheme() { document.body.classList.toggle('light-mode'); }
 
         function speakText(text, btn) {
             if (synth.speaking) synth.cancel();
-            // Clean code blocks from audio
-            const cleanText = text.replace(/```[\s\S]*?```/g, ' [Code block omitted] ');
-            const utter = new SpeechSynthesisUtterance(cleanText);
+            const clean = text.replace(/```[\s\S]*?```/g, ' [Code Block] ');
+            const utter = new SpeechSynthesisUtterance(clean);
             utter.voice = voices[voiceSelect.value];
             utter.onstart = () => btn?.classList.add('active');
             utter.onend = () => btn?.classList.remove('active');
             synth.speak(utter);
         }
 
-        // --- NEW IMPROVED RENDERER ---
-        function renderContent(text) {
-            // Escape HTML characters to prevent direct rendering
-            const escape = (html) => html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            
-            // 1. Detect Code Blocks: ```lang [code] ```
+        // --- Improved Content Processor ---
+        function processContent(text) {
+            const escape = (str) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const codeRegex = /```(\w*)\n?([\s\S]*?)```/g;
+            
             let parts = [];
             let lastIdx = 0;
             let match;
 
             while ((match = codeRegex.exec(text)) !== null) {
-                // Add text before code
                 if (match.index > lastIdx) {
                     parts.push(processMarkdown(text.substring(lastIdx, match.index)));
                 }
-                // Add formatted code block
                 const lang = match[1] || 'code';
                 const code = match[2].trim();
                 parts.push(`
                     <div class="code-container">
                         <div class="code-header">
-                            <span><i class="fas fa-code"></i> ${lang.toUpperCase()}</span>
+                            <span><i class="fas fa-terminal"></i> ${lang.toUpperCase()}</span>
                             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                         </div>
                         <pre><code>${escape(code)}</code></pre>
@@ -261,28 +256,18 @@
                 lastIdx = match.index + match[0].length;
             }
 
-            // Add remaining text
-            if (lastIdx < text.length) {
-                parts.push(processMarkdown(text.substring(lastIdx)));
-            }
-
+            if (lastIdx < text.length) parts.push(processMarkdown(text.substring(lastIdx)));
             return parts.join('');
         }
 
         function processMarkdown(t) {
             return t.replace(/\n/g, '<br>')
-                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-                    .replace(/\*(.*?)\*/g, '<i>$1</i>');
+                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
         }
 
         function copyCode(btn) {
             const code = btn.closest('.code-container').querySelector('code').innerText;
-            const el = document.createElement('textarea');
-            el.value = code;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
+            navigator.clipboard.writeText(code);
             btn.innerText = "Copied!";
             setTimeout(() => btn.innerText = "Copy", 2000);
         }
@@ -293,24 +278,29 @@
             isBusy = true;
             userInput.value = '';
 
-            // User Message with Avatar
+            // User Row
             const userRow = document.createElement('div');
             userRow.className = 'message-row user-row';
             userRow.innerHTML = `
-                <img src="https://ui-avatars.com/api/?name=U&background=005c4b&color=fff&rounded=true" class="avatar">
-                <div class="chat-bubble user-msg">${val}</div>
+                <img src="https://ui-avatars.com/api/?name=User&background=005c4b&color=fff" class="avatar">
+                <div class="content-column">
+                    <div class="chat-bubble user-msg">${val}</div>
+                </div>
             `;
             chatMessages.appendChild(userRow);
             chatArea.scrollTop = chatArea.scrollHeight;
 
-            // Thinking State
+            // Bot Row with Thinking Logic
             const botRow = document.createElement('div');
             botRow.className = 'message-row bot-row';
             botRow.innerHTML = `
-                <img src="https://ui-avatars.com/api/?name=GB&background=4285f4&color=fff&rounded=true" class="avatar">
-                <div style="width: 100%;">
-                    <div class="thinking-box"><div class="pulse-dot"></div> GrieezBot is thinking...</div>
-                    <div class="chat-bubble bot-msg" id="temp-msg">...</div>
+                <img src="https://ui-avatars.com/api/?name=GB&background=4285f4&color=fff" class="avatar">
+                <div class="content-column">
+                    <div class="thinking-ui">
+                        <div class="thinking-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        GrieezBot is thinking...
+                    </div>
+                    <div class="chat-bubble bot-msg"></div>
                     <button class="speak-btn" style="display:none;"><i class="fas fa-volume-up"></i></button>
                 </div>
             `;
@@ -322,43 +312,31 @@
                 const data = await res.json();
                 let fullText = data.text.replace(/Copilot/gi, "GrieezBot");
 
-                botRow.querySelector('.thinking-box').style.display = 'none';
+                botRow.querySelector('.thinking-ui').style.display = 'none';
                 const bubble = botRow.querySelector('.bot-msg');
                 const speakBtn = botRow.querySelector('.speak-btn');
-                
-                // TYPEWRITER EFFECT
-                let i = 0;
-                bubble.innerHTML = '';
-                const speed = fullText.length > 200 ? 5 : 15; // Speed up for long code
 
-                const typewriter = setInterval(() => {
-                    if (i < fullText.length) {
-                        // We use substring to "type" but render the full HTML structure
-                        bubble.innerHTML = renderContent(fullText.substring(0, i + 1));
-                        i++;
+                // Typewriter Effect
+                let i = 0;
+                const typeSpeed = fullText.length > 300 ? 5 : 15;
+                const interval = setInterval(() => {
+                    if(i < fullText.length) {
+                        bubble.innerHTML = processContent(fullText.substring(0, i + 1));
+                        i += 2; // Type 2 chars at once for speed
                         chatArea.scrollTop = chatArea.scrollHeight;
                     } else {
-                        clearInterval(typewriter);
-                        bubble.innerHTML = renderContent(fullText);
+                        clearInterval(interval);
+                        bubble.innerHTML = processContent(fullText);
                         speakBtn.style.display = 'flex';
                         speakBtn.onclick = () => speakText(fullText, speakBtn);
                         if(autoRead.checked) speakText(fullText, speakBtn);
                         isBusy = false;
                     }
-                }, speed);
-
+                }, typeSpeed);
             } catch {
-                botRow.querySelector('.thinking-box').innerText = "Offline Error";
+                botRow.querySelector('.thinking-ui').innerHTML = "<i class='fas fa-exclamation-triangle'></i> Error connecting to GrieezBoy";
                 isBusy = false;
             }
-        }
-
-        // Mic
-        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRec) {
-            const rec = new SpeechRec();
-            document.getElementById('micBtn').onclick = () => rec.start();
-            rec.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
         }
 
         userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleSend(); });
