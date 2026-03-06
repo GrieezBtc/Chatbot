@@ -17,6 +17,7 @@
             --bot-bubble: #202c33; 
             --code-bg: #010409;
             --disclaimer: #8696a0;
+            --card-bg: rgba(255, 255, 255, 0.03);
         }
 
         .light-mode {
@@ -29,6 +30,7 @@
             --bot-bubble: #ffffff; 
             --code-bg: #f6f8fa;
             --disclaimer: #667781;
+            --card-bg: rgba(0, 0, 0, 0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -63,9 +65,27 @@
         }
         .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; width: 100%; }
 
+        /* Welcome Screen / Suggestions */
+        .welcome-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 70vh; text-align: center; gap: 24px; padding: 20px;
+        }
+        .welcome-screen h1 { font-weight: 800; color: var(--accent); font-size: 1.8rem; }
+        .suggestions-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 600px;
+        }
+        .suggestion-card {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+            padding: 16px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
+            align-items: flex-start; gap: 8px; text-align: left;
+        }
+        .suggestion-card:active { transform: scale(0.98); background: rgba(66, 133, 244, 0.1); }
+        .suggestion-card i { color: var(--accent); font-size: 1.1rem; }
+        .suggestion-card span { font-size: 0.85rem; font-weight: 500; color: var(--text); }
+
+        /* Message Styling */
         .message-row { display: flex; width: 100%; gap: 12px; animation: slideIn 0.3s ease; align-items: flex-start; }
         .user-row { flex-direction: row-reverse; }
-
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .avatar {
@@ -84,7 +104,6 @@
         .bot-msg { background: var(--bot-bubble); border-top-left-radius: 4px; }
         .user-msg { background: var(--user-bubble); border-top-right-radius: 4px; }
 
-        /* Code Block Styling */
         .code-container {
             margin-top: 10px; border-radius: 10px; overflow: hidden;
             border: 1px solid var(--border); background: var(--code-bg);
@@ -104,7 +123,6 @@
             padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7rem;
         }
 
-        /* Thinking State */
         .thinking-ui {
             display: flex; align-items: center; gap: 8px; font-size: 0.8rem;
             color: var(--accent); margin-bottom: 5px; font-weight: 600;
@@ -115,7 +133,6 @@
         .dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.3; } }
 
-        /* Disclaimer Styling */
         .bot-disclaimer {
             font-size: 0.7rem; color: var(--disclaimer); margin-top: 6px; font-style: italic; opacity: 0.8;
         }
@@ -148,6 +165,7 @@
             .sidebar.open { transform: translateX(280px); }
             .sidebar.open + .sidebar-overlay { display: block; }
             .content-wrap { max-width: calc(100% - 45px); }
+            .suggestions-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -180,13 +198,26 @@
 
         <div class="chat-area" id="chatArea">
             <div class="message-wrapper" id="chatMessages">
-                <!-- Welcome -->
-                <div class="message-row bot-row">
-                    <img src="https://ui-avatars.com/api/?name=GB&background=4285f4&color=fff&rounded=true" class="avatar">
-                    <div class="content-wrap">
-                        <div class="chat-bubble bot-msg">System initialized. I am <b>GrieezBot Pro</b>. Developed by <b>GrieezBoy</b>. Ask me anything or request code.</div>
-                        <div class="bot-disclaimer">Grieezbot is AI and can make mistakes</div>
-                        <button class="speak-btn" onclick="speakText(this.previousElementSibling.previousElementSibling.innerText, this)"><i class="fas fa-volume-up"></i></button>
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <h1>What can I do for you?</h1>
+                    <div class="suggestions-grid">
+                        <div class="suggestion-card" onclick="quickSend('Tell me About Your developer')">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Tell me About Your developer</span>
+                        </div>
+                        <div class="suggestion-card" onclick="quickSend('Write a clean HTML website for my business')">
+                            <i class="fas fa-code"></i>
+                            <span>Write a Website</span>
+                        </div>
+                        <div class="suggestion-card" onclick="quickSend('Write a professional business plan for a tech startup')">
+                            <i class="fas fa-file-invoice"></i>
+                            <span>Business Plan</span>
+                        </div>
+                        <div class="suggestion-card" onclick="quickSend('Explain Quantum Physics in simple terms')">
+                            <i class="fas fa-atom"></i>
+                            <span>Explain Physics</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -195,7 +226,7 @@
         <div class="input-wrap">
             <div class="input-box">
                 <button id="micBtn"><i class="fas fa-microphone"></i></button>
-                <input type="text" id="userInput" placeholder="Message GrieezBoy..." autocomplete="off">
+                <input type="text" id="userInput" placeholder="Ask GrieezBoy anything..." autocomplete="off">
                 <button class="send-btn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
@@ -210,20 +241,14 @@
         const autoRead = document.getElementById('autoRead');
         const voiceSelect = document.getElementById('voiceSelect');
         const micBtn = document.getElementById('micBtn');
+        const welcomeScreen = document.getElementById('welcomeScreen');
 
         let voices = [];
         let isBusy = false;
 
         function populateVoices() {
             voices = synth.getVoices();
-            voiceSelect.innerHTML = '';
-            voices.forEach((voice, i) => {
-                const option = document.createElement('option');
-                option.textContent = voice.name;
-                option.value = i;
-                if(voice.name.includes("Google")) option.selected = true;
-                voiceSelect.appendChild(option);
-            });
+            voiceSelect.innerHTML = voices.map((v, i) => `<option value="${i}" ${v.name.includes("Google") ? "selected" : ""}>${v.name}</option>`).join('');
         }
         if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
         populateVoices();
@@ -233,8 +258,7 @@
 
         function speakText(text, btn) {
             if (synth.speaking) synth.cancel();
-            const clean = text.replace(/```[\s\S]*?```/g, ' [Code Block] ');
-            const utter = new SpeechSynthesisUtterance(clean);
+            const utter = new SpeechSynthesisUtterance(text.replace(/```[\s\S]*?```/g, ' [Code Block] '));
             utter.voice = voices[voiceSelect.value];
             utter.onstart = () => btn?.classList.add('active');
             utter.onend = () => btn?.classList.remove('active');
@@ -244,51 +268,40 @@
         function formatContent(text) {
             const escape = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const codeRegex = /```(\w*)\n?([\s\S]*?)```/g;
-            
-            let parts = [];
-            let lastIdx = 0;
-            let match;
-
+            let parts = [], lastIdx = 0, match;
             while ((match = codeRegex.exec(text)) !== null) {
-                if (match.index > lastIdx) {
-                    parts.push(markdown(text.substring(lastIdx, match.index)));
-                }
-                const lang = match[1] || 'code';
-                const code = match[2].trim();
+                if (match.index > lastIdx) parts.push(markdown(text.substring(lastIdx, match.index)));
                 parts.push(`
                     <div class="code-container">
-                        <div class="code-header">
-                            <span><i class="fas fa-terminal"></i> ${lang.toUpperCase()}</span>
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                        </div>
-                        <pre><code>${escape(code)}</code></pre>
+                        <div class="code-header"><span><i class="fas fa-terminal"></i> ${match[1] || 'CODE'}</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                        <pre><code>${escape(match[2].trim())}</code></pre>
                     </div>
                 `);
                 lastIdx = match.index + match[0].length;
             }
-
             if (lastIdx < text.length) parts.push(markdown(text.substring(lastIdx)));
             return parts.join('');
         }
 
-        function markdown(t) {
-            return t.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-        }
-
+        function markdown(t) { return t.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); }
         function copyCode(btn) {
-            const code = btn.closest('.code-container').querySelector('code').innerText;
-            navigator.clipboard.writeText(code);
+            navigator.clipboard.writeText(btn.closest('.code-container').querySelector('code').innerText);
             btn.innerText = "Copied!";
             setTimeout(() => btn.innerText = "Copy", 2000);
         }
 
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRec) {
-            const recognition = new SpeechRec();
-            recognition.onstart = () => micBtn.classList.add('recording');
-            recognition.onend = () => micBtn.classList.remove('recording');
-            recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
-            micBtn.onclick = () => { try { recognition.start(); } catch { recognition.stop(); } };
+            const rec = new SpeechRec();
+            rec.onstart = () => micBtn.classList.add('recording');
+            rec.onend = () => micBtn.classList.remove('recording');
+            rec.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
+            micBtn.onclick = () => { try { rec.start(); } catch { rec.stop(); } };
+        }
+
+        function quickSend(text) {
+            userInput.value = text;
+            handleSend();
         }
 
         async function handleSend() {
@@ -296,15 +309,12 @@
             if(!val || isBusy) return;
             isBusy = true;
             userInput.value = '';
+            
+            if(welcomeScreen) welcomeScreen.remove();
 
             const userRow = document.createElement('div');
             userRow.className = 'message-row user-row';
-            userRow.innerHTML = `
-                <img src="https://ui-avatars.com/api/?name=User&background=005c4b&color=fff&rounded=true" class="avatar">
-                <div class="content-wrap">
-                    <div class="chat-bubble user-msg">${val}</div>
-                </div>
-            `;
+            userRow.innerHTML = `<img src="https://ui-avatars.com/api/?name=User&background=005c4b&color=fff&rounded=true" class="avatar"><div class="content-wrap"><div class="chat-bubble user-msg">${val}</div></div>`;
             chatMessages.appendChild(userRow);
             chatArea.scrollTop = chatArea.scrollHeight;
 
@@ -313,25 +323,23 @@
             botRow.innerHTML = `
                 <img src="https://ui-avatars.com/api/?name=GB&background=4285f4&color=fff&rounded=true" class="avatar">
                 <div class="content-wrap">
-                    <div class="thinking-ui">
-                        <div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-                        GrieezBot is thinking...
-                    </div>
+                    <div class="thinking-ui"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>GrieezBot is thinking...</div>
                     <div class="chat-bubble bot-msg"></div>
                     <div class="bot-disclaimer" style="display:none">Grieezbot is AI and can make mistakes</div>
                     <button class="speak-btn" style="display:none;"><i class="fas fa-volume-up"></i></button>
-                </div>
-            `;
+                </div>`;
             chatMessages.appendChild(botRow);
             chatArea.scrollTop = chatArea.scrollHeight;
 
-            // Identity Logic Trigger
-            const identityWords = ["who are you", "what is your name", "who created you", "who made you", "your name"];
-            const isIdentityQuery = identityWords.some(phrase => val.toLowerCase().includes(phrase));
+            const query = val.toLowerCase();
+            const isIdentity = ["who are you", "what is your name", "your name"].some(p => query.includes(p));
+            const isDeveloper = ["tell me about your developer", "who created you", "who made you", "developer", "yusuf muhammedjamiu", "jamiu"].some(p => query.includes(p));
 
             try {
                 let fullText = "";
-                if (isIdentityQuery) {
+                if (isDeveloper) {
+                    fullText = "my developer's name is Yusuf MuhammedJamiu popularly known as GrieezBoy but some people call him chief, he lives in Abuja from Kogi state okene precisely, he's 24 years old now, born on 12th April 2001";
+                } else if (isIdentity) {
                     fullText = "I'm GrieezBot Developed by GrieezBoy";
                 } else {
                     const res = await fetch(`https://eliteprotech-apis.zone.id/copilot?q=${encodeURIComponent(val)}`);
@@ -359,9 +367,9 @@
                         if(autoRead.checked) speakText(fullText, speakBtn);
                         isBusy = false;
                     }
-                }, 12);
+                }, 10);
             } catch {
-                botRow.querySelector('.thinking-ui').innerText = "Request failed.";
+                botRow.querySelector('.thinking-ui').innerText = "Error connecting.";
                 isBusy = false;
             }
         }
