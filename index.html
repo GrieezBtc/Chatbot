@@ -27,86 +27,118 @@
             --bot-bubble: #ffffff; 
         }
 
+        /* 100% SCREEN FIX */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        html, body { height: 100dvh; width: 100vw; background: var(--bg); color: var(--text); overflow: hidden; position: fixed; }
+        html, body { 
+            height: 100dvh; width: 100vw; 
+            background: var(--bg); color: var(--text); 
+            overflow: hidden; position: fixed; 
+        }
+
         body { display: flex; transition: background 0.3s ease; }
 
         /* Sidebar */
-        .sidebar { width: 300px; background: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 25px; transition: 0.3s; z-index: 2001; }
-        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 2000; backdrop-filter: blur(2px); }
+        .sidebar { width: 280px; background: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: 0.3s ease; z-index: 2001; }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 2000; backdrop-filter: blur(4px); }
 
-        /* Main Chat */
+        /* Main Interface */
         .main { flex: 1; display: flex; flex-direction: column; height: 100%; width: 100%; position: relative; }
-        .top-nav { height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: var(--glass); border-bottom: 1px solid var(--border); z-index: 10; }
-
-        .chat-area { flex: 1; overflow-y: auto; padding: 20px 15px; position: relative; z-index: 1; scroll-behavior: smooth; }
         
-        /* Bot Animation Background */
-        .chat-area::after { 
-            content: ''; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 300px; height: 300px; background-image: url('https://i.pinimg.com/originals/c7/e1/b7/c7e1b7b5753737039e1bfcda313f2728.gif'); 
-            background-size: contain; background-repeat: no-repeat; opacity: 0.08; z-index: -1; pointer-events: none; 
+        .top-nav { 
+            height: 60px; display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 15px; background: var(--glass); border-bottom: 1px solid var(--border); 
+            z-index: 10;
         }
 
-        .message-wrapper { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
-
-        /* ALIGNMENT FIX */
-        .message-row { display: flex; width: 100%; align-items: flex-end; gap: 10px; }
+        .chat-area { 
+            flex: 1; overflow-y: auto; padding: 15px; 
+            position: relative; z-index: 1; scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
         
-        /* Bot on Left: [Avatar] [Bubble] */
-        .bot-row { justify-content: flex-start; flex-direction: row; }
+        /* Floating Bot Logo BG */
+        .chat-area::after { 
+            content: ''; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 250px; height: 250px; background: url('https://i.pinimg.com/originals/c7/e1/b7/c7e1b7b5753737039e1bfcda313f2728.gif') center/contain no-repeat;
+            opacity: 0.05; z-index: -1; pointer-events: none; 
+        }
+
+        .message-wrapper { max-width: 850px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+
+        /* SOCIAL MEDIA INBOX ALIGNMENT */
+        .message-row { display: flex; width: 100%; align-items: flex-end; gap: 8px; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Bot: Avatar [Left], Bubble [Right] */
+        .bot-row { justify-content: flex-start; }
         
-        /* User on Right: [Bubble] [Avatar] */
-        .user-row { justify-content: flex-end; flex-direction: row; }
+        /* User: Bubble [Left], Avatar [Right] */
+        .user-row { justify-content: flex-end; }
 
-        .avatar { width: 35px; height: 35px; border-radius: 50%; flex-shrink: 0; object-fit: cover; }
-        .bot-avatar { background: var(--accent); color: #000; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; box-shadow: 0 0 10px var(--accent); }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; object-fit: cover; }
+        .bot-avatar { background: var(--accent); color: #000; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; box-shadow: 0 0 12px var(--accent); }
 
-        .chat-bubble { padding: 10px 15px; border-radius: 18px; line-height: 1.5; font-size: 0.95rem; max-width: 75%; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .chat-bubble { 
+            padding: 10px 14px; border-radius: 18px; line-height: 1.4; font-size: 0.92rem; 
+            max-width: 80%; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.15); 
+        }
         .bot-msg { background: var(--bot-bubble); border-bottom-left-radius: 4px; }
         .user-msg { background: var(--user-bubble); border-bottom-right-radius: 4px; }
 
-        /* CODE BLOCK & COPY BTN */
-        .code-container { position: relative; margin: 10px 0; background: #000; border-radius: 8px; border: 1px solid #333; overflow: hidden; }
-        .copy-btn { position: absolute; top: 8px; right: 8px; background: var(--accent); color: #000; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; cursor: pointer; z-index: 5; }
-        pre { padding: 15px; color: #adbac7; overflow-x: auto; font-size: 0.85rem; font-family: monospace; white-space: pre-wrap; }
+        /* CODE & COPY BUTTON */
+        .code-block { position: relative; margin: 8px 0; background: #010409; border-radius: 8px; border: 1px solid #30363d; overflow: hidden; }
+        .copy-btn { 
+            position: absolute; top: 6px; right: 6px; background: #21262d; color: var(--accent); 
+            border: 1px solid #30363d; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; 
+            font-weight: bold; cursor: pointer; z-index: 5; 
+        }
+        .copy-btn:active { transform: scale(0.95); background: var(--accent); color: #000; }
+        pre { padding: 12px; color: #c9d1d9; overflow-x: auto; font-size: 0.8rem; font-family: 'Courier New', monospace; white-space: pre; }
 
-        /* INPUT AREA */
+        /* INPUT SYSTEM */
         .input-wrap { padding: 10px 15px; background: var(--glass); border-top: 1px solid var(--border); }
-        .input-box { max-width: 800px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); padding: 5px 10px; border-radius: 25px; display: flex; align-items: center; gap: 10px; }
-        input { flex: 1; background: none; border: none; color: var(--text); outline: none; font-size: 1rem; padding: 10px; }
-        .action-btn { background: none; border: none; color: #8696a0; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
-        .send-btn { background: var(--accent); color: #000; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .input-box { max-width: 850px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); padding: 4px 10px; border-radius: 25px; display: flex; align-items: center; gap: 8px; }
+        input { flex: 1; background: none; border: none; color: var(--text); outline: none; font-size: 1rem; padding: 10px 5px; }
+        
+        .action-btn { background: none; border: none; color: #8696a0; cursor: pointer; font-size: 1.1rem; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .mic-active { color: #ff4b4b !important; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
+        .send-btn { background: var(--accent); color: #000; font-size: 1rem; }
 
-        @media (max-width: 768px) { .sidebar { position: fixed; left: -300px; height: 100dvh; } .sidebar.open { left: 0; } .sidebar.open + .sidebar-overlay { display: block; } }
-        select { width: 100%; padding: 12px; border-radius: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); margin: 15px 0; cursor: pointer; }
+        @media (max-width: 768px) { 
+            .sidebar { position: fixed; left: -280px; height: 100dvh; } 
+            .sidebar.open { left: 0; } 
+            .sidebar.open + .sidebar-overlay { display: block; } 
+        }
+        select { width: 100%; padding: 10px; border-radius: 8px; background: var(--bg); color: var(--text); border: 1px solid var(--border); margin: 10px 0; outline: none; }
     </style>
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
-        <h2 style="color: var(--accent);">GrieezBoy</h2>
-        <p style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 25px;">Yusuf Edition AI</p>
-        <button onclick="location.reload()" style="padding: 12px; width:100%; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: 700; cursor: pointer;">+ NEW CHAT</button>
-        <p style="font-size: 0.75rem; margin-top: 25px; font-weight: 600;">AI VOICE</p>
+        <h2 style="color: var(--accent); letter-spacing: 1px;">GrieezBoy</h2>
+        <p style="font-size: 0.65rem; opacity: 0.4; margin-bottom: 20px;">SYSTEM V8.0 | BY YUSUF</p>
+        <button onclick="location.reload()" style="padding: 12px; width:100%; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: 700; cursor: pointer; margin-bottom: 20px;">+ RESET SESSION</button>
+        <label style="font-size: 0.7rem; font-weight: 600; opacity: 0.7;">SELECT VOICE ENGINE</label>
         <select id="voiceSelect">
-            <option value="Rex">Rex</option>
-            <option value="malev1">Male v1</option>
-            <option value="femalev1">Female v1</option>
-            <option value="malev2">Male v2</option>
-            <option value="femalev2">Female v2</option>
+            <option value="Rex">Rex (Default)</option>
+            <option value="malev1">Male V1</option>
+            <option value="femalev1">Female V1</option>
+            <option value="malev2">Male V2</option>
+            <option value="femalev2">Female V2</option>
         </select>
-        <div style="margin-top: auto; font-size: 0.65rem; opacity: 0.3; text-align: center;">GrieezBoy Core v7.0</div>
+        <div style="margin-top: auto; font-size: 0.6rem; opacity: 0.3; text-align: center;">GrieezBoy Neural Engine</div>
     </aside>
     <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
 
     <main class="main">
         <nav class="top-nav">
             <i class="fas fa-bars action-btn" onclick="toggleSidebar()" style="color:var(--text)"></i>
-            <span style="font-weight: 700;">GRIEEZBOY AI</span>
-            <div style="display: flex; gap: 15px;">
-                <i class="fas fa-moon action-btn" id="themeBtn" onclick="toggleTheme()"></i>
-                <i class="fas fa-volume-up action-btn" id="muteIcon" onclick="toggleMute()"></i>
+            <span style="font-weight: 700; font-size: 0.9rem;">GRIEEZBOY AI</span>
+            <div style="display: flex; gap: 10px;">
+                <i class="fas fa-moon action-btn" onclick="toggleTheme()"></i>
+                <i class="fas fa-volume-up action-btn" id="muteBtn" onclick="toggleMute()"></i>
             </div>
         </nav>
 
@@ -114,15 +146,15 @@
             <div class="message-wrapper" id="chatMessages">
                 <div class="message-row bot-row">
                     <div class="avatar bot-avatar"><i class="fas fa-robot"></i></div>
-                    <div class="chat-bubble bot-msg">System Active. I am <b>GrieezBoy</b>. Ready to assist.</div>
+                    <div class="chat-bubble bot-msg">GrieezBoy Online. <b>How can I assist you, Yusuf?</b></div>
                 </div>
             </div>
         </div>
 
         <div class="input-wrap">
             <div class="input-box">
-                <i class="fas fa-microphone action-btn" id="micBtn"></i>
-                <input type="text" id="userInput" placeholder="Message GrieezBoy..." autocomplete="off">
+                <button class="action-btn" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
+                <input type="text" id="userInput" placeholder="Ask anything..." autocomplete="off">
                 <button class="action-btn send-btn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
@@ -134,73 +166,77 @@
         const chatArea = document.getElementById('chatArea');
         const sidebar = document.getElementById('sidebar');
         const voiceSelect = document.getElementById('voiceSelect');
-        
-        let isMuted = false, isBusy = false, currentAudio = new Audio();
+        const micBtn = document.getElementById('micBtn');
 
-        // --- TTS SYSTEM WITH AUTO-PLAY FIX ---
+        let isMuted = false, isBusy = false, audioUnlocked = false;
+        let speechApi = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = speechApi ? new speechApi() : null;
+
+        // --- TTS SYSTEM (DUAL ENGINE) ---
         function speak(text) {
             if (isMuted) return;
-            
-            // Remove code blocks and markdown from speech
             const speechText = text.replace(/```([\s\S]*?)```/g, ' [Code Block] ').replace(/[#*`_-]/g, '');
             const voice = voiceSelect.value;
             const url = `https://eliteprotech-apis.zone.id/tts?text=${encodeURIComponent(speechText)}&voice=${voice}`;
             
-            currentAudio.src = url;
-            currentAudio.play().catch(e => {
-                console.log("Audio Playback Error: Please ensure you interact with the page first.");
+            const audio = new Audio(url);
+            audio.play().catch(() => {
+                // Fallback to Native Speech if API fails
+                const msg = new SpeechSynthesisUtterance(speechText);
+                window.speechSynthesis.speak(msg);
             });
         }
 
-        // --- COPY LOGIC ---
-        function copyCode(btn, encodedCode) {
-            const code = atob(encodedCode);
-            navigator.clipboard.writeText(code).then(() => {
-                const originalText = btn.innerText;
-                btn.innerText = "COPIED!";
-                btn.style.background = "#00ff88";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.background = "var(--accent)";
-                }, 2000);
-            });
+        // --- MICROPHONE SYSTEM ---
+        if (recognition) {
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.onstart = () => micBtn.classList.add('mic-active');
+            recognition.onend = () => micBtn.classList.remove('mic-active');
+            recognition.onresult = (e) => {
+                userInput.value = e.results[0][0].transcript;
+                handleSend();
+            };
+            recognition.onerror = () => alert("Microphone blocked. Please allow mic access in your browser settings.");
         }
 
-        function formatText(text) {
-            let formatted = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-                               .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-                               .replace(/\n/g, '<br>');
-            
-            // Handle Code Blocks with Copy Button
-            formatted = formatted.replace(/```([\s\S]*?)```/g, (match, code) => {
-                const b64 = btoa(code.trim());
-                return `
-                    <div class="code-container">
-                        <button class="copy-btn" onclick="copyCode(this, '${b64}')">COPY</button>
-                        <pre><code>${code.trim()}</code></pre>
-                    </div>`;
-            });
-            return formatted;
+        function toggleMic() {
+            if (!recognition) return alert("Speech Recognition not supported on this browser.");
+            try { recognition.start(); } catch { recognition.stop(); }
         }
 
+        // --- UI LOGIC ---
         function toggleSidebar() { sidebar.classList.toggle('open'); document.getElementById('overlay').style.display = sidebar.classList.contains('open') ? 'block' : 'none'; }
         function toggleTheme() { document.body.classList.toggle('light-mode'); }
-        function toggleMute() { isMuted = !isMuted; document.getElementById('muteIcon').className = isMuted ? 'fas fa-volume-mute action-btn' : 'fas fa-volume-up action-btn'; if(isMuted) currentAudio.pause(); }
+        function toggleMute() { isMuted = !isMuted; document.getElementById('muteBtn').className = isMuted ? 'fas fa-volume-mute action-btn' : 'fas fa-volume-up action-btn'; }
+
+        function copyCode(btn, codeB64) {
+            navigator.clipboard.writeText(atob(codeB64)).then(() => {
+                const old = btn.innerText;
+                btn.innerText = "COPIED!";
+                setTimeout(() => btn.innerText = old, 2000);
+            });
+        }
+
+        function formatMsg(text) {
+            let res = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                          .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+            return res.replace(/```([\s\S]*?)```/g, (m, code) => {
+                const b64 = btoa(unescape(encodeURIComponent(code.trim())));
+                return `<div class="code-block"><button class="copy-btn" onclick="copyCode(this,'${b64}')">COPY</button><pre><code>${code.trim()}</code></pre></div>`;
+            });
+        }
 
         function addMessage(text, isUser) {
             const div = document.createElement('div');
             div.className = `message-row ${isUser ? 'user-row' : 'bot-row'}`;
-            
-            // Random human avatar; Bot uses glowing robot
-            const randomUserAvatar = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${Math.random()}`;
-            const avatarHtml = isUser 
-                ? `<img src="${randomUserAvatar}" class="avatar">` 
+            const avatar = isUser 
+                ? `<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Yusuf" class="avatar">`
                 : `<div class="avatar bot-avatar"><i class="fas fa-robot"></i></div>`;
 
-            // Order Logic: Bot (Avatar then Bubble) | User (Bubble then Avatar)
             div.innerHTML = isUser 
-                ? `<div class="chat-bubble user-msg">${text}</div>${avatarHtml}`
-                : `${avatarHtml}<div class="chat-bubble bot-msg"><span class="typing"></span></div>`;
+                ? `<div class="chat-bubble user-msg">${text}</div>${avatar}`
+                : `${avatar}<div class="chat-bubble bot-msg"><span class="typing"></span></div>`;
 
             chatMessages.appendChild(div);
             chatArea.scrollTo(0, chatArea.scrollHeight);
@@ -215,20 +251,24 @@
                         chatArea.scrollTop = chatArea.scrollHeight;
                     } else {
                         clearInterval(timer);
-                        target.parentElement.innerHTML = formatText(text);
+                        target.parentElement.innerHTML = formatMsg(text);
                         isBusy = false;
-                        chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
+                        chatArea.scrollTo({top: chatArea.scrollHeight, behavior: 'smooth'});
                     }
-                }, 15);
+                }, 10);
             }
         }
 
         async function handleSend() {
             const val = userInput.value.trim();
             if (!val || isBusy) return;
-            
-            // "Unlock" audio on user gesture for mobile browsers
-            if(!isMuted) { currentAudio.play().then(() => currentAudio.pause()).catch(() => {}); }
+
+            // Unlock Audio context on first interaction
+            if (!audioUnlocked) {
+                const silent = new Audio();
+                silent.play().catch(()=>{});
+                audioUnlocked = true;
+            }
 
             isBusy = true; userInput.value = "";
             addMessage(val, true);
@@ -236,10 +276,10 @@
             try {
                 const res = await fetch('https://eliteprotech-apis.zone.id/copilot?q=' + encodeURIComponent(val));
                 const data = await res.json();
-                let response = data.text.replace(/Copilot/gi, "GrieezBoy").replace(/Microsoft/gi, "Yusuf's Tech");
-                addMessage(response, false);
+                let reply = data.text.replace(/Copilot/gi, "GrieezBoy").replace(/Microsoft/gi, "Yusuf's Tech");
+                addMessage(reply, false);
             } catch {
-                addMessage("I lost connection to the server. Check your API.", false);
+                addMessage("Brain connection lost. Is the API online?", false);
                 isBusy = false;
             }
         }
