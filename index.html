@@ -17,7 +17,8 @@
             --code-bg: #010409;
             --disclaimer: #8696a0;
             --card-bg: rgba(255, 255, 255, 0.03);
-            --system-fonts: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            /* System font stack for a cleaner look */
+            --system-fonts: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
         }
 
         .light-mode {
@@ -38,12 +39,12 @@
         body { 
             height: 100dvh; width: 100vw; overflow: hidden; 
             background: var(--bg); display: flex; transition: background 0.3s ease; 
-            font-size: 0.9rem; /* Reduced base font size */
+            font-size: 14px; /* Hardcoded smaller text size */
         }
 
         .sidebar { 
             width: 260px; background: var(--glass); border-right: 1px solid var(--border); 
-            display: flex; flex-direction: column; padding: 20px; 
+            display: flex; flex-direction: column; padding: 18px; 
             transition: transform 0.3s ease; z-index: 2001;
         }
         .sidebar-overlay { 
@@ -54,7 +55,7 @@
         .main { flex: 1; display: flex; flex-direction: column; height: 100dvh; position: relative; overflow: hidden; }
 
         .top-nav { 
-            height: 56px; display: flex; align-items: center; justify-content: space-between; 
+            height: 54px; display: flex; align-items: center; justify-content: space-between; 
             padding: 0 15px; background: var(--glass); border-bottom: 1px solid var(--border); flex-shrink: 0;
         }
 
@@ -64,63 +65,64 @@
             background-size: 20px 20px;
             scroll-behavior: smooth;
         }
-        .message-wrapper { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; width: 100%; }
+        .message-wrapper { max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; width: 100%; }
 
         .welcome-screen {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 60vh; text-align: center; gap: 20px; padding: 20px;
+            min-height: 60vh; text-align: center; gap: 18px; padding: 20px;
         }
-        .welcome-screen h1 { font-weight: 700; color: var(--accent); font-size: 1.5rem; letter-spacing: -0.5px; }
+        .welcome-screen h1 { font-weight: 700; color: var(--accent); font-size: 1.4rem; letter-spacing: -0.3px; }
         .suggestions-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 550px;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 500px;
         }
         .suggestion-card {
             background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
-            padding: 14px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
-            align-items: flex-start; gap: 6px; text-align: left;
+            padding: 12px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
+            align-items: flex-start; gap: 5px; text-align: left;
         }
         .suggestion-card:active { transform: scale(0.97); background: rgba(66, 133, 244, 0.1); }
-        .suggestion-card i { color: var(--accent); font-size: 1rem; }
-        .suggestion-card span { font-size: 0.8rem; font-weight: 500; color: var(--text); line-height: 1.3; }
+        .suggestion-card i { color: var(--accent); font-size: 0.95rem; }
+        .suggestion-card span { font-size: 0.78rem; font-weight: 500; color: var(--text); line-height: 1.2; }
 
         .message-row { display: flex; width: 100%; gap: 10px; animation: slideIn 0.2s ease; align-items: flex-start; }
         .user-row { flex-direction: row-reverse; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         .avatar {
-            width: 34px; height: 34px; border-radius: 50%; object-fit: cover;
-            flex-shrink: 0; border: 1.5px solid var(--border); background: var(--glass);
+            width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
+            flex-shrink: 0; border: 1px solid var(--border); background: var(--glass);
         }
 
-        .content-wrap { display: flex; flex-direction: column; max-width: calc(100% - 45px); width: auto; }
+        .content-wrap { display: flex; flex-direction: column; max-width: calc(100% - 42px); width: auto; }
         .user-row .content-wrap { align-items: flex-end; }
 
         .chat-bubble { 
-            padding: 10px 14px; border-radius: 14px; line-height: 1.5; font-size: 0.9rem; 
+            padding: 10px 12px; border-radius: 14px; line-height: 1.5; font-size: 0.88rem; 
             width: fit-content; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1); color: var(--text);
         }
-        .bot-msg { background: var(--bot-bubble); border-top-left-radius: 2px; }
+        .bot-msg { background: var(--bot-bubble); border-top-left-radius: 2px; white-space: pre-wrap; }
         .user-msg { background: var(--user-bubble); border-top-right-radius: 2px; }
 
-        /* Code Styling */
+        /* Final Processed Code Styling */
         .code-container {
-            margin-top: 8px; border-radius: 8px; overflow: hidden;
+            margin-top: 10px; border-radius: 8px; overflow: hidden;
             border: 1px solid var(--border); background: var(--code-bg);
-            width: 100%; display: block;
+            width: 100%; display: block; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
         .code-header {
             background: rgba(255,255,255,0.05); padding: 6px 12px; 
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.7rem; color: var(--text); border-bottom: 1px solid var(--border);
+            font-size: 0.65rem; color: var(--text); border-bottom: 1px solid var(--border);
+            text-transform: uppercase; font-weight: 700;
         }
         pre {
-            padding: 12px; overflow-x: auto; font-family: "Fira Code", monospace;
-            font-size: 0.8rem; color: #d4d4d4; white-space: pre; width: 100%;
+            padding: 12px; overflow-x: auto; font-family: inherit;
+            font-size: 0.8rem; color: #e1e1e1; white-space: pre; width: 100%;
         }
         .copy-btn {
             background: var(--accent); color: white; border: none;
-            padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.65rem;
+            padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.6rem; font-weight: 600;
         }
 
         .thinking-ui {
@@ -128,7 +130,7 @@
             color: var(--accent); margin-bottom: 4px; font-weight: 600;
         }
         .dot-loader { display: flex; gap: 3px; }
-        .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; animation: pulse 1s infinite ease-in-out; }
+        .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; animation: pulse 1s infinite ease-in-out; }
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.3; } }
@@ -139,51 +141,51 @@
 
         .speak-btn {
             background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);
-            width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+            width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; margin-top: 6px; transition: 0.2s;
+            font-size: 0.75rem; margin-top: 6px; transition: 0.2s;
         }
         .speak-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
         /* Input Bar */
-        .input-wrap { padding: 10px; background: var(--glass); border-top: 1px solid var(--border); flex-shrink: 0; }
+        .input-wrap { padding: 8px 12px 14px 12px; background: var(--glass); border-top: 1px solid var(--border); flex-shrink: 0; }
         .input-box { 
-            max-width: 700px; margin: 0 auto; background: var(--bg); 
-            border: 1px solid var(--border); padding: 2px 12px; 
+            max-width: 650px; margin: 0 auto; background: var(--bg); 
+            border: 1px solid var(--border); padding: 0 12px; 
             border-radius: 24px; display: flex; align-items: center; gap: 8px;
         }
-        input { flex: 1; background: none; border: none; color: var(--text); outline: none; font-size: 0.95rem; padding: 10px 0; }
+        input { flex: 1; background: none; border: none; color: var(--text); outline: none; font-size: 0.9rem; padding: 10px 0; }
         
-        #micBtn { background:none; border:none; color:#8696a0; font-size: 1.1rem; cursor: pointer; }
+        #micBtn { background:none; border:none; color:#8696a0; font-size: 1rem; cursor: pointer; }
         #micBtn.recording { color: #ff4b4b; animation: micPulse 1.5s infinite; }
         @keyframes micPulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        .send-btn { background: var(--accent); color: white; border-radius: 50%; width: 36px; height: 36px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .send-btn { background: var(--accent); color: white; border-radius: 50%; width: 34px; height: 34px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
         @media (max-width: 768px) { 
             .sidebar { position: fixed; left: -260px; height: 100dvh; }
             .sidebar.open { transform: translateX(260px); }
             .sidebar.open + .sidebar-overlay { display: block; }
-            .content-wrap { max-width: calc(100% - 40px); }
+            .content-wrap { max-width: calc(100% - 38px); }
             .suggestions-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
-        <h2 style="color: var(--accent); font-weight: 700; font-size: 1.2rem;">GrieezBoy Pro</h2>
-        <p style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 25px;">Professional AI Suite</p>
+        <h2 style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">GrieezBot Pro</h2>
+        <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 25px;">Professional AI Suite</p>
         
-        <label style="font-size: 0.65rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Voice Output</label>
-        <select id="voiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.8rem;"></select>
+        <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px;">Voice Engine</label>
+        <select id="voiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.75rem;"></select>
 
         <div style="margin-top: 20px; display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-size: 0.8rem; font-weight: 600;">Auto-Speak</span>
+            <span style="font-size: 0.75rem; font-weight: 600;">Auto-Speak</span>
             <input type="checkbox" id="autoRead" checked>
         </div>
 
-        <button onclick="location.reload()" style="margin-top: auto; padding: 12px; background: var(--accent); border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
-            <i class="fas fa-redo"></i> Refresh
+        <button onclick="location.reload()" style="margin-top: auto; padding: 12px; background: var(--accent); border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; font-size: 0.8rem;">
+            <i class="fas fa-redo"></i> Reset System
         </button>
     </aside>
 
@@ -191,9 +193,9 @@
 
     <main class="main">
         <nav class="top-nav">
-            <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text); font-size: 1.1rem; cursor:pointer;"><i class="fas fa-bars-staggered"></i></button>
-            <div style="font-weight: 700; letter-spacing: 0.5px; color: var(--accent); font-size: 1rem;">GRIEEZBOT PRO</div>
-            <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size: 1.1rem; cursor:pointer;"><i class="fas fa-moon"></i></button>
+            <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text); font-size: 1rem; cursor:pointer;"><i class="fas fa-bars-staggered"></i></button>
+            <div style="font-weight: 700; letter-spacing: 0.3px; color: var(--accent); font-size: 0.95rem;">GRIEEZBOT PRO</div>
+            <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size: 1rem; cursor:pointer;"><i class="fas fa-moon"></i></button>
         </nav>
 
         <div class="chat-area" id="chatArea">
@@ -225,7 +227,7 @@
         <div class="input-wrap">
             <div class="input-box">
                 <button id="micBtn"><i class="fas fa-microphone"></i></button>
-                <input type="text" id="userInput" placeholder="Ask GrieezBoy anything..." autocomplete="off">
+                <input type="text" id="userInput" placeholder="Message GrieezBoy..." autocomplete="off">
                 <button class="send-btn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
@@ -264,27 +266,33 @@
             synth.speak(utter);
         }
 
-        // Logic to properly render code blocks AFTER typing completes
-        function parseFinalContent(text) {
-            const escape = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        function escapeHTML(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // Professional formatting for the FINAL message state
+        function renderFinalContent(text) {
             const codeRegex = /```(\w*)\n?([\s\S]*?)```/g;
             let parts = [], lastIdx = 0, match;
             
             while ((match = codeRegex.exec(text)) !== null) {
-                if (match.index > lastIdx) parts.push(markdown(text.substring(lastIdx, match.index)));
+                if (match.index > lastIdx) parts.push(simpleFormat(text.substring(lastIdx, match.index)));
                 parts.push(`
                     <div class="code-container">
-                        <div class="code-header"><span><i class="fas fa-code"></i> ${match[1].toUpperCase() || 'CODE'}</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-                        <pre><code>${escape(match[2].trim())}</code></pre>
+                        <div class="code-header"><span><i class="fas fa-code"></i> ${match[1] || 'CODE'}</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                        <pre><code>${escapeHTML(match[2].trim())}</code></pre>
                     </div>
                 `);
                 lastIdx = match.index + match[0].length;
             }
-            if (lastIdx < text.length) parts.push(markdown(text.substring(lastIdx)));
+            if (lastIdx < text.length) parts.push(simpleFormat(text.substring(lastIdx)));
             return parts.join('');
         }
 
-        function markdown(t) { return t.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); }
+        // Basic formatting for the TYPING message state (prevents code execution)
+        function simpleFormat(t) { 
+            return t.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); 
+        }
         
         function copyCode(btn) {
             navigator.clipboard.writeText(btn.closest('.code-container').querySelector('code').innerText);
@@ -316,7 +324,7 @@
 
             const userRow = document.createElement('div');
             userRow.className = 'message-row user-row';
-            userRow.innerHTML = `<img src="https://ui-avatars.com/api/?name=User&background=005c4b&color=fff&rounded=true" class="avatar"><div class="content-wrap"><div class="chat-bubble user-msg">${val}</div></div>`;
+            userRow.innerHTML = `<img src="https://ui-avatars.com/api/?name=User&background=005c4b&color=fff&rounded=true" class="avatar"><div class="content-wrap"><div class="chat-bubble user-msg">${escapeHTML(val)}</div></div>`;
             chatMessages.appendChild(userRow);
             chatArea.scrollTop = chatArea.scrollHeight;
 
@@ -334,15 +342,12 @@
             chatArea.scrollTop = chatArea.scrollHeight;
 
             const query = val.toLowerCase();
-            const isIdentity = ["who are you", "what is your name", "your name"].some(p => query.includes(p));
             const isDeveloper = ["tell me about your developer", "who created you", "who made you", "developer", "yusuf muhammedjamiu", "jamiu"].some(p => query.includes(p));
 
             try {
                 let fullText = "";
                 if (isDeveloper) {
                     fullText = "my developer's name is Yusuf MuhammedJamiu popularly known as GrieezBoy but some people call him chief, he lives in Abuja from Kogi state okene precisely, he's 24 years old now, born on 12th April 2001";
-                } else if (isIdentity) {
-                    fullText = "I'm GrieezBot Developed by GrieezBoy";
                 } else {
                     const res = await fetch(`https://eliteprotech-apis.zone.id/copilot?q=${encodeURIComponent(val)}`);
                     const data = await res.json();
@@ -357,14 +362,14 @@
                 let i = 0;
                 const interval = setInterval(() => {
                     if (i < fullText.length) {
-                        // While typing, we show raw text/markdown without code containers
-                        bubble.innerHTML = markdown(fullText.substring(0, i + 1));
-                        i += 3; // Speed up slightly for long code
+                        // WHILE TYPING: Use escapeHTML + simple formatting to keep it as raw text
+                        bubble.innerHTML = simpleFormat(escapeHTML(fullText.substring(0, i + 1)));
+                        i += 3; // Type faster for long blocks
                         chatArea.scrollTop = chatArea.scrollHeight;
                     } else {
                         clearInterval(interval);
-                        // Once finished, we convert code blocks into actual snippets
-                        bubble.innerHTML = parseFinalContent(fullText);
+                        // FINISHED: Render the professional code blocks
+                        bubble.innerHTML = renderFinalContent(fullText);
                         disclaimer.style.display = 'block';
                         speakBtn.style.display = 'flex';
                         speakBtn.onclick = () => speakText(fullText, speakBtn);
@@ -374,7 +379,7 @@
                     }
                 }, 10);
             } catch {
-                botRow.querySelector('.thinking-ui').innerText = "Network error. Please try again.";
+                botRow.querySelector('.thinking-ui').innerText = "Network error. Try again.";
                 isBusy = false;
             }
         }
