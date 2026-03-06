@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GrieezBot | GrieezBoy Edition</title>
+    <title>GrieezBot Pro | GrieezBoy Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -16,6 +16,7 @@
             --user-bubble: #005c4b; 
             --bot-bubble: #202c33; 
             --code-bg: #010409;
+            --disclaimer: #8696a0;
         }
 
         .light-mode {
@@ -27,6 +28,7 @@
             --user-bubble: #d9fdd3; 
             --bot-bubble: #ffffff; 
             --code-bg: #f6f8fa;
+            --disclaimer: #667781;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -36,7 +38,6 @@
             background: var(--bg); display: flex; transition: background 0.3s ease; 
         }
 
-        /* Layout Structure */
         .sidebar { 
             width: 280px; background: var(--glass); border-right: 1px solid var(--border); 
             display: flex; flex-direction: column; padding: 20px; 
@@ -54,7 +55,6 @@
             padding: 0 15px; background: var(--glass); border-bottom: 1px solid var(--border); flex-shrink: 0;
         }
 
-        /* Chat Content */
         .chat-area { 
             flex: 1; overflow-y: auto; padding: 15px; 
             background-image: radial-gradient(var(--border) 1px, transparent 1px);
@@ -68,27 +68,23 @@
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Avatars */
         .avatar {
             width: 38px; height: 38px; border-radius: 50%; object-fit: cover;
-            flex-shrink: 0; border: 2px solid var(--border);
-            background: var(--glass);
+            flex-shrink: 0; border: 2px solid var(--border); background: var(--glass);
         }
 
-        /* Bubbles */
         .content-wrap { display: flex; flex-direction: column; max-width: calc(100% - 50px); width: auto; }
         .user-row .content-wrap { align-items: flex-end; }
 
         .chat-bubble { 
             padding: 12px 16px; border-radius: 18px; line-height: 1.6; font-size: 0.95rem; 
             width: fit-content; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            color: var(--text);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: var(--text);
         }
         .bot-msg { background: var(--bot-bubble); border-top-left-radius: 4px; }
         .user-msg { background: var(--user-bubble); border-top-right-radius: 4px; }
 
-        /* FIXED CODE BLOCK RENDERING */
+        /* Code Block Styling */
         .code-container {
             margin-top: 10px; border-radius: 10px; overflow: hidden;
             border: 1px solid var(--border); background: var(--code-bg);
@@ -101,8 +97,7 @@
         }
         pre {
             padding: 15px; overflow-x: auto; font-family: 'Fira Code', monospace;
-            font-size: 0.85rem; color: #d4d4d4; white-space: pre;
-            width: 100%; display: block;
+            font-size: 0.85rem; color: #d4d4d4; white-space: pre; width: 100%; display: block;
         }
         .copy-btn {
             background: var(--accent); color: white; border: none;
@@ -120,7 +115,11 @@
         .dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.3; } }
 
-        /* Speak Button */
+        /* Disclaimer Styling */
+        .bot-disclaimer {
+            font-size: 0.7rem; color: var(--disclaimer); margin-top: 6px; font-style: italic; opacity: 0.8;
+        }
+
         .speak-btn {
             background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);
             width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
@@ -137,6 +136,11 @@
             border-radius: 30px; display: flex; align-items: center; gap: 10px;
         }
         input { flex: 1; background: none; border: none; color: var(--text); outline: none; font-size: 1rem; padding: 10px 0; }
+        
+        #micBtn { background:none; border:none; color:#8696a0; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        #micBtn.recording { color: #ff4b4b; animation: micPulse 1.5s infinite; }
+        @keyframes micPulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
         .send-btn { background: var(--accent); color: white; border-radius: 50%; width: 40px; height: 40px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
         @media (max-width: 768px) { 
@@ -181,7 +185,8 @@
                     <img src="https://ui-avatars.com/api/?name=GB&background=4285f4&color=fff&rounded=true" class="avatar">
                     <div class="content-wrap">
                         <div class="chat-bubble bot-msg">System initialized. I am <b>GrieezBot Pro</b>. Developed by <b>GrieezBoy</b>. Ask me anything or request code.</div>
-                        <button class="speak-btn" onclick="speakText(this.previousElementSibling.innerText, this)"><i class="fas fa-volume-up"></i></button>
+                        <div class="bot-disclaimer">Grieezbot is AI and can make mistakes</div>
+                        <button class="speak-btn" onclick="speakText(this.previousElementSibling.previousElementSibling.innerText, this)"><i class="fas fa-volume-up"></i></button>
                     </div>
                 </div>
             </div>
@@ -189,7 +194,7 @@
 
         <div class="input-wrap">
             <div class="input-box">
-                <button id="micBtn" style="background:none; border:none; color:#8696a0; font-size: 1.2rem;"><i class="fas fa-microphone"></i></button>
+                <button id="micBtn"><i class="fas fa-microphone"></i></button>
                 <input type="text" id="userInput" placeholder="Message GrieezBoy..." autocomplete="off">
                 <button class="send-btn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
             </div>
@@ -204,6 +209,7 @@
         const sidebar = document.getElementById('sidebar');
         const autoRead = document.getElementById('autoRead');
         const voiceSelect = document.getElementById('voiceSelect');
+        const micBtn = document.getElementById('micBtn');
 
         let voices = [];
         let isBusy = false;
@@ -276,13 +282,21 @@
             setTimeout(() => btn.innerText = "Copy", 2000);
         }
 
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRec) {
+            const recognition = new SpeechRec();
+            recognition.onstart = () => micBtn.classList.add('recording');
+            recognition.onend = () => micBtn.classList.remove('recording');
+            recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; handleSend(); };
+            micBtn.onclick = () => { try { recognition.start(); } catch { recognition.stop(); } };
+        }
+
         async function handleSend() {
             const val = userInput.value.trim();
             if(!val || isBusy) return;
             isBusy = true;
             userInput.value = '';
 
-            // User Message
             const userRow = document.createElement('div');
             userRow.className = 'message-row user-row';
             userRow.innerHTML = `
@@ -294,7 +308,6 @@
             chatMessages.appendChild(userRow);
             chatArea.scrollTop = chatArea.scrollHeight;
 
-            // Bot Message Shell
             const botRow = document.createElement('div');
             botRow.className = 'message-row bot-row';
             botRow.innerHTML = `
@@ -304,40 +317,51 @@
                         <div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
                         GrieezBot is thinking...
                     </div>
-                    <div class="chat-bubble bot-msg" id="typing"></div>
+                    <div class="chat-bubble bot-msg"></div>
+                    <div class="bot-disclaimer" style="display:none">Grieezbot is AI and can make mistakes</div>
                     <button class="speak-btn" style="display:none;"><i class="fas fa-volume-up"></i></button>
                 </div>
             `;
             chatMessages.appendChild(botRow);
             chatArea.scrollTop = chatArea.scrollHeight;
 
+            // Identity Logic Trigger
+            const identityWords = ["who are you", "what is your name", "who created you", "who made you", "your name"];
+            const isIdentityQuery = identityWords.some(phrase => val.toLowerCase().includes(phrase));
+
             try {
-                const res = await fetch(`https://eliteprotech-apis.zone.id/copilot?q=${encodeURIComponent(val)}`);
-                const data = await res.json();
-                let fullText = data.text.replace(/Copilot/gi, "GrieezBot");
+                let fullText = "";
+                if (isIdentityQuery) {
+                    fullText = "I'm GrieezBot Developed by GrieezBoy";
+                } else {
+                    const res = await fetch(`https://eliteprotech-apis.zone.id/copilot?q=${encodeURIComponent(val)}`);
+                    const data = await res.json();
+                    fullText = data.text.replace(/Copilot/gi, "GrieezBot");
+                }
 
                 botRow.querySelector('.thinking-ui').style.display = 'none';
                 const bubble = botRow.querySelector('.bot-msg');
+                const disclaimer = botRow.querySelector('.bot-disclaimer');
                 const speakBtn = botRow.querySelector('.speak-btn');
 
-                // Smooth Typewriter
                 let i = 0;
                 const interval = setInterval(() => {
                     if (i < fullText.length) {
                         bubble.innerHTML = formatContent(fullText.substring(0, i + 1));
-                        i += 2; // Jump 2 chars for speed
+                        i += 2;
                         chatArea.scrollTop = chatArea.scrollHeight;
                     } else {
                         clearInterval(interval);
                         bubble.innerHTML = formatContent(fullText);
+                        disclaimer.style.display = 'block';
                         speakBtn.style.display = 'flex';
                         speakBtn.onclick = () => speakText(fullText, speakBtn);
                         if(autoRead.checked) speakText(fullText, speakBtn);
                         isBusy = false;
                     }
-                }, 10);
+                }, 12);
             } catch {
-                botRow.querySelector('.thinking-ui').innerText = "Network Error.";
+                botRow.querySelector('.thinking-ui').innerText = "Request failed.";
                 isBusy = false;
             }
         }
