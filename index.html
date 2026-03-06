@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ElitePro AI | Yusuf Edition</title>
+    <title>GrieezBoy AI | Yusuf Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -66,7 +66,7 @@
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
-        <h2 style="color: var(--accent);">ELITEPRO</h2>
+        <h2 style="color: var(--accent);">GrieezBot</h2>
         <p style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px;">by Yusuf</p>
         <button onclick="location.reload()" style="padding: 12px; border-radius: 15px; border: none; background: var(--accent); color: #000; font-weight: 600; cursor: pointer; width: 100%;">+ New Chat</button>
     </aside>
@@ -75,7 +75,7 @@
     <main class="main">
         <nav class="top-nav">
             <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text); font-size:1.3rem;"><i class="fas fa-bars"></i></button>
-            <span style="font-weight: 600; letter-spacing: 1px;">ELITEPRO CHATBOT AI</span>
+            <span style="font-weight: 600; letter-spacing: 1px;">GrieezBoy CHATBOT AI</span>
             <div class="nav-icons">
                 <i class="fas fa-moon" id="themeBtn" style="cursor:pointer;" onclick="toggleTheme()"></i>
                 <i class="fas fa-volume-up" id="muteIcon" style="cursor:pointer;" onclick="toggleMute()"></i>
@@ -87,7 +87,7 @@
         <div class="input-wrap">
             <div class="input-box">
                 <i class="fas fa-microphone" id="micBtn" style="cursor:pointer; color:var(--accent);"></i>
-                <input type="text" id="userInput" placeholder="Ask ElitePro..." autocomplete="off">
+                <input type="text" id="userInput" placeholder="Ask GrieezBot..." autocomplete="off">
                 <button class="send-btn" id="sendBtn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
@@ -186,9 +186,9 @@
             }
 
             // HARD-CODED IDENTITY CHECK
-            if (lowVal.includes("who are you") || lowVal.includes("your name") || lowVal === "elitepro") {
+            if (lowVal.includes("who are you") || lowVal.includes("your name") || lowVal === "GrieezBot") {
                 document.getElementById('loader').remove();
-                addMessage("I am **ElitePro**, your professional AI assistant developed by **Yusuf**. I'm here to help you with coding, creative tasks, and more.", false);
+                addMessage("I am **GrieezBot**, your professional AI assistant developed by **Yusuf**. I'm here to help you with coding, creative tasks, and more.", false);
                 return;
             }
 
@@ -196,8 +196,8 @@
                 const res = await fetch('https://eliteprotech-apis.zone.id/copilot?q=' + encodeURIComponent(val));
                 const data = await res.json();
                 document.getElementById('loader').remove();
-                // Replace any leaked Copilot/Microsoft names with ElitePro/Yusuf
-                let cleanText = data.text.replace(/Copilot/gi, "ElitePro").replace(/Microsoft/gi, "Yusuf's Tech");
+                // Replace any leaked Copilot/Microsoft names with GrieezBot/Yusuf
+                let cleanText = data.text.replace(/Copilot/gi, "GrieezBot").replace(/Microsoft/gi, "Yusuf's Tech");
                 addMessage(cleanText, false);
             } catch {
                 document.getElementById('loader').remove();
