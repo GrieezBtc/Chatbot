@@ -103,7 +103,6 @@
         .bot-msg { background: var(--bot-bubble); border-top-left-radius: 2px; }
         .user-msg { background: var(--user-bubble); border-top-right-radius: 2px; }
 
-        /* Image Result Styling */
         .image-result {
             margin-top: 10px; border-radius: 12px; overflow: hidden;
             border: 1px solid var(--border); width: 100%; max-width: 350px;
@@ -112,6 +111,26 @@
         .image-result img { width: 100%; display: block; height: auto; border-bottom: 1px solid var(--border); transition: 0.3s; }
         .image-footer { padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); }
         .download-link { color: var(--accent); text-decoration: none; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+
+        .story-container {
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+        .story-title {
+            color: var(--accent);
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: block;
+            font-style: normal;
+            font-size: 1rem;
+        }
 
         .code-container {
             margin-top: 10px; border-radius: 8px; overflow: hidden;
@@ -161,7 +180,6 @@
         
         #micBtn { background:none; border:none; color:#8696a0; font-size: 1rem; cursor: pointer; }
         #micBtn.recording { color: #ff4b4b; animation: micPulse 1.5s infinite; }
-        @keyframes micPulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         .send-btn { background: var(--accent); color: white; border-radius: 50%; width: 34px; height: 34px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
@@ -177,7 +195,7 @@
 <body>
     <aside class="sidebar" id="sidebar">
         <h2 style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">GrieezBot Pro</h2>
-        <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 25px;">Professional AI Suite</p>
+        <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 25px;">GrieezBoy Edition</p>
         
         <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Voice Engine</label>
         <select id="voiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.75rem;"></select>
@@ -206,21 +224,21 @@
                 <div class="welcome-screen" id="welcomeScreen">
                     <h1>What can I do for you?</h1>
                     <div class="suggestions-grid">
+                        <div class="suggestion-card" onclick="quickSend('Tell me a story about a brave knight')">
+                            <i class="fas fa-book-open"></i>
+                            <span>Tell a Story</span>
+                        </div>
                         <div class="suggestion-card" onclick="quickSend('Generate an image of a fast car')">
                             <i class="fas fa-image"></i>
                             <span>Generate Image</span>
                         </div>
                         <div class="suggestion-card" onclick="quickSend('Tell me About Your developer')">
                             <i class="fas fa-user-tie"></i>
-                            <span>Tell me About Your developer</span>
+                            <span>Developer Info</span>
                         </div>
                         <div class="suggestion-card" onclick="quickSend('Write a clean HTML website for my business')">
                             <i class="fas fa-code"></i>
-                            <span>Write a Website</span>
-                        </div>
-                        <div class="suggestion-card" onclick="quickSend('Explain Quantum Physics in simple terms')">
-                            <i class="fas fa-atom"></i>
-                            <span>Explain Physics</span>
+                            <span>Write Code</span>
                         </div>
                     </div>
                 </div>
@@ -352,14 +370,15 @@
             chatArea.scrollTop = chatArea.scrollHeight;
 
             const query = val.toLowerCase();
-            const isDeveloper = ["tell me about your developer", "who created you", "who made you", "developer", "yusuf muhammedjamiu", "jamiu"].some(p => query.includes(p));
-            const isImageGen = ["generate image", "create image", "draw", "generate an image", "picture of", "photo of"].some(p => query.includes(p));
+            const isDeveloper = ["tell me about your developer", "who created you", "who made you", "developer", "yusuf muhammedjamiu", "jamiu", "grieezboy"].some(p => query.includes(p));
+            const isImageGen = ["generate image", "create image", "draw", "picture of", "photo of", "image of"].some(p => query.includes(p));
+            const isStory = ["tell me a story", "write a story", "generate a story", "narrate", "once upon a time"].some(p => query.includes(p));
 
             try {
+                // Handling Image Generation
                 if (isImageGen) {
                     const prompt = val.replace(/(generate|create|draw|an|image|of|picture|photo)/gi, "").trim();
                     const apiUrl = `https://eliteprotech-apis.zone.id/image?q=${encodeURIComponent(prompt)}`;
-                    
                     const response = await fetch(apiUrl);
                     const data = await response.json();
                     
@@ -367,31 +386,61 @@
                     const bubble = botRow.querySelector('.bot-msg');
                     
                     if (data.status && data.images && data.images.length > 0) {
-                        // Pick a random image from the array
                         const imageUrl = data.images[Math.floor(Math.random() * data.images.length)];
-                        
                         bubble.innerHTML = `Here's a result for: <b>${prompt}</b>
                             <div class="image-result">
                                 <img src="${imageUrl}" alt="Generated Image" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.5s">
                                 <div class="image-footer">
                                     <a href="${imageUrl}" target="_blank" class="download-link"><i class="fas fa-external-link-alt"></i> View Original</a>
-                                    <span style="font-size:0.6rem; opacity:0.5">Found ${data.count} results</span>
+                                    <span style="font-size:0.6rem; opacity:0.5">Source: GrieezBoy API</span>
                                 </div>
                             </div>`;
                         if(autoRead.checked) speakText(`Here is the image I found for ${prompt}`, null);
                     } else {
-                        bubble.innerText = "I couldn't find any images for that prompt. Please try something else.";
+                        bubble.innerText = "I couldn't find any images for that prompt.";
                     }
-                    
                     botRow.querySelector('.bot-disclaimer').style.display = 'block';
                     isBusy = false;
                     chatArea.scrollTop = chatArea.scrollHeight;
                     return;
                 }
 
+                // Handling Story Generation
+                if (isStory) {
+                    const storyPrompt = val.replace(/(tell|write|generate|a|story|about|narrate)/gi, "").trim() || "a random tale";
+                    const storyUrl = `https://eliteprotech-apis.zone.id/story?text=${encodeURIComponent(storyPrompt)}`;
+                    const response = await fetch(storyUrl);
+                    const data = await response.json();
+                    
+                    botRow.querySelector('.thinking-ui').style.display = 'none';
+                    const bubble = botRow.querySelector('.bot-msg');
+                    const disclaimer = botRow.querySelector('.bot-disclaimer');
+                    const speakBtn = botRow.querySelector('.speak-btn');
+                    
+                    const storyText = data.story || "I'm sorry, I couldn't weave a tale right now.";
+                    
+                    let i = 0;
+                    const interval = setInterval(() => {
+                        if (i < storyText.length) {
+                            bubble.innerHTML = `<div class="story-container"><span class="story-title">📖 A GrieezBoy Story</span>${simpleFormat(escapeHTML(storyText.substring(0, i + 5)))}</div>`;
+                            i += 8;
+                            chatArea.scrollTop = chatArea.scrollHeight;
+                        } else {
+                            clearInterval(interval);
+                            disclaimer.style.display = 'block';
+                            speakBtn.style.display = 'flex';
+                            speakBtn.onclick = () => speakText(storyText, speakBtn);
+                            if(autoRead.checked) speakText(storyText, speakBtn);
+                            isBusy = false;
+                        }
+                    }, 10);
+                    return;
+                }
+
+                // Standard Chat
                 let fullText = "";
                 if (isDeveloper) {
-                    fullText = "my developer's name is Yusuf MuhammedJamiu popularly known as GrieezBoy but some people call him chief, he lives in Abuja from Kogi state okene precisely, he's 24 years old now, born on 12th April 2001";
+                    fullText = "My developer's name is Yusuf MuhammedJamiu, popularly known as GrieezBoy. Some people call him Chief. He lives in Abuja and is from Okene, Kogi State. He is currently 24 years old, born on April 12th, 2001.";
                 } else {
                     const res = await fetch(`https://eliteprotech-apis.zone.id/copilot?q=${encodeURIComponent(val)}`);
                     const data = await res.json();
