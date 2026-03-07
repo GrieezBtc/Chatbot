@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GrieezBot AI Developed By GrieezBoy</title>
+    <title>GrieezBot Pro | GrieezBoy Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
@@ -103,6 +103,16 @@
         .bot-msg { background: var(--bot-bubble); border-top-left-radius: 2px; }
         .user-msg { background: var(--user-bubble); border-top-right-radius: 2px; }
 
+        /* Image Result Styling */
+        .image-result {
+            margin-top: 10px; border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border); width: 100%; max-width: 350px;
+            background: var(--code-bg); box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .image-result img { width: 100%; display: block; height: auto; border-bottom: 1px solid var(--border); transition: 0.3s; }
+        .image-footer { padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); }
+        .download-link { color: var(--accent); text-decoration: none; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+
         .code-container {
             margin-top: 10px; border-radius: 8px; overflow: hidden;
             border: 1px solid var(--border); background: var(--code-bg);
@@ -166,8 +176,8 @@
 </head>
 <body>
     <aside class="sidebar" id="sidebar">
-        <h2 style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">GrieezBot AI</h2>
-        <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 25px;">Professional AI Chatbot</p>
+        <h2 style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">GrieezBot Pro</h2>
+        <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 25px;">Professional AI Suite</p>
         
         <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Voice Engine</label>
         <select id="voiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.75rem;"></select>
@@ -187,7 +197,7 @@
     <main class="main">
         <nav class="top-nav">
             <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text); font-size: 1rem; cursor:pointer;"><i class="fas fa-bars-staggered"></i></button>
-            <div style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">GRIEEZBOT AI</div>
+            <div style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">GRIEEZBOT PRO</div>
             <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size: 1rem; cursor:pointer;"><i class="fas fa-moon"></i></button>
         </nav>
 
@@ -196,6 +206,10 @@
                 <div class="welcome-screen" id="welcomeScreen">
                     <h1>What can I do for you?</h1>
                     <div class="suggestions-grid">
+                        <div class="suggestion-card" onclick="quickSend('Generate an image of a fast car')">
+                            <i class="fas fa-image"></i>
+                            <span>Generate Image</span>
+                        </div>
                         <div class="suggestion-card" onclick="quickSend('Tell me About Your developer')">
                             <i class="fas fa-user-tie"></i>
                             <span>Tell me About Your developer</span>
@@ -203,10 +217,6 @@
                         <div class="suggestion-card" onclick="quickSend('Write a clean HTML website for my business')">
                             <i class="fas fa-code"></i>
                             <span>Write a Website</span>
-                        </div>
-                        <div class="suggestion-card" onclick="quickSend('Write a professional business plan for a tech startup')">
-                            <i class="fas fa-file-invoice"></i>
-                            <span>Business Plan</span>
                         </div>
                         <div class="suggestion-card" onclick="quickSend('Explain Quantum Physics in simple terms')">
                             <i class="fas fa-atom"></i>
@@ -220,7 +230,7 @@
         <div class="input-wrap">
             <div class="input-box">
                 <button id="micBtn"><i class="fas fa-microphone"></i></button>
-                <input type="text" id="userInput" placeholder="Message GrieezBot..." autocomplete="off">
+                <input type="text" id="userInput" placeholder="Message GrieezBoy..." autocomplete="off">
                 <button class="send-btn" onclick="handleSend()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
@@ -250,18 +260,18 @@
         function toggleSidebar() { sidebar.classList.toggle('open'); }
         function toggleTheme() { document.body.classList.toggle('light-mode'); }
 
-        // Cleans text to prevent bot from reading #, *, &, /, etc.
         function cleanTextForSpeech(text) {
             return text
-                .replace(/```[\s\S]*?```/g, ' [Code Block] ') // Ignore code blocks content
-                .replace(/[#*&/\\<>\[\]{}|_+=-]/g, ' ')      // Replace symbols with space
-                .replace(/\s+/g, ' ')                        // Clean up double spaces
+                .replace(/```[\s\S]*?```/g, ' [Code Block] ')
+                .replace(/[#*&/\\<>\[\]{}|_+=-]/g, ' ')
+                .replace(/\s+/g, ' ')
                 .trim();
         }
 
         function speakText(text, btn) {
             if (synth.speaking) synth.cancel();
             const cleaned = cleanTextForSpeech(text);
+            if (!cleaned) return;
             const utter = new SpeechSynthesisUtterance(cleaned);
             utter.voice = voices[voiceSelect.value];
             utter.onstart = () => btn?.classList.add('active');
@@ -333,7 +343,7 @@
             botRow.innerHTML = `
                 <img src="https://ui-avatars.com/api/?name=GB&background=4285f4&color=fff&rounded=true" class="avatar">
                 <div class="content-wrap">
-                    <div class="thinking-ui"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>GrieezBot is thinking...</div>
+                    <div class="thinking-ui"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>GrieezBot is processing...</div>
                     <div class="chat-bubble bot-msg"></div>
                     <div class="bot-disclaimer" style="display:none">Grieezbot is AI and can make mistakes</div>
                     <button class="speak-btn" style="display:none;"><i class="fas fa-volume-up"></i></button>
@@ -343,8 +353,42 @@
 
             const query = val.toLowerCase();
             const isDeveloper = ["tell me about your developer", "who created you", "who made you", "developer", "yusuf muhammedjamiu", "jamiu"].some(p => query.includes(p));
+            const isImageGen = ["generate image", "create image", "draw", "generate an image", "picture of", "photo of"].some(p => query.includes(p));
 
             try {
+                if (isImageGen) {
+                    const prompt = val.replace(/(generate|create|draw|an|image|of|picture|photo)/gi, "").trim();
+                    const apiUrl = `https://eliteprotech-apis.zone.id/image?q=${encodeURIComponent(prompt)}`;
+                    
+                    const response = await fetch(apiUrl);
+                    const data = await response.json();
+                    
+                    botRow.querySelector('.thinking-ui').style.display = 'none';
+                    const bubble = botRow.querySelector('.bot-msg');
+                    
+                    if (data.status && data.images && data.images.length > 0) {
+                        // Pick a random image from the array
+                        const imageUrl = data.images[Math.floor(Math.random() * data.images.length)];
+                        
+                        bubble.innerHTML = `Here's a result for: <b>${prompt}</b>
+                            <div class="image-result">
+                                <img src="${imageUrl}" alt="Generated Image" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.5s">
+                                <div class="image-footer">
+                                    <a href="${imageUrl}" target="_blank" class="download-link"><i class="fas fa-external-link-alt"></i> View Original</a>
+                                    <span style="font-size:0.6rem; opacity:0.5">Found ${data.count} results</span>
+                                </div>
+                            </div>`;
+                        if(autoRead.checked) speakText(`Here is the image I found for ${prompt}`, null);
+                    } else {
+                        bubble.innerText = "I couldn't find any images for that prompt. Please try something else.";
+                    }
+                    
+                    botRow.querySelector('.bot-disclaimer').style.display = 'block';
+                    isBusy = false;
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                    return;
+                }
+
                 let fullText = "";
                 if (isDeveloper) {
                     fullText = "my developer's name is Yusuf MuhammedJamiu popularly known as GrieezBoy but some people call him chief, he lives in Abuja from Kogi state okene precisely, he's 24 years old now, born on 12th April 2001";
