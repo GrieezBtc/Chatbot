@@ -556,7 +556,7 @@
                 else {
                     let fullText = "";
                     if (isDeveloper) {
-                        fullText = "My developer's name is Yusuf MuhammedJamiu, popularly known as GrieezBoy. Some people call him Chief. He lives in Abuja and is from Okene, Kogi State. He is currently 24 years old, born on April 12th, 2001.";
+                        fullText = "My developer's name is, "Yusuf MuhammedJamiu". popularly known as GrieezBoy, Some people call him Chief, He lives in Abuja and he is from Okene, Kogi State. He is currently 24 years old, born on April 12th, 2001.";
                     } else {
                         const res = await fetch(`https://eliteprotech-apis.zone.id/copilot?q=${encodeURIComponent(val)}`);
                         const data = await res.json();
@@ -589,14 +589,14 @@
                     if (i < text.length) {
                         const sub = text.substring(0, i + 4);
                         el.innerHTML = type === "story" 
-                            ? `<div class="story-container"><span class="story-title">📖 A GrieezBoy Story</span>${simpleFormat(escapeHTML(sub))}</div>` 
+                            ? `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${simpleFormat(escapeHTML(sub))}</div>` 
                             : simpleFormat(escapeHTML(sub));
                         i += 4;
                         document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
                     } else {
                         clearInterval(interval);
                         el.innerHTML = type === "story" 
-                            ? `<div class="story-container"><span class="story-title">📖 A GrieezBoy Story</span>${simpleFormat(escapeHTML(text))}</div>` 
+                            ? `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${simpleFormat(escapeHTML(text))}</div>` 
                             : renderFinalContent(text);
                         if(document.getElementById('autoRead').checked) window.speakText(text);
                         resolve();
@@ -615,7 +615,7 @@
             if (data.type === 'image') {
                 content = `<div class="image-result"><img src="${data.text}"><div class="image-footer"><a href="${data.text}" target="_blank" class="download-link">Full Res</a></div></div>`;
             } else if (data.type === 'story') {
-                content = `<div class="story-container"><span class="story-title">📖 A GrieezBoy Story</span>${simpleFormat(escapeHTML(data.text))}</div>`;
+                content = `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${simpleFormat(escapeHTML(data.text))}</div>`;
             } else {
                 content = isBot ? renderFinalContent(data.text) : simpleFormat(escapeHTML(data.text));
             }
