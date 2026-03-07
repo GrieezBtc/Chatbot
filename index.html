@@ -62,12 +62,7 @@
             cursor: pointer; margin-bottom: 15px; font-size: 1rem;
         }
 
-        /* Broadcast Banner */
-        #broadcast-banner {
-            background: var(--accent); color: white; padding: 8px 15px;
-            font-size: 0.8rem; font-weight: bold; display: none; align-items: center; gap: 10px;
-        }
-
+        /* Sidebar & History Styles */
         .sidebar { 
             width: 260px; background: var(--glass); border-right: 1px solid var(--border); 
             display: flex; flex-direction: column; padding: 18px; 
@@ -77,6 +72,34 @@
             position: fixed; inset: 0; background: rgba(0,0,0,0.6); 
             display: none; z-index: 2000; backdrop-filter: blur(2px);
         }
+        .new-chat-btn {
+            width: 100%; padding: 12px; background: rgba(66, 133, 244, 0.1);
+            border: 1px dashed var(--accent); color: var(--accent); border-radius: 12px;
+            cursor: pointer; font-weight: 700; margin-bottom: 20px; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: 0.3s;
+        }
+        .new-chat-btn:hover { background: rgba(66, 133, 244, 0.2); }
+        
+        .history-list {
+            flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px;
+            padding-right: 5px;
+        }
+        .history-list::-webkit-scrollbar { width: 4px; }
+        .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        .history-item {
+            padding: 10px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center;
+            justify-content: space-between; font-size: 0.8rem; color: var(--text); transition: 0.2s;
+            border: 1px solid transparent; group;
+        }
+        .history-item:hover { background: var(--card-bg); }
+        .history-item.active { background: rgba(66, 133, 244, 0.15); border-color: var(--accent); color: var(--accent); }
+        .history-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; margin-left: 8px; }
+        .history-actions { display: none; gap: 10px; margin-left: 8px; }
+        .history-item:hover .history-actions { display: flex; }
+        .history-actions i { opacity: 0.5; font-size: 0.85rem; transition: 0.2s; }
+        .history-actions i:hover { opacity: 1; color: var(--accent); }
 
         .main { flex: 1; display: flex; flex-direction: column; height: 100dvh; position: relative; overflow: hidden; }
 
@@ -158,12 +181,10 @@
 
         .bot-disclaimer { font-size: 0.65rem; color: var(--disclaimer); margin-top: 5px; font-style: italic; opacity: 0.7; }
 
-        .speak-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);
-            width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin-top: 6px; transition: 0.2s;
+        #broadcast-banner {
+            background: var(--accent); color: white; padding: 8px 15px;
+            font-size: 0.8rem; font-weight: bold; display: none; align-items: center; gap: 10px;
         }
-        .speak-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
         .input-wrap { padding: 8px 12px 14px 12px; background: var(--glass); border-top: 1px solid var(--border); flex-shrink: 0; }
         .input-box { max-width: 650px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); padding: 0 12px; border-radius: 24px; display: flex; align-items: center; gap: 8px; }
@@ -171,6 +192,7 @@
 
         #micBtn { background:none; border:none; color:#8696a0; font-size: 1rem; cursor: pointer; }
         #micBtn.recording { color: #ff4b4b; animation: micPulse 1.5s infinite; }
+        @keyframes micPulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
 
         .send-btn { background: var(--accent); color: white; border-radius: 50%; width: 34px; height: 34px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
@@ -190,14 +212,14 @@
         <div class="auth-card">
             <h1 style="color: var(--accent); font-weight: 800; font-style: italic; margin-bottom: 5px; font-size: 1.8rem;">GRIEEZBOT PRO</h1>
             <p style="color: var(--disclaimer); font-size: 0.8rem; margin-bottom: 20px;" id="auth-subtitle">Secure Login Required</p>
-            
+
             <form id="authForm">
                 <input type="email" id="authEmail" class="auth-input" placeholder="Email Address" required>
                 <input type="password" id="authPassword" class="auth-input" placeholder="Password" required>
                 <div id="authError" style="color: #ff4b4b; font-size: 0.8rem; margin-bottom: 10px; display: none;"></div>
                 <button type="submit" class="auth-btn" id="authSubmitBtn">Login</button>
             </form>
-            
+
             <p style="color: var(--text); font-size: 0.8rem; cursor: pointer;" onclick="window.toggleAuthMode()" id="authToggleText">
                 Don't have an account? <span style="color: var(--accent); font-weight: bold;">Sign Up</span>
             </p>
@@ -207,27 +229,38 @@
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <h2 style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">GrieezBot <span style="font-size: 0.6rem; background: var(--accent); color: white; padding: 2px 5px; border-radius: 4px; vertical-align: top;">PRO</span></h2>
-        <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 25px;">Logged in as: <span id="user-email-display"></span></p>
+        <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 15px;">Logged in: <span id="user-email-display"></span></p>
 
-        <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Voice Engine</label>
-        <select id="voiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.75rem;"></select>
+        <button class="new-chat-btn" onclick="window.startNewChat()">
+            <i class="fas fa-plus"></i> New Conversation
+        </button>
 
-        <div style="margin-top: 20px; display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-size: 0.75rem; font-weight: 600;">Auto-Speak</span>
-            <input type="checkbox" id="autoRead" checked>
+        <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Recent History</label>
+        <div class="history-list" id="historyList">
+            <!-- Chats will load here via Firebase -->
         </div>
 
-        <!-- Admin Controls (Hidden by default) -->
-        <div id="adminPanel" style="display: none; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">
-            <label style="font-size: 0.6rem; font-weight: 700; color: var(--accent); text-transform: uppercase;">Admin Tools</label>
-            <button onclick="window.sendBroadcast()" style="margin-top: 10px; width: 100%; padding: 10px; background: rgba(66, 133, 244, 0.2); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.75rem;">
-                <i class="fas fa-bullhorn"></i> Push Broadcast
+        <div style="margin-top: auto;">
+            <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Voice Engine</label>
+            <select id="voiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.75rem;"></select>
+
+            <div style="margin: 15px 0; display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 0.75rem; font-weight: 600;">Auto-Speak</span>
+                <input type="checkbox" id="autoRead" checked>
+            </div>
+
+            <!-- Admin Controls -->
+            <div id="adminPanel" style="display: none; border-top: 1px solid var(--border); padding-top: 15px; margin-bottom: 15px;">
+                <label style="font-size: 0.6rem; font-weight: 700; color: var(--accent); text-transform: uppercase;">Admin Tools</label>
+                <button onclick="window.sendBroadcast()" style="margin-top: 10px; width: 100%; padding: 10px; background: rgba(66, 133, 244, 0.2); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.75rem;">
+                    <i class="fas fa-bullhorn"></i> Push Broadcast
+                </button>
+            </div>
+
+            <button onclick="window.logoutUser()" style="width: 100%; padding: 12px; background: #ff4b4b; border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; font-size: 0.8rem;">
+                <i class="fas fa-sign-out-alt"></i> Logout
             </button>
         </div>
-
-        <button onclick="window.logoutUser()" style="margin-top: auto; padding: 12px; background: #ff4b4b; border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; font-size: 0.8rem;">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
     </aside>
 
     <div class="sidebar-overlay" id="overlay" onclick="window.toggleSidebar()"></div>
@@ -235,7 +268,7 @@
     <main class="main">
         <nav class="top-nav">
             <button onclick="window.toggleSidebar()" style="background:none; border:none; color:var(--text); font-size: 1rem; cursor:pointer;"><i class="fas fa-bars-staggered"></i></button>
-            <div style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">GRIEEZBOT PRO</div>
+            <div id="active-chat-title" style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">GRIEEZBOT PRO</div>
             <button onclick="window.toggleTheme()" style="background:none; border:none; color:var(--text); font-size: 1rem; cursor:pointer;"><i class="fas fa-moon"></i></button>
         </nav>
 
@@ -248,23 +281,7 @@
 
         <div class="chat-area" id="chatArea">
             <div class="message-wrapper" id="chatMessages">
-                <div class="welcome-screen" id="welcomeScreen">
-                    <h1>What can I do for you?</h1>
-                    <div class="suggestions-grid">
-                        <div class="suggestion-card" onclick="window.quickSend('Tell me a story about a brave lion')">
-                            <i class="fas fa-book-open"></i><span>Tell a Story</span>
-                        </div>
-                        <div class="suggestion-card" onclick="window.quickSend('Generate an image of a fast car')">
-                            <i class="fas fa-image"></i><span>Generate Image</span>
-                        </div>
-                        <div class="suggestion-card" onclick="window.quickSend('Tell me About Your developer')">
-                            <i class="fas fa-user-tie"></i><span>Developer Info</span>
-                        </div>
-                        <div class="suggestion-card" onclick="window.quickSend('Write a clean HTML website for my business')">
-                            <i class="fas fa-code"></i><span>Write Code</span>
-                        </div>
-                    </div>
-                </div>
+                <!-- Content handled by JS -->
             </div>
         </div>
 
@@ -281,15 +298,14 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, doc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, doc, setDoc, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
         // ==========================================
-        // 1. YOUR FIREBASE CONFIGURATION
+        // 1. FIREBASE CONFIGURATION
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAhiSfSaWNVfXZlW4Zqd08fEGWYHzqx3Eg",
             authDomain: "grieezbot.firebaseapp.com",
-            databaseURL: "https://grieezbot-default-rtdb.firebaseio.com",
             projectId: "grieezbot",
             storageBucket: "grieezbot.firebasestorage.app",
             messagingSenderId: "711236312178",
@@ -301,29 +317,19 @@
         const db = getFirestore(app);
         const projectAppId = "grieezbot"; 
 
-        // ==========================================
-        // 2. ADMIN SETTINGS (CHANGE THIS EMAIL)
-        // ==========================================
         const ADMIN_EMAIL = "muhammadjamiuyusuf876@gmail.com"; 
 
-        // Global Variables
         let currentUser = null;
-        let isAdmin = false;
+        let currentChatId = null;
         let isSignUpMode = false;
-        let historyUnsubscribe = null;
+        let isBusy = false;
 
-        // UI Elements mapped to window for inline HTML onclick handlers
-        const chatMessages = document.getElementById('chatMessages');
-        const userInput = document.getElementById('userInput');
-        const chatArea = document.getElementById('chatArea');
-        const welcomeScreen = document.getElementById('welcomeScreen');
-        const authOverlay = document.getElementById('auth-overlay');
-
+        // UI Handlers
         window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('open');
         window.toggleTheme = () => document.body.classList.toggle('light-mode');
 
         // ==========================================
-        // 3. AUTHENTICATION LOGIC
+        // 2. AUTHENTICATION
         // ==========================================
         window.toggleAuthMode = () => {
             isSignUpMode = !isSignUpMode;
@@ -340,7 +346,6 @@
             const email = document.getElementById('authEmail').value;
             const pass = document.getElementById('authPassword').value;
             const errDiv = document.getElementById('authError');
-            
             try {
                 if (isSignUpMode) await createUserWithEmailAndPassword(auth, email, pass);
                 else await signInWithEmailAndPassword(auth, email, pass);
@@ -355,116 +360,124 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                isAdmin = user.email === ADMIN_EMAIL;
-                authOverlay.style.display = 'none';
+                document.getElementById('auth-overlay').style.display = 'none';
                 document.getElementById('user-email-display').innerText = user.email;
-                
-                if (isAdmin) document.getElementById('adminPanel').style.display = 'block';
-                else document.getElementById('adminPanel').style.display = 'none';
-                
-                loadChatHistory();
+                if (user.email === ADMIN_EMAIL) document.getElementById('adminPanel').style.display = 'block';
+                loadChatHistoryList();
+                window.startNewChat();
                 listenForBroadcasts();
             } else {
                 currentUser = null;
-                authOverlay.style.display = 'flex';
-                if (historyUnsubscribe) historyUnsubscribe();
+                document.getElementById('auth-overlay').style.display = 'flex';
             }
         });
 
         // ==========================================
-        // 4. ADMIN BROADCAST LOGIC
+        // 3. CHAT HISTORY MANAGEMENT
         // ==========================================
-        function listenForBroadcasts() {
-            const broadcastRef = doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest');
-            onSnapshot(broadcastRef, (docSnap) => {
-                if (docSnap.exists()) {
+        function loadChatHistoryList() {
+            const list = document.getElementById('historyList');
+            const q = query(collection(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations'), orderBy('updatedAt', 'desc'));
+            
+            onSnapshot(q, (snapshot) => {
+                list.innerHTML = '';
+                snapshot.forEach(docSnap => {
                     const data = docSnap.data();
-                    document.getElementById('broadcast-text').innerText = `${data.message} — [Posted by Admin]`;
-                    document.getElementById('broadcast-banner').style.display = 'flex';
-                }
-            }, (err) => console.error(err));
-        }
-
-        window.sendBroadcast = async () => {
-            const msg = prompt("Enter announcement for all GrieezBot users:");
-            if (!msg) return;
-            const broadcastRef = doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest');
-            await setDoc(broadcastRef, { message: msg, timestamp: serverTimestamp() });
-        };
-
-        // ==========================================
-        // 5. CHAT LOGIC & FIRESTORE INTEGRATION
-        // ==========================================
-        async function loadChatHistory() {
-            const q = query(
-                collection(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'messages'),
-                orderBy('timestamp', 'asc')
-            );
-            
-            // We fetch once to render instantly, to avoid typewriter effect on old messages
-            const snapshot = await getDocs(q);
-            if (!snapshot.empty && welcomeScreen) welcomeScreen.style.display = 'none';
-            
-            chatMessages.innerHTML = ''; // Clear DOM
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                renderMessageInstant(data);
-            });
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-
-        // Helper to instantly render history without typing animation
-        function renderMessageInstant(data) {
-            const row = document.createElement('div');
-            row.className = `message-row ${data.sender === 'user' ? 'user-row' : 'bot-row'}`;
-            
-            let contentHtml = '';
-            if (data.sender === 'user') {
-                contentHtml = `<div class="chat-bubble user-msg">${escapeHTML(data.text)}</div>`;
-                row.innerHTML = `<div class="avatar" style="background:var(--user-bubble)"><i class="fas fa-user"></i></div><div class="content-wrap">${contentHtml}</div>`;
-            } else {
-                if (data.type === 'image') {
-                    contentHtml = `<div class="chat-bubble bot-msg">
-                        <div class="image-result">
-                            <img src="${data.text}" alt="Generated Image">
-                            <div class="image-footer">
-                                <a href="${data.text}" target="_blank" class="download-link"><i class="fas fa-external-link-alt"></i> Full Res</a>
-                            </div>
+                    const div = document.createElement('div');
+                    div.className = `history-item ${currentChatId === docSnap.id ? 'active' : ''}`;
+                    div.innerHTML = `
+                        <div style="flex:1; display:flex; align-items:center;" onclick="window.loadConversation('${docSnap.id}', '${data.title}')">
+                            <i class="far fa-comment-dots"></i>
+                            <span>${data.title}</span>
                         </div>
-                    </div>`;
-                } else if (data.type === 'story') {
-                    contentHtml = `<div class="chat-bubble bot-msg"><div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${simpleFormat(escapeHTML(data.text))}</div></div>`;
-                } else {
-                    contentHtml = `<div class="chat-bubble bot-msg">${renderFinalContent(data.text)}</div>`;
-                }
-                row.innerHTML = `<div class="avatar" style="background:var(--accent)">GB</div><div class="content-wrap">${contentHtml}</div>`;
-            }
-            chatMessages.appendChild(row);
+                        <div class="history-actions">
+                            <i class="fas fa-pen" onclick="window.renameChat('${docSnap.id}')"></i>
+                            <i class="fas fa-trash-alt" onclick="window.deleteChat('${docSnap.id}')"></i>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            });
         }
 
-        window.quickSend = (text) => {
-            userInput.value = text;
-            window.handleSend();
+        window.startNewChat = () => {
+            currentChatId = null;
+            document.getElementById('active-chat-title').innerText = "GRIEEZBOT PRO";
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="welcome-screen" id="welcomeScreen">
+                    <h1>What can I do for you?</h1>
+                    <div class="suggestions-grid">
+                        <div class="suggestion-card" onclick="window.quickSend('Tell me a story about a brave lion')">
+                            <i class="fas fa-book-open"></i><span>Tell a Story</span>
+                        </div>
+                        <div class="suggestion-card" onclick="window.quickSend('Generate an image of a fast car')">
+                            <i class="fas fa-image"></i><span>Generate Image</span>
+                        </div>
+                        <div class="suggestion-card" onclick="window.quickSend('Tell me About Your developer')">
+                            <i class="fas fa-user-tie"></i><span>Developer Info</span>
+                        </div>
+                        <div class="suggestion-card" onclick="window.quickSend('Write a clean HTML website for my business')">
+                            <i class="fas fa-code"></i><span>Write Code</span>
+                        </div>
+                    </div>
+                </div>`;
+            if (window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
         };
 
-        let isBusy = false;
+        window.loadConversation = async (id, title) => {
+            currentChatId = id;
+            document.getElementById('active-chat-title').innerText = title.toUpperCase();
+            const chatBox = document.getElementById('chatMessages');
+            chatBox.innerHTML = '';
+            
+            const q = query(collection(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations', id, 'messages'), orderBy('timestamp', 'asc'));
+            const msgs = await getDocs(q);
+            msgs.forEach(m => renderMessage(m.data(), true));
+            
+            if (window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+        };
+
+        window.renameChat = async (id) => {
+            const newTitle = prompt("Enter new title for this chat:");
+            if (newTitle) await updateDoc(doc(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations', id), { title: newTitle });
+        };
+
+        window.deleteChat = async (id) => {
+            if (confirm("Permanently delete this conversation?")) {
+                await deleteDoc(doc(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations', id));
+                if (currentChatId === id) window.startNewChat();
+            }
+        };
+
+        // ==========================================
+        // 4. CORE BOT LOGIC
+        // ==========================================
         window.handleSend = async () => {
-            const val = userInput.value.trim();
+            const val = document.getElementById('userInput').value.trim();
             if(!val || isBusy || !currentUser) return;
             isBusy = true;
-            userInput.value = '';
+            document.getElementById('userInput').value = '';
 
-            if(welcomeScreen) welcomeScreen.style.display = 'none';
+            // Initialize conversation in DB if it's new
+            if (!currentChatId) {
+                const convRef = await addDoc(collection(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations'), {
+                    title: val.length > 25 ? val.substring(0, 25) + '...' : val,
+                    updatedAt: serverTimestamp()
+                });
+                currentChatId = convRef.id;
+                document.getElementById('chatMessages').innerHTML = '';
+            }
 
-            // Save user msg to DB
-            const userMsgRef = collection(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'messages');
-            await addDoc(userMsgRef, { text: val, sender: 'user', timestamp: serverTimestamp() });
+            const msgRef = collection(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations', currentChatId, 'messages');
             
-            // Render user msg to DOM locally
-            renderMessageInstant({ text: val, sender: 'user' });
-            chatArea.scrollTop = chatArea.scrollHeight;
+            // Render and Save User Msg
+            renderMessage({ text: val, sender: 'user' });
+            await addDoc(msgRef, { text: val, sender: 'user', timestamp: serverTimestamp() });
 
-            // Prepare bot placeholder
+            // Prepare Bot UI
+            const chatMessages = document.getElementById('chatMessages');
             const botRow = document.createElement('div');
             botRow.className = 'message-row bot-row';
             botRow.innerHTML = `
@@ -475,7 +488,7 @@
                     <div class="bot-disclaimer" style="display:none">Grieezbot is AI and can make mistakes</div>
                 </div>`;
             chatMessages.appendChild(botRow);
-            chatArea.scrollTop = chatArea.scrollHeight;
+            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
 
             const queryText = val.toLowerCase();
             const isDeveloper = ["tell me about your developer", "who created you", "who made you", "developer", "yusuf muhammedjamiu", "jamiu", "grieezboy"].some(p => queryText.includes(p));
@@ -485,27 +498,22 @@
             try {
                 let finalDbText = "";
                 let finalDbType = "text";
-
-                const thinkingUi = botRow.querySelector('.thinking-ui');
                 const bubble = botRow.querySelector('.bot-msg');
-                const disclaimer = botRow.querySelector('.bot-disclaimer');
 
                 if (isImageGen) {
                     const prompt = val.replace(/(generate|create|draw|an|image|of|picture|photo)/gi, "").trim();
                     const response = await fetch(`https://eliteprotech-apis.zone.id/image?q=${encodeURIComponent(prompt)}`);
                     const data = await response.json();
-
-                    thinkingUi.style.display = 'none';
+                    botRow.querySelector('.thinking-ui').style.display = 'none';
                     bubble.style.display = 'block';
-                    
+
                     if (data.status && data.images && data.images.length > 0) {
-                        const imageUrl = data.images[0];
-                        finalDbText = imageUrl;
+                        finalDbText = data.images[0];
                         finalDbType = "image";
-                        bubble.innerHTML = `<div class="image-result"><img src="${imageUrl}"><div class="image-footer"><a href="${imageUrl}" target="_blank" class="download-link">Full Res</a></div></div>`;
+                        bubble.innerHTML = `<div class="image-result"><img src="${finalDbText}"><div class="image-footer"><a href="${finalDbText}" target="_blank" class="download-link">Full Res</a></div></div>`;
                         if(document.getElementById('autoRead').checked) window.speakText(`Here is the image for ${prompt}`);
                     } else {
-                        finalDbText = "I couldn't find any images for that prompt.";
+                        finalDbText = "I couldn't generate that image right now.";
                         bubble.innerText = finalDbText;
                     }
                 } 
@@ -513,29 +521,11 @@
                     const storyPrompt = val.replace(/(tell|write|generate|a|story|about|narrate)/gi, "").trim() || "a random tale";
                     const response = await fetch(`https://eliteprotech-apis.zone.id/story?text=${encodeURIComponent(storyPrompt)}`);
                     const data = await response.json();
-
-                    thinkingUi.style.display = 'none';
+                    botRow.querySelector('.thinking-ui').style.display = 'none';
                     bubble.style.display = 'block';
-
-                    const storyText = data.story || "I'm sorry, I couldn't weave a tale right now.";
-                    finalDbText = storyText;
+                    finalDbText = data.story || "I'm sorry, I couldn't weave a tale right now.";
                     finalDbType = "story";
-
-                    // Typewriter effect locally
-                    let i = 0;
-                    await new Promise(resolve => {
-                        const interval = setInterval(() => {
-                            if (i < storyText.length) {
-                                bubble.innerHTML = `<div class="story-container"><span class="story-title">📖 A GrieezBoy Story</span>${simpleFormat(escapeHTML(storyText.substring(0, i + 5)))}</div>`;
-                                i += 8;
-                                chatArea.scrollTop = chatArea.scrollHeight;
-                            } else {
-                                clearInterval(interval);
-                                if(document.getElementById('autoRead').checked) window.speakText(storyText);
-                                resolve();
-                            }
-                        }, 10);
-                    });
+                    await typewriter(bubble, finalDbText, "story");
                 } 
                 else {
                     let fullText = "";
@@ -546,69 +536,74 @@
                         const data = await res.json();
                         fullText = data.text.replace(/Copilot/gi, "GrieezBot");
                     }
-
-                    thinkingUi.style.display = 'none';
+                    botRow.querySelector('.thinking-ui').style.display = 'none';
                     bubble.style.display = 'block';
                     finalDbText = fullText;
-
-                    let i = 0;
-                    await new Promise(resolve => {
-                        const interval = setInterval(() => {
-                            if (i < fullText.length) {
-                                bubble.innerHTML = simpleFormat(escapeHTML(fullText.substring(0, i + 1)));
-                                i += 3;
-                                chatArea.scrollTop = chatArea.scrollHeight;
-                            } else {
-                                clearInterval(interval);
-                                bubble.innerHTML = renderFinalContent(fullText);
-                                if(document.getElementById('autoRead').checked) window.speakText(fullText);
-                                resolve();
-                            }
-                        }, 10);
-                    });
+                    await typewriter(bubble, finalDbText, "text");
                 }
 
-                disclaimer.style.display = 'block';
-                
-                // Finally, save Bot response to Firestore
-                await addDoc(userMsgRef, { text: finalDbText, sender: 'bot', type: finalDbType, timestamp: serverTimestamp() });
-                
+                botRow.querySelector('.bot-disclaimer').style.display = 'block';
+                await addDoc(msgRef, { text: finalDbText, sender: 'bot', type: finalDbType, timestamp: serverTimestamp() });
+                await updateDoc(doc(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations', currentChatId), { updatedAt: serverTimestamp() });
+
             } catch (err) {
-                console.error(err);
-                botRow.querySelector('.thinking-ui').innerText = "Network error. Try again.";
+                botRow.querySelector('.thinking-ui').innerText = "Network Error. Please try again.";
             } finally {
                 isBusy = false;
-                chatArea.scrollTop = chatArea.scrollHeight;
             }
         };
 
-        userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') window.handleSend(); });
-
         // ==========================================
-        // 6. VOICE ENGINE (Text to Speech)
+        // 5. UTILITIES (TYPEWRITER, FORMATTING)
         // ==========================================
-        const synth = window.speechSynthesis;
-        let voices = [];
-        
-        function populateVoices() {
-            voices = synth.getVoices();
-            document.getElementById('voiceSelect').innerHTML = voices.map((v, i) => `<option value="${i}" ${v.name.includes("Google") ? "selected" : ""}>${v.name}</option>`).join('');
+        async function typewriter(el, text, type) {
+            let i = 0;
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    if (i < text.length) {
+                        const sub = text.substring(0, i + 4);
+                        el.innerHTML = type === "story" 
+                            ? `<div class="story-container"><span class="story-title">📖 A GrieezBoy Story</span>${simpleFormat(escapeHTML(sub))}</div>` 
+                            : simpleFormat(escapeHTML(sub));
+                        i += 4;
+                        document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+                    } else {
+                        clearInterval(interval);
+                        el.innerHTML = type === "story" 
+                            ? `<div class="story-container"><span class="story-title">📖 A GrieezBoy Story</span>${simpleFormat(escapeHTML(text))}</div>` 
+                            : renderFinalContent(text);
+                        if(document.getElementById('autoRead').checked) window.speakText(text);
+                        resolve();
+                    }
+                }, 10);
+            });
         }
-        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
-        populateVoices();
 
-        window.speakText = (text) => {
-            if (synth.speaking) synth.cancel();
-            const cleaned = text.replace(/```[\s\S]*?```/g, ' [Code Block] ').replace(/[#*&/\\<>\[\]{}|_+=-]/g, ' ').replace(/\s+/g, ' ').trim();
-            if (!cleaned) return;
-            const utter = new SpeechSynthesisUtterance(cleaned);
-            utter.voice = voices[document.getElementById('voiceSelect').value];
-            synth.speak(utter);
-        };
+        function renderMessage(data, instant = false) {
+            const chatBox = document.getElementById('chatMessages');
+            const row = document.createElement('div');
+            row.className = `message-row ${data.sender === 'user' ? 'user-row' : 'bot-row'}`;
+            const isBot = data.sender === 'bot';
+            
+            let content = "";
+            if (data.type === 'image') {
+                content = `<div class="image-result"><img src="${data.text}"><div class="image-footer"><a href="${data.text}" target="_blank" class="download-link">Full Res</a></div></div>`;
+            } else if (data.type === 'story') {
+                content = `<div class="story-container"><span class="story-title">📖 A GrieezBoy Story</span>${simpleFormat(escapeHTML(data.text))}</div>`;
+            } else {
+                content = isBot ? renderFinalContent(data.text) : simpleFormat(escapeHTML(data.text));
+            }
 
-        // Text formatters
-        function escapeHTML(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-        function simpleFormat(t) { return t.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); }
+            row.innerHTML = `
+                <div class="avatar" style="background:${isBot ? 'var(--accent)' : 'var(--user-bubble)'}">${isBot ? 'GB' : '<i class="fas fa-user"></i>'}</div>
+                <div class="content-wrap">
+                    <div class="chat-bubble ${isBot ? 'bot-msg' : 'user-msg'}">${content}</div>
+                    ${isBot ? '<div class="bot-disclaimer">Grieezbot is AI and can make mistakes</div>' : ''}
+                </div>`;
+            chatBox.appendChild(row);
+            document.getElementById('chatArea').scrollTop = chatBox.scrollHeight;
+        }
+
         function renderFinalContent(text) {
             const codeRegex = /```(\w*)\n?([\s\S]*?)```/g;
             let parts = [], lastIdx = 0, match;
@@ -621,24 +616,58 @@
             return parts.join('');
         }
 
+        function escapeHTML(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function simpleFormat(t) { return t.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); }
+        window.quickSend = (t) => { document.getElementById('userInput').value = t; window.handleSend(); };
         window.copyCode = (btn) => {
             navigator.clipboard.writeText(btn.closest('.code-container').querySelector('code').innerText);
-            btn.innerText = "Copied!";
-            setTimeout(() => btn.innerText = "Copy", 2000);
+            btn.innerText = "Copied!"; setTimeout(() => btn.innerText = "Copy", 2000);
         };
 
-        // Mic Speech Recognition
+        // ==========================================
+        // 6. VOICE & BROADCAST
+        // ==========================================
+        const synth = window.speechSynthesis;
+        function populateVoices() {
+            const voices = synth.getVoices();
+            document.getElementById('voiceSelect').innerHTML = voices.map((v, i) => `<option value="${i}" ${v.name.includes("Google") ? "selected" : ""}>${v.name}</option>`).join('');
+        }
+        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
+        populateVoices();
+
+        window.speakText = (text) => {
+            if (synth.speaking) synth.cancel();
+            const cleaned = text.replace(/```[\s\S]*?```/g, ' [Code Block] ').replace(/[#*&/\\<>\[\]{}|_+=-]/g, ' ').replace(/\s+/g, ' ').trim();
+            const utter = new SpeechSynthesisUtterance(cleaned);
+            utter.voice = synth.getVoices()[document.getElementById('voiceSelect').value];
+            synth.speak(utter);
+        };
+
+        function listenForBroadcasts() {
+            onSnapshot(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), (docSnap) => {
+                if (docSnap.exists()) {
+                    document.getElementById('broadcast-text').innerText = `${docSnap.data().message} — [Admin]`;
+                    document.getElementById('broadcast-banner').style.display = 'flex';
+                }
+            });
+        }
+        window.sendBroadcast = async () => {
+            const msg = prompt("Public announcement message:");
+            if (msg) await setDoc(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), { message: msg, timestamp: serverTimestamp() });
+        };
+
+        // Mic recognition
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRec) {
             const rec = new SpeechRec();
             const micBtn = document.getElementById('micBtn');
             rec.onstart = () => micBtn.classList.add('recording');
             rec.onend = () => micBtn.classList.remove('recording');
-            rec.onresult = (e) => { userInput.value = e.results[0][0].transcript; window.handleSend(); };
+            rec.onresult = (e) => { document.getElementById('userInput').value = e.results[0][0].transcript; window.handleSend(); };
             micBtn.onclick = () => { try { rec.start(); } catch { rec.stop(); } };
         }
+        document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') window.handleSend(); });
     </script>
 </body>
 </html>
-
 
