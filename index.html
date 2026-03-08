@@ -311,7 +311,6 @@
     <!-- FIREBASE AND BOT LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        // IMPORTED sendEmailVerification here
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, doc, setDoc, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
@@ -344,7 +343,7 @@
         window.toggleTheme = () => document.body.classList.toggle('light-mode');
 
         // ==========================================
-        // 2. AUTHENTICATION (UPDATED WITH VERIFICATION)
+        // 2. AUTHENTICATION
         // ==========================================
         window.toggleAuthMode = () => {
             isSignUpMode = !isSignUpMode;
@@ -364,43 +363,30 @@
             const submitBtn = document.getElementById('authSubmitBtn');
             const originalText = isSignUpMode ? "Sign Up" : "Login";
 
-            // Show Spinner
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
             errDiv.style.display = 'none';
 
             try {
                 if (isSignUpMode) {
-                    // SIGN UP FLOW
                     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-                    // Send Email Verification
                     await sendEmailVerification(userCredential.user);
-                    // Sign out immediately so they can't access without verifying
                     await signOut(auth);
-
                     errDiv.innerHTML = `<span style="color: #00ff88;">Verification link sent to ${email}. Please check your inbox and verify to login!</span>`;
                     errDiv.style.display = 'block';
-
-                    // Switch back to login mode automatically after a few seconds
                     setTimeout(() => { if (isSignUpMode) window.toggleAuthMode(); }, 3000);
-
                 } else {
-                    // LOGIN FLOW
                     const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-
                     if (!userCredential.user.emailVerified) {
-                        // User is NOT verified
                         await signOut(auth);
                         errDiv.innerHTML = `<span style="color: #ff4b4b;">Email not verified. Please check your inbox for the link.</span>`;
                         errDiv.style.display = 'block';
                     }
-                    // If verified, the onAuthStateChanged listener handles the rest automatically
                 }
             } catch (err) {
                 errDiv.innerHTML = `<span style="color: #ff4b4b;">${err.message.replace('Firebase: ', '')}</span>`;
                 errDiv.style.display = 'block';
             } finally {
-                // Restore Button
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }
@@ -409,7 +395,6 @@
         window.logoutUser = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
-            // ONLY let them in if they exist AND their email is verified
             if (user && user.emailVerified) {
                 currentUser = user;
                 document.getElementById('auth-overlay').style.display = 'none';
@@ -504,7 +489,7 @@
         };
 
         // ==========================================
-        // 4. CORE BOT LOGIC
+        // 4. CORE BOT LOGIC (UPDATED API)
         // ==========================================
         window.handleSend = async () => {
             const val = document.getElementById('userInput').value.trim();
@@ -512,7 +497,6 @@
             isBusy = true;
             document.getElementById('userInput').value = '';
 
-            // Initialize conversation in DB if it's new
             if (!currentChatId) {
                 const convRef = await addDoc(collection(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations'), {
                     title: val.length > 25 ? val.substring(0, 25) + '...' : val,
@@ -524,11 +508,9 @@
 
             const msgRef = collection(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations', currentChatId, 'messages');
 
-            // Render and Save User Msg
             renderMessage({ text: val, sender: 'user' });
             await addDoc(msgRef, { text: val, sender: 'user', timestamp: serverTimestamp() });
 
-            // Prepare Bot UI
             const chatMessages = document.getElementById('chatMessages');
             const botRow = document.createElement('div');
             botRow.className = 'message-row bot-row';
@@ -553,21 +535,16 @@
                 const bubble = botRow.querySelector('.bot-msg');
 
                 if (isImageGen) {
-                    const prompt = val.replace(/(generate|create|draw|an|image|of|picture|photo)/gi, "").trim();
-                    const response = await fetch(`https://eliteprotech-apis.zone.id/imagine?q=${encodeURIComponent(prompt)}`);
-                    const data = await response.json();
+                    const promptText = val.replace(/(generate|create|draw|an|image|of|picture|photo)/gi, "").trim();
+                    // NEW IMAGE PROMPT REPLACEMENT HERE
+                    const imageUrl = `https://eliteprotech-apis.zone.id/imagine?prompt=${encodeURIComponent(promptText)}`;
+                    
                     botRow.querySelector('.thinking-ui').style.display = 'none';
                     bubble.style.display = 'block';
-
-                    if (data.status && data.images && data.images.length > 0) {
-                        finalDbText = data.images[0];
-                        finalDbType = "image";
-                        bubble.innerHTML = `<div class="image-result"><img src="${finalDbText}"><div class="image-footer"><a href="${finalDbText}" target="_blank" class="download-link">Full Res</a></div></div>`;
-                        if(document.getElementById('autoRead').checked) window.speakText(`Here is the image for ${prompt}`);
-                    } else {
-                        finalDbText = "I couldn't generate that image right now.";
-                        bubble.innerText = finalDbText;
-                    }
+                    finalDbText = imageUrl;
+                    finalDbType = "image";
+                    bubble.innerHTML = `<div class="image-result"><img src="${imageUrl}" onerror="this.src='https://via.placeholder.com/350?text=Image+Generation+Error'"><div class="image-footer"><a href="${imageUrl}" target="_blank" class="download-link">Full Res</a></div></div>`;
+                    if(document.getElementById('autoRead').checked) window.speakText(`Here is the image for ${promptText}`);
                 } 
                 else if (isStory) {
                     const storyPrompt = val.replace(/(tell|write|generate|a|story|about|narrate)/gi, "").trim() || "a random tale";
@@ -695,7 +672,6 @@
             const utter = new SpeechSynthesisUtterance(cleaned);
             utter.voice = synth.getVoices()[document.getElementById('voiceSelect').value];
 
-            // Show Stop Audio Button when speech starts, hide when it ends or errors
             utter.onstart = () => document.getElementById('stopAudioBtn').style.display = 'inline-block';
             utter.onend = () => document.getElementById('stopAudioBtn').style.display = 'none';
             utter.onerror = () => document.getElementById('stopAudioBtn').style.display = 'none';
@@ -703,7 +679,6 @@
             synth.speak(utter);
         };
 
-        // Mute/Stop Audio Action
         window.stopAudio = () => {
             if (synth.speaking) synth.cancel();
             document.getElementById('stopAudioBtn').style.display = 'none';
@@ -722,7 +697,6 @@
             if (msg) await setDoc(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), { message: msg, timestamp: serverTimestamp() });
         };
 
-        // Mic recognition
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRec) {
             const rec = new SpeechRec();
@@ -736,3 +710,4 @@
     </script>
 </body>
 </html>
+
