@@ -554,8 +554,7 @@
 
                 if (isImageGen) {
                     const prompt = val.replace(/(generate|create|draw|an|image|of|picture|photo)/gi, "").trim();
-                    // 🔁 REPLACED IMAGE API HERE
-                    const response = await fetch(`https://eliteprotech-apis.zone.id/imagine?prompt=${encodeURIComponent(prompt)}`);
+                    const response = await fetch(`https://eliteprotech-apis.zone.id/imagine?q=${encodeURIComponent(prompt)}`);
                     const data = await response.json();
                     botRow.querySelector('.thinking-ui').style.display = 'none';
                     bubble.style.display = 'block';
