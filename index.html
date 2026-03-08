@@ -224,7 +224,7 @@
             <form id="authForm">
                 <input type="email" id="authEmail" class="auth-input" placeholder="Email Address" required>
                 <input type="password" id="authPassword" class="auth-input" placeholder="Password" required>
-                <div id="authError" style="color: #ff4b4b; font-size: 0.8rem; margin-bottom: 10px; display: none;"></div>
+                <div id="authError" style="font-size: 0.85rem; margin-bottom: 10px; display: none; line-height: 1.4;"></div>
                 <button type="submit" class="auth-btn" id="authSubmitBtn">Login</button>
             </form>
 
@@ -311,7 +311,8 @@
     <!-- FIREBASE AND BOT LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        // IMPORTED sendEmailVerification here
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, doc, setDoc, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
         // ==========================================
@@ -343,7 +344,7 @@
         window.toggleTheme = () => document.body.classList.toggle('light-mode');
 
         // ==========================================
-        // 2. AUTHENTICATION
+        // 2. AUTHENTICATION (UPDATED WITH VERIFICATION)
         // ==========================================
         window.toggleAuthMode = () => {
             isSignUpMode = !isSignUpMode;
@@ -369,10 +370,34 @@
             errDiv.style.display = 'none';
 
             try {
-                if (isSignUpMode) await createUserWithEmailAndPassword(auth, email, pass);
-                else await signInWithEmailAndPassword(auth, email, pass);
+                if (isSignUpMode) {
+                    // SIGN UP FLOW
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                    // Send Email Verification
+                    await sendEmailVerification(userCredential.user);
+                    // Sign out immediately so they can't access without verifying
+                    await signOut(auth);
+                    
+                    errDiv.innerHTML = `<span style="color: #00ff88;">Verification link sent to ${email}. Please check your inbox and verify to login!</span>`;
+                    errDiv.style.display = 'block';
+                    
+                    // Switch back to login mode automatically after a few seconds
+                    setTimeout(() => { if (isSignUpMode) window.toggleAuthMode(); }, 3000);
+
+                } else {
+                    // LOGIN FLOW
+                    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                    
+                    if (!userCredential.user.emailVerified) {
+                        // User is NOT verified
+                        await signOut(auth);
+                        errDiv.innerHTML = `<span style="color: #ff4b4b;">Email not verified. Please check your inbox for the link.</span>`;
+                        errDiv.style.display = 'block';
+                    }
+                    // If verified, the onAuthStateChanged listener handles the rest automatically
+                }
             } catch (err) {
-                errDiv.innerText = err.message.replace('Firebase: ', '');
+                errDiv.innerHTML = `<span style="color: #ff4b4b;">${err.message.replace('Firebase: ', '')}</span>`;
                 errDiv.style.display = 'block';
             } finally {
                 // Restore Button
@@ -384,7 +409,8 @@
         window.logoutUser = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
-            if (user) {
+            // ONLY let them in if they exist AND their email is verified
+            if (user && user.emailVerified) {
                 currentUser = user;
                 document.getElementById('auth-overlay').style.display = 'none';
                 document.getElementById('user-email-display').innerText = user.email;
@@ -668,7 +694,7 @@
             const cleaned = text.replace(/```[\s\S]*?```/g, ' [Code Block] ').replace(/[#*&/\\<>\[\]{}|_+=-]/g, ' ').replace(/\s+/g, ' ').trim();
             const utter = new SpeechSynthesisUtterance(cleaned);
             utter.voice = synth.getVoices()[document.getElementById('voiceSelect').value];
-            
+
             // Show Stop Audio Button when speech starts, hide when it ends or errors
             utter.onstart = () => document.getElementById('stopAudioBtn').style.display = 'inline-block';
             utter.onend = () => document.getElementById('stopAudioBtn').style.display = 'none';
@@ -710,5 +736,3 @@
     </script>
 </body>
 </html>
-
-
