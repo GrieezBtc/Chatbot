@@ -377,17 +377,17 @@
                     await sendEmailVerification(userCredential.user);
                     // Sign out immediately so they can't access without verifying
                     await signOut(auth);
-                    
+
                     errDiv.innerHTML = `<span style="color: #00ff88;">Verification link sent to ${email}. Please check your inbox and verify to login!</span>`;
                     errDiv.style.display = 'block';
-                    
+
                     // Switch back to login mode automatically after a few seconds
                     setTimeout(() => { if (isSignUpMode) window.toggleAuthMode(); }, 3000);
 
                 } else {
                     // LOGIN FLOW
                     const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-                    
+
                     if (!userCredential.user.emailVerified) {
                         // User is NOT verified
                         await signOut(auth);
@@ -554,7 +554,8 @@
 
                 if (isImageGen) {
                     const prompt = val.replace(/(generate|create|draw|an|image|of|picture|photo)/gi, "").trim();
-                    const response = await fetch(`https://eliteprotech-apis.zone.id/image?q=${encodeURIComponent(prompt)}`);
+                    // 🔁 REPLACED IMAGE API HERE
+                    const response = await fetch(`https://eliteprotech-apis.zone.id/imagine?prompt=${encodeURIComponent(prompt)}`);
                     const data = await response.json();
                     botRow.querySelector('.thinking-ui').style.display = 'none';
                     bubble.style.display = 'block';
