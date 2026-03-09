@@ -1,6 +1,6 @@
-// Updated Vercel Serverless Function with Story Support
+// Final Backend Logic for GrieezBot - Developed by GrieezBoy
 export default async function handler(req, res) {
-    // CORS configuration
+    // CORS configuration for security
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*'); 
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -18,10 +18,10 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Environment variables from Vercel Dashboard
-        const CHATGPT_ENDPOINT = process.env.CHATGPT_API || "https://eliteprotech-apis.zone.id/chatgpt";
-        const IMAGINE_ENDPOINT = process.env.IMAGINE_API || "https://eliteprotech-apis.zone.id/imagine";
-        const STORY_ENDPOINT = process.env.STORY_API || "https://eliteprotech-apis.zone.id/story";
+        // These come from your Vercel Environment Variables
+        const CHATGPT_ENDPOINT = process.env.CHATGPT_API;
+        const IMAGINE_ENDPOINT = process.env.IMAGINE_API;
+        const STORY_ENDPOINT = process.env.STORY_API;
 
         // 1. IMAGE HANDLING
         if (type === 'image') {
@@ -44,10 +44,10 @@ export default async function handler(req, res) {
         const data = await response.json();
 
         let botReply = data.response || "I'm having trouble connecting to my brain, Chief.";
-        // Protect branding
+        
+        // Brand Protection
         botReply = botReply.replace(/ChatGPT|OpenAI|Copilot|Google/gi, "GrieezBot");
         
-        // Add developer mention if they ask about creators
         if (prompt.toLowerCase().match(/developer|creator|who made you|who built you/)) {
             botReply = "I was developed by Yusuf MuhammedJamiu (GrieezBoy), a tech genius from Abuja, Nigeria.";
         }
@@ -60,7 +60,6 @@ export default async function handler(req, res) {
         });
 
     } catch (error) {
-        console.error("Backend Error:", error);
-        return res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: "Backend Connection Error" });
     }
 }
