@@ -561,9 +561,14 @@
                     if (isDeveloper) {
                         fullText = "My developer's name is, Yusuf MuhammedJamiu. popularly known as GrieezBoy, Some people call him Chief, He lives in Abuja and he is from Okene, Kogi State. He is currently 24 years old, born on April 12th, 2001.";
                     } else {
-                        const res = await fetch(`https://eliteprotech-apis.zone.id/copilot?q=${encodeURIComponent(val)}`);
-                        const data = await res.json();
-                        fullText = data.text.replace(/Copilot/gi, "GrieezBot");
+                        const res = await fetch(`https://eliteprotech-apis.zone.id/chatgpt?prompt=${encodeURIComponent(val)}`);
+                         const data = await res.json();
+
+                       if (data.success) {
+                       fullText = data.response;
+                    } else {
+                       fullText = "Sorry, I couldn't generate a response right now.";
+                    }
                     }
                     botRow.querySelector('.thinking-ui').style.display = 'none';
                     bubble.style.display = 'block';
