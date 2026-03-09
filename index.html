@@ -357,7 +357,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, doc, setDoc, getDocs, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-storage.js";
+        // Firebase Storage import removed – now using Cloudinary
 
         // ==========================================
         // 1. FIREBASE CONFIGURATION
@@ -374,7 +374,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
+        // storage initialization removed
         const projectAppId = "grieezbot"; 
 
         const ADMIN_EMAIL = "muhammadjamiuyusuf876@gmail.com"; 
@@ -382,7 +382,45 @@
         let currentUser = null;
         let currentChatId = null;
         let isSignUpMode = false;
-        // We'll manage busy state manually with UI disabling
+
+        // ==========================================
+        // 1b. CLOUDINARY CONFIG (unsigned upload)
+        // ==========================================
+        const CLOUDINARY_CLOUD_NAME = "dynckplcs";
+        const CLOUDINARY_UPLOAD_PRESET = "grieezbot_upload";
+        const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
+
+        // Upload function using XHR (supports progress)
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', CLOUDINARY_UPLOAD_URL, true);
+
+            // Progress callback
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    const progressDiv = document.getElementById('upload-progress');
+                    if (progressDiv) progressDiv.innerText = `Uploading ${percent}%`;
+                }
+            });
+
+            return new Promise((resolve, reject) => {
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const res = JSON.parse(xhr.responseText);
+                        resolve(res.secure_url); // returns the uploaded file URL
+                    } else {
+                        reject(xhr.responseText);
+                    }
+                };
+                xhr.onerror = () => reject("Upload failed");
+                xhr.send(formData);
+            });
+        }
 
         // UI Handlers
         window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('open');
@@ -630,7 +668,7 @@
                 }
 
                 botRow.querySelector('.bot-disclaimer').style.display = 'block';
-                
+
                 // Add bot message to Firestore and get ID
                 const botDoc = await addDoc(msgRef, { text: finalDbText, sender: 'bot', type: finalDbType, timestamp: serverTimestamp() });
                 // Re-render with ID to enable regenerate button (replace the temporary row)
@@ -677,7 +715,7 @@
             await Promise.all(deletePromises);
 
             await window.loadConversation(conversationId, document.getElementById('active-chat-title').innerText);
-            
+
             await sendUserMessage(newText, conversationId);
         };
 
@@ -714,12 +752,12 @@
             await Promise.all(deletePromises);
 
             await window.loadConversation(conversationId, document.getElementById('active-chat-title').innerText);
-            
+
             await sendUserMessage(userText, conversationId);
         };
 
         // ==========================================
-        // 5. FILE UPLOAD HANDLER
+        // 5. FILE UPLOAD HANDLER (CLOUDINARY)
         // ==========================================
         document.getElementById('attachBtn').addEventListener('click', () => {
             document.getElementById('fileInput').click();
@@ -761,25 +799,8 @@
                 // Ensure we have a conversation before uploading (so file goes to correct chat)
                 const chatId = await ensureConversation();
 
-                // Create storage reference
-                const fileName = `${Date.now()}_${file.name}`;
-                const storageRef = ref(storage, `users/${currentUser.uid}/chats/${chatId}/files/${fileName}`);
-                const uploadTask = uploadBytesResumable(storageRef, file);
-
-                // Wait for upload completion
-                const downloadURL = await new Promise((resolve, reject) => {
-                    uploadTask.on('state_changed',
-                        (snapshot) => {
-                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                            progressDiv.innerText = `Uploading ${Math.round(progress)}%`;
-                        },
-                        (error) => reject(error),
-                        async () => {
-                            const url = await getDownloadURL(uploadTask.snapshot.ref);
-                            resolve(url);
-                        }
-                    );
-                });
+                // Upload to Cloudinary
+                const downloadURL = await uploadToCloudinary(file);
 
                 progressDiv.innerText = '✅ Complete!';
 
@@ -899,7 +920,7 @@
                 </div>`;
             chatBox.appendChild(row);
             document.getElementById('chatArea').scrollTop = chatBox.scrollHeight;
-            
+
             hljs.highlightAll();
         }
 
