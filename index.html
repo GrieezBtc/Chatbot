@@ -10,7 +10,6 @@
             --accent: #4285f4; --bg: #0b141a; --glass: #111b21;
             --border: rgba(255, 255, 255, 0.1); --text: #e9edef;
             --user-bubble: #005c4b; --bot-bubble: #202c33; 
-            --disclaimer: #8696a0; --card-bg: rgba(255, 255, 255, 0.03);
         }
         .light-mode {
             --bg: #f0f2f5; --glass: #ffffff; --border: rgba(0, 0, 0, 0.1);
@@ -19,45 +18,44 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; }
         body { height: 100dvh; width: 100vw; overflow: hidden; background: var(--bg); color: var(--text); display: flex; transition: 0.3s; }
         
+        /* Auth Screen */
         #auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 30px; width: 100%; max-width: 400px; text-align: center; }
         .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 10px; outline: none; }
         .auth-btn { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
-        .sidebar { width: 280px; background: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: transform 0.3s ease; z-index: 2001; }
+        /* Main App Interface */
+        .sidebar { width: 280px; background: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: 0.3s; }
         .main { flex: 1; display: flex; flex-direction: column; position: relative; }
         .top-nav { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; background: var(--glass); border-bottom: 1px solid var(--border); }
-        .chat-area { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
-        .input-wrap { padding: 15px; background: var(--glass); border-top: 1px solid var(--border); }
+        .chat-area { flex: 1; overflow-y: auto; padding: 20px; }
+        .input-wrap { padding: 15px; background: var(--glass); }
         .input-box { max-width: 700px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); border-radius: 30px; display: flex; align-items: center; padding: 5px 15px; }
         input { flex: 1; background: none; border: none; color: var(--text); padding: 12px; outline: none; }
 
         .message-row { display: flex; margin-bottom: 20px; gap: 10px; animation: fadeIn 0.3s; width: 100%; }
         .user-row { flex-direction: row-reverse; }
-        .chat-bubble { padding: 12px 16px; border-radius: 15px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; }
+        .chat-bubble { padding: 12px 16px; border-radius: 15px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; }
         .bot-msg { background: var(--bot-bubble); border-bottom-left-radius: 2px; }
         .user-msg { background: var(--user-bubble); border-bottom-right-radius: 2px; }
         
-        .story-container { border-left: 3px solid var(--accent); padding-left: 15px; font-style: italic; color: var(--text); margin: 5px 0; }
-        .story-header { display: block; font-weight: bold; font-style: normal; color: var(--accent); margin-bottom: 8px; font-size: 0.8rem; text-transform: uppercase; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .history-item { padding: 12px; border-radius: 10px; cursor: pointer; margin-bottom: 8px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; }
-        .history-item:hover { background: var(--card-bg); }
-        .active-chat { background: rgba(66, 133, 244, 0.15); border-color: var(--accent); color: var(--accent); }
+        .story-container { border-left: 3px solid var(--accent); padding-left: 15px; font-style: italic; }
+        .history-item { padding: 10px; border-radius: 8px; cursor: pointer; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .active-chat { background: rgba(66, 133, 244, 0.1); border: 1px solid var(--accent); }
 
         @media (max-width: 768px) {
             .sidebar { position: fixed; left: -280px; height: 100%; }
-            .sidebar.open { transform: translateX(280px); }
+            .sidebar.open { transform: translateX(280px); z-index: 100; }
         }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div id="auth-overlay">
         <div class="auth-card">
-            <h1 style="color:var(--accent); font-style:italic; font-weight:900;">GRIEEZBOT PRO</h1>
-            <p id="auth-status" style="font-size:0.8rem; margin:15px 0; opacity:0.7;">Developed by GrieezBoy</p>
+            <h1 style="color:var(--accent); font-weight:900;">GRIEEZBOT PRO</h1>
+            <p id="auth-status" style="font-size:0.8rem; margin:15px 0; opacity:0.7;">Secure Access Only</p>
             <form id="authForm">
                 <input type="email" id="email" class="auth-input" placeholder="Email" required>
                 <input type="password" id="pass" class="auth-input" placeholder="Password" required>
@@ -72,37 +70,39 @@
         <p style="font-size:0.6rem; opacity:0.5; margin-bottom:20px;">ABUJA TECH HUB</p>
         <button onclick="newChat()" style="width:100%; padding:12px; border-radius:10px; border:1px dashed var(--accent); background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:20px;">+ New Chat</button>
         <div id="history" style="flex:1; overflow-y:auto;"></div>
-        <button onclick="logout()" style="width:100%; padding:12px; background:#ff4b4b; border:none; color:white; border-radius:10px; font-weight:bold; cursor:pointer;">Logout</button>
+        <button onclick="logout()" style="width:100%; padding:10px; background:#ff4b4b; border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">Logout</button>
     </aside>
 
     <main class="main">
         <nav class="top-nav">
-            <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text); font-size:1.2rem; cursor:pointer;"><i class="fas fa-bars"></i></button>
-            <div style="font-weight:900; color:var(--accent);">GRIEEZBOT AI</div>
-            <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size:1.2rem; cursor:pointer;"><i class="fas fa-moon"></i></button>
+            <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text); font-size:1.2rem;"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:900; color:var(--accent);">GRIEEZBOT BY GRIEEZBOY</div>
+            <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size:1.2rem;"><i class="fas fa-moon"></i></button>
         </nav>
 
         <div class="chat-area" id="chatBox">
-            <div id="welcome" style="text-align:center; margin-top:100px; padding:20px;">
-                <i class="fas fa-bolt fa-3x" style="color:var(--accent); margin-bottom:20px;"></i>
-                <h2 style="margin-bottom:10px;">Hello, Chief GrieezBoy</h2>
-                <p style="opacity:0.6; font-size:0.9rem;">Ask me to write a story, generate an image, or just chat.</p>
+            <div id="welcome" style="text-align:center; margin-top:100px;">
+                <i class="fas fa-robot fa-3x" style="color:var(--accent); margin-bottom:20px;"></i>
+                <h2>Welcome, Chief GrieezBoy</h2>
+                <p style="opacity:0.6; margin-top:10px;">Your secure AI Assistant is ready.</p>
             </div>
         </div>
 
         <div class="input-wrap">
             <div class="input-box">
-                <input type="text" id="userInput" placeholder="Message GrieezBot..." autocomplete="off">
+                <input type="text" id="userInput" placeholder="Ask anything..." autocomplete="off">
                 <button onclick="sendMessage()" style="background:var(--accent); color:white; border:none; width:40px; height:40px; border-radius:50%; cursor:pointer;"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
 
     <script type="module">
+        // Firebase Core Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
+        // Firebase Configuration (Matches your project)
         const firebaseConfig = {
             apiKey: "AIzaSyAhiSfSaWNVfXZlW4Zqd08fEGWYHzqx3Eg",
             authDomain: "grieezbot.firebaseapp.com",
@@ -115,6 +115,7 @@
         const db = getFirestore(app);
         let user = null, currentChatId = null, isSignUp = false;
 
+        // AUTH HANDLERS
         window.toggleAuth = () => {
             isSignUp = !isSignUp;
             document.getElementById('loginBtn').innerText = isSignUp ? "Sign Up" : "Login";
@@ -128,12 +129,12 @@
                 if(isSignUp) {
                     const res = await createUserWithEmailAndPassword(auth, email, pass);
                     await sendEmailVerification(res.user);
-                    alert("Verification link sent! Please check your inbox.");
+                    alert("Verification link sent! Check your email.");
                     await signOut(auth);
                 } else {
                     const res = await signInWithEmailAndPassword(auth, email, pass);
                     if(!res.user.emailVerified) {
-                        alert("Verify your email to continue.");
+                        alert("Please verify your email.");
                         await signOut(auth);
                     }
                 }
@@ -152,6 +153,7 @@
 
         window.logout = () => signOut(auth);
 
+        // MESSAGING LOGIC
         window.sendMessage = async () => {
             const input = document.getElementById('userInput');
             const val = input.value.trim();
@@ -159,6 +161,7 @@
             input.value = '';
             document.getElementById('welcome').style.display = 'none';
 
+            // 1. Create/Update Firestore Conversation
             if(!currentChatId) {
                 const conv = await addDoc(collection(db, 'artifacts', 'grieezbot', 'users', user.uid, 'conversations'), {
                     title: val.substring(0, 25),
@@ -171,27 +174,28 @@
             renderMessage(val, 'user');
             await addDoc(msgRef, { text: val, sender: 'user', timestamp: serverTimestamp() });
 
-            const tempBot = document.createElement('div');
-            tempBot.innerHTML = `<div style="font-size:0.8rem; color:var(--accent); font-weight:bold; margin-bottom:10px;">Thinking...</div>`;
-            document.getElementById('chatBox').appendChild(tempBot);
+            // 2. Call Vercel Backend
+            const botThinking = document.createElement('div');
+            botThinking.innerHTML = `<div style="font-size:0.8rem; color:var(--accent); font-weight:bold; margin-bottom:15px;">GrieezBot is thinking...</div>`;
+            document.getElementById('chatBox').appendChild(botThinking);
 
             try {
                 let type = 'chat';
                 if(val.toLowerCase().includes('image') || val.toLowerCase().includes('draw')) type = 'image';
                 else if(val.toLowerCase().includes('story')) type = 'story';
 
-                // BACKEND CALL
+                // We call our internal Vercel API
                 const response = await fetch(`/api/chat?prompt=${encodeURIComponent(val)}&type=${type}`);
                 const data = await response.json();
                 
-                tempBot.remove();
+                botThinking.remove();
                 const resultText = data.url || data.response;
                 const resultType = data.type;
 
                 renderMessage(resultText, 'bot', resultType);
                 await addDoc(msgRef, { text: resultText, sender: 'bot', type: resultType, timestamp: serverTimestamp() });
             } catch(e) {
-                tempBot.innerText = "Error connecting to GrieezBot backend.";
+                botThinking.innerText = "Error: Backend unreachable.";
             }
         };
 
@@ -202,7 +206,7 @@
             
             let html = '';
             if (type === 'image') html = `<img src="${text}" style="width:100%; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.3);">`;
-            else if (type === 'story') html = `<div class="story-container"><span class="story-header">A Story by GrieezBot</span>${text}</div>`;
+            else if (type === 'story') html = `<div class="story-container"><strong>A Story by GrieezBot:</strong><br>${text}</div>`;
             else html = text;
             
             row.innerHTML = `<div class="chat-bubble ${sender === 'user' ? 'user-msg' : 'bot-msg'}">${html}</div>`;
@@ -210,6 +214,7 @@
             box.scrollTop = box.scrollHeight;
         }
 
+        // DB HISTORY SYNC
         function loadHistory() {
             const q = query(collection(db, 'artifacts', 'grieezbot', 'users', user.uid, 'conversations'), orderBy('updatedAt', 'desc'));
             onSnapshot(q, (snap) => {
@@ -218,7 +223,7 @@
                 snap.forEach(d => {
                     const div = document.createElement('div');
                     div.className = `history-item ${currentChatId === d.id ? 'active-chat' : ''}`;
-                    div.innerHTML = `<span>${d.data().title}</span><i class="fas fa-trash" onclick="deleteConv('${d.id}')" style="opacity:0.5; font-size:0.7rem;"></i>`;
+                    div.innerHTML = `<span>${d.data().title}</span><i class="fas fa-trash" onclick="deleteConv('${d.id}')" style="font-size:0.7rem;"></i>`;
                     div.onclick = () => loadChat(d.id);
                     hist.appendChild(div);
                 });
@@ -237,7 +242,7 @@
 
         window.deleteConv = async (id) => {
             event.stopPropagation();
-            if(confirm("Delete this conversation?")) await deleteDoc(doc(db, 'artifacts', 'grieezbot', 'users', user.uid, 'conversations', id));
+            if(confirm("Delete this chat?")) await deleteDoc(doc(db, 'artifacts', 'grieezbot', 'users', user.uid, 'conversations', id));
         };
 
         window.newChat = () => { currentChatId = null; document.getElementById('chatBox').innerHTML = ''; document.getElementById('welcome').style.display = 'block'; };
