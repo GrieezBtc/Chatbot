@@ -18,44 +18,50 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; }
         body { height: 100dvh; width: 100vw; overflow: hidden; background: var(--bg); color: var(--text); display: flex; transition: 0.3s; }
         
-        /* Auth Screen */
+        /* Auth */
         #auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 30px; width: 100%; max-width: 400px; text-align: center; }
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 10px; outline: none; }
-        .auth-btn { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-
-        /* Main App Interface */
-        .sidebar { width: 280px; background: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: 0.3s; }
+        
+        /* Sidebar & Main */
+        .sidebar { width: 280px; background: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; transition: 0.3s; z-index: 1000; }
         .main { flex: 1; display: flex; flex-direction: column; position: relative; }
         .top-nav { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; background: var(--glass); border-bottom: 1px solid var(--border); }
-        .chat-area { flex: 1; overflow-y: auto; padding: 20px; }
-        .input-wrap { padding: 15px; background: var(--glass); }
-        .input-box { max-width: 700px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); border-radius: 30px; display: flex; align-items: center; padding: 5px 15px; }
-        input { flex: 1; background: none; border: none; color: var(--text); padding: 12px; outline: none; }
-
-        .message-row { display: flex; margin-bottom: 20px; gap: 10px; animation: fadeIn 0.3s; width: 100%; }
-        .user-row { flex-direction: row-reverse; }
-        .chat-bubble { padding: 12px 16px; border-radius: 15px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; }
-        .bot-msg { background: var(--bot-bubble); border-bottom-left-radius: 2px; }
-        .user-msg { background: var(--user-bubble); border-bottom-right-radius: 2px; }
         
-        .story-container { border-left: 3px solid var(--accent); padding-left: 15px; font-style: italic; }
-        .history-item { padding: 10px; border-radius: 8px; cursor: pointer; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
-        .active-chat { background: rgba(66, 133, 244, 0.1); border: 1px solid var(--accent); }
+        /* Chat Area */
+        .chat-area { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
+        .welcome-screen { text-align: center; padding: 40px 20px; }
+        .starter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 500px; margin: 20px auto; }
+        .starter-card { background: var(--glass); border: 1px solid var(--border); padding: 15px; border-radius: 12px; cursor: pointer; transition: 0.2s; text-align: left; }
+        .starter-card:hover { border-color: var(--accent); background: rgba(66,133,244,0.1); }
 
+        /* Input */
+        .input-wrap { padding: 15px; background: var(--glass); border-top: 1px solid var(--border); }
+        .input-box { max-width: 800px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); border-radius: 30px; display: flex; align-items: center; padding: 5px 15px; gap: 10px; }
+        input { flex: 1; background: none; border: none; color: var(--text); padding: 12px; outline: none; }
+        .icon-btn { background: none; border: none; color: var(--text); cursor: pointer; font-size: 1.1rem; opacity: 0.7; transition: 0.2s; }
+        .icon-btn:hover { opacity: 1; color: var(--accent); }
+        .mic-active { color: #ff4b4b !important; animation: pulse 1s infinite; }
+
+        /* Admin Modal */
+        #admin-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; display: none; padding: 20px; align-items: center; justify-content: center; }
+        .admin-content { background: var(--glass); width: 100%; max-width: 600px; height: 80vh; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; }
+        .user-list { flex: 1; overflow-y: auto; margin-top: 20px; }
+        .user-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         @media (max-width: 768px) {
             .sidebar { position: fixed; left: -280px; height: 100%; }
-            .sidebar.open { transform: translateX(280px); z-index: 100; }
+            .sidebar.open { transform: translateX(280px); }
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body class="dark-mode">
 
+    <!-- Auth Layer -->
     <div id="auth-overlay">
         <div class="auth-card">
             <h1 style="color:var(--accent); font-weight:900;">GRIEEZBOT PRO</h1>
-            <p id="auth-status" style="font-size:0.8rem; margin:15px 0; opacity:0.7;">Secure Access Only</p>
+            <p id="auth-status" style="opacity:0.6; margin:10px 0;">Developed by GrieezBoy</p>
             <form id="authForm">
                 <input type="email" id="email" class="auth-input" placeholder="Email" required>
                 <input type="password" id="pass" class="auth-input" placeholder="Password" required>
@@ -65,44 +71,71 @@
         </div>
     </div>
 
+    <!-- Admin Dashboard -->
+    <div id="admin-modal">
+        <div class="admin-content">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>Admin Dashboard</h3>
+                <button onclick="toggleAdmin(false)" class="icon-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="user-list" id="adminUserList">Loading users...</div>
+        </div>
+    </div>
+
     <aside class="sidebar" id="sidebar">
         <h2 style="color:var(--accent);">GrieezBot</h2>
-        <p style="font-size:0.6rem; opacity:0.5; margin-bottom:20px;">ABUJA TECH HUB</p>
-        <button onclick="newChat()" style="width:100%; padding:12px; border-radius:10px; border:1px dashed var(--accent); background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:20px;">+ New Chat</button>
-        <div id="history" style="flex:1; overflow-y:auto;"></div>
-        <button onclick="logout()" style="width:100%; padding:10px; background:#ff4b4b; border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">Logout</button>
+        <p style="font-size:0.6rem; opacity:0.5; margin-bottom:20px;">ABUJA MASTER BUILD</p>
+        
+        <button onclick="newChat()" style="width:100%; padding:12px; border-radius:10px; border:1px dashed var(--accent); background:none; color:var(--accent); font-weight:bold; cursor:pointer; margin-bottom:10px;">+ New Chat</button>
+        
+        <div id="history" style="flex:1; overflow-y:auto; margin-bottom:10px;"></div>
+
+        <button onclick="toggleAdmin(true)" id="adminBtn" style="display:none; width:100%; padding:10px; background:var(--card-bg); border:1px solid var(--border); color:var(--text); border-radius:10px; margin-bottom:10px; cursor:pointer;"><i class="fas fa-user-shield"></i> Admin Panel</button>
+        <button onclick="logout()" style="width:100%; padding:10px; background:#ff4b4b; border:none; color:white; border-radius:10px; font-weight:bold; cursor:pointer;">Logout</button>
     </aside>
 
     <main class="main">
         <nav class="top-nav">
-            <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text); font-size:1.2rem;"><i class="fas fa-bars"></i></button>
-            <div style="font-weight:900; color:var(--accent);">GRIEEZBOT BY GRIEEZBOY</div>
-            <button onclick="toggleTheme()" style="background:none; border:none; color:var(--text); font-size:1.2rem;"><i class="fas fa-moon"></i></button>
+            <button onclick="toggleSidebar()" class="icon-btn"><i class="fas fa-bars"></i></button>
+            <div style="font-weight:900; color:var(--accent);">GRIEEZBOT PRO</div>
+            <button onclick="toggleTheme()" class="icon-btn"><i class="fas fa-moon"></i></button>
         </nav>
 
         <div class="chat-area" id="chatBox">
-            <div id="welcome" style="text-align:center; margin-top:100px;">
+            <div id="welcome" class="welcome-screen">
                 <i class="fas fa-robot fa-3x" style="color:var(--accent); margin-bottom:20px;"></i>
-                <h2>Welcome, Chief GrieezBoy</h2>
-                <p style="opacity:0.6; margin-top:10px;">Your secure AI Assistant is ready.</p>
+                <h2>What's on your mind, Chief?</h2>
+                <div class="starter-grid">
+                    <div class="starter-card" onclick="setStarter('Tell me a short horror story about Abuja')">
+                        <i class="fas fa-book" style="color:#ff9800"></i><br><b>Write Story</b><p style="font-size:0.7rem; opacity:0.6">Generate creative tales</p>
+                    </div>
+                    <div class="starter-card" onclick="setStarter('Generate an image of a futuristic tech city in Nigeria')">
+                        <i class="fas fa-image" style="color:#4caf50"></i><br><b>Create Image</b><p style="font-size:0.7rem; opacity:0.6">AI Art generation</p>
+                    </div>
+                    <div class="starter-card" onclick="setStarter('How do I build a professional backend?')">
+                        <i class="fas fa-code" style="color:#2196f3"></i><br><b>Explain Code</b><p style="font-size:0.7rem; opacity:0.6">Programming help</p>
+                    </div>
+                    <div class="starter-card" onclick="setStarter('Give me 5 business ideas for 2026')">
+                        <i class="fas fa-lightbulb" style="color:#f44336"></i><br><b>Brainstorm</b><p style="font-size:0.7rem; opacity:0.6">Ideas & Strategy</p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="input-wrap">
             <div class="input-box">
-                <input type="text" id="userInput" placeholder="Ask anything..." autocomplete="off">
-                <button onclick="sendMessage()" style="background:var(--accent); color:white; border:none; width:40px; height:40px; border-radius:50%; cursor:pointer;"><i class="fas fa-paper-plane"></i></button>
+                <button id="micBtn" class="icon-btn" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
+                <input type="text" id="userInput" placeholder="Ask GrieezBot anything..." autocomplete="off">
+                <button onclick="sendMessage()" class="icon-btn" style="color:var(--accent)"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
 
     <script type="module">
-        // Firebase Core Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc, getDocs, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-        // Firebase Configuration (Matches your project)
         const firebaseConfig = {
             apiKey: "AIzaSyAhiSfSaWNVfXZlW4Zqd08fEGWYHzqx3Eg",
             authDomain: "grieezbot.firebaseapp.com",
@@ -114,8 +147,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         let user = null, currentChatId = null, isSignUp = false;
+        const ADMIN_EMAIL = "muhammadjamiuyusuf876@gmail.com"; // Set your admin email here
 
-        // AUTH HANDLERS
+        // AUTH
         window.toggleAuth = () => {
             isSignUp = !isSignUp;
             document.getElementById('loginBtn').innerText = isSignUp ? "Sign Up" : "Login";
@@ -128,15 +162,13 @@
             try {
                 if(isSignUp) {
                     const res = await createUserWithEmailAndPassword(auth, email, pass);
+                    await addDoc(collection(db, 'artifacts', 'grieezbot', 'public', 'users'), { uid: res.user.uid, email: email, chatCount: 0 });
                     await sendEmailVerification(res.user);
-                    alert("Verification link sent! Check your email.");
+                    alert("Verification link sent!");
                     await signOut(auth);
                 } else {
                     const res = await signInWithEmailAndPassword(auth, email, pass);
-                    if(!res.user.emailVerified) {
-                        alert("Please verify your email.");
-                        await signOut(auth);
-                    }
+                    if(!res.user.emailVerified) { alert("Verify your email first!"); await signOut(auth); }
                 }
             } catch(err) { alert(err.message); }
         });
@@ -145,6 +177,7 @@
             if(u && u.emailVerified) {
                 user = u;
                 document.getElementById('auth-overlay').style.display = 'none';
+                if(u.email === ADMIN_EMAIL) document.getElementById('adminBtn').style.display = 'block';
                 loadHistory();
             } else {
                 document.getElementById('auth-overlay').style.display = 'flex';
@@ -153,7 +186,37 @@
 
         window.logout = () => signOut(auth);
 
-        // MESSAGING LOGIC
+        // SPEECH & TTS
+        const recognition = window.SpeechRecognition || window.webkitSpeechRecognition ? new (window.SpeechRecognition || window.webkitSpeechRecognition)() : null;
+        if(recognition) {
+            recognition.continuous = false;
+            recognition.onresult = (e) => {
+                document.getElementById('userInput').value = e.results[0][0].transcript;
+                sendMessage();
+                toggleMic(false);
+            };
+        }
+
+        window.toggleMic = (force) => {
+            const btn = document.getElementById('micBtn');
+            if(force === false || btn.classList.contains('mic-active')) {
+                recognition?.stop();
+                btn.classList.remove('mic-active');
+            } else {
+                recognition?.start();
+                btn.classList.add('mic-active');
+            }
+        };
+
+        function speak(text) {
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.rate = 1.0;
+            window.speechSynthesis.speak(msg);
+        }
+
+        // CHAT LOGIC
+        window.setStarter = (txt) => { document.getElementById('userInput').value = txt; sendMessage(); };
+
         window.sendMessage = async () => {
             const input = document.getElementById('userInput');
             const val = input.value.trim();
@@ -161,7 +224,6 @@
             input.value = '';
             document.getElementById('welcome').style.display = 'none';
 
-            // 1. Create/Update Firestore Conversation
             if(!currentChatId) {
                 const conv = await addDoc(collection(db, 'artifacts', 'grieezbot', 'users', user.uid, 'conversations'), {
                     title: val.substring(0, 25),
@@ -174,9 +236,8 @@
             renderMessage(val, 'user');
             await addDoc(msgRef, { text: val, sender: 'user', timestamp: serverTimestamp() });
 
-            // 2. Call Vercel Backend
             const botThinking = document.createElement('div');
-            botThinking.innerHTML = `<div style="font-size:0.8rem; color:var(--accent); font-weight:bold; margin-bottom:15px;">GrieezBot is thinking...</div>`;
+            botThinking.innerHTML = `<div class="thinking" style="color:var(--accent); font-size:0.8rem; margin-bottom:15px;">GrieezBot is processing...</div>`;
             document.getElementById('chatBox').appendChild(botThinking);
 
             try {
@@ -184,37 +245,57 @@
                 if(val.toLowerCase().includes('image') || val.toLowerCase().includes('draw')) type = 'image';
                 else if(val.toLowerCase().includes('story')) type = 'story';
 
-                // We call our internal Vercel API
                 const response = await fetch(`/api/chat?prompt=${encodeURIComponent(val)}&type=${type}`);
                 const data = await response.json();
                 
                 botThinking.remove();
-                const resultText = data.url || data.response;
-                const resultType = data.type;
+                const result = data.url || data.response;
+                renderMessage(result, 'bot', data.type);
+                await addDoc(msgRef, { text: result, sender: 'bot', type: data.type, timestamp: serverTimestamp() });
+                
+                if(data.type !== 'image') speak(result);
+                
+                // Track usage (Admin logic)
+                const userQuery = query(collection(db, 'artifacts', 'grieezbot', 'public', 'users'));
+                const userDocs = await getDocs(userQuery);
+                userDocs.forEach(async (d) => {
+                    if(d.data().uid === user.uid) await updateDoc(doc(db, 'artifacts', 'grieezbot', 'public', 'users', d.id), { chatCount: increment(1) });
+                });
 
-                renderMessage(resultText, 'bot', resultType);
-                await addDoc(msgRef, { text: resultText, sender: 'bot', type: resultType, timestamp: serverTimestamp() });
-            } catch(e) {
-                botThinking.innerText = "Error: Backend unreachable.";
-            }
+            } catch(e) { botThinking.innerText = "Connection lost."; }
         };
 
         function renderMessage(text, sender, type = 'chat') {
             const box = document.getElementById('chatBox');
             const row = document.createElement('div');
             row.className = `message-row ${sender === 'user' ? 'user-row' : ''}`;
-            
-            let html = '';
-            if (type === 'image') html = `<img src="${text}" style="width:100%; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.3);">`;
-            else if (type === 'story') html = `<div class="story-container"><strong>A Story by GrieezBot:</strong><br>${text}</div>`;
-            else html = text;
-            
+            let html = type === 'image' ? `<img src="${text}" style="width:100%; border-radius:12px;">` : 
+                       type === 'story' ? `<div style="font-style:italic; border-left:3px solid var(--accent); padding-left:10px;">${text}</div>` : text;
             row.innerHTML = `<div class="chat-bubble ${sender === 'user' ? 'user-msg' : 'bot-msg'}">${html}</div>`;
             box.appendChild(row);
             box.scrollTop = box.scrollHeight;
         }
 
-        // DB HISTORY SYNC
+        // ADMIN LOGIC
+        window.toggleAdmin = async (show) => {
+            const modal = document.getElementById('admin-modal');
+            modal.style.display = show ? 'flex' : 'none';
+            if(show) {
+                const list = document.getElementById('adminUserList');
+                list.innerHTML = "Fetching users...";
+                const snap = await getDocs(collection(db, 'artifacts', 'grieezbot', 'public', 'users'));
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const data = d.data();
+                    const row = document.createElement('div');
+                    row.className = 'user-row';
+                    row.innerHTML = `<span>${data.email}</span> <b>${data.chatCount || 0} chats</b>`;
+                    list.appendChild(row);
+                });
+            }
+        };
+
+        // HISTORY
         function loadHistory() {
             const q = query(collection(db, 'artifacts', 'grieezbot', 'users', user.uid, 'conversations'), orderBy('updatedAt', 'desc'));
             onSnapshot(q, (snap) => {
@@ -223,7 +304,8 @@
                 snap.forEach(d => {
                     const div = document.createElement('div');
                     div.className = `history-item ${currentChatId === d.id ? 'active-chat' : ''}`;
-                    div.innerHTML = `<span>${d.data().title}</span><i class="fas fa-trash" onclick="deleteConv('${d.id}')" style="font-size:0.7rem;"></i>`;
+                    div.style.padding = '10px'; div.style.borderRadius = '8px'; div.style.cursor = 'pointer';
+                    div.innerHTML = `<span style="font-size:0.8rem;">${d.data().title}</span>`;
                     div.onclick = () => loadChat(d.id);
                     hist.appendChild(div);
                 });
@@ -238,11 +320,6 @@
                 document.getElementById('chatBox').innerHTML = '';
                 snap.forEach(m => renderMessage(m.data().text, m.data().sender, m.data().type));
             });
-        };
-
-        window.deleteConv = async (id) => {
-            event.stopPropagation();
-            if(confirm("Delete this chat?")) await deleteDoc(doc(db, 'artifacts', 'grieezbot', 'users', user.uid, 'conversations', id));
         };
 
         window.newChat = () => { currentChatId = null; document.getElementById('chatBox').innerHTML = ''; document.getElementById('welcome').style.display = 'block'; };
