@@ -1,0 +1,13 @@
+{
+"name": "grieezbot-backend",
+"version": "1.0.0",
+"description": "AI Backend for GrieezBot developed by GrieezBoy",
+"main": "api/chat.js",
+"type": "module",
+"scripts": {
+"start": "node api/chat.js"
+},
+"dependencies": {
+"node-fetch": "^3.3.2"
+}
+}
