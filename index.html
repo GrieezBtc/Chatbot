@@ -384,22 +384,23 @@
         let isSignUpMode = false;
 
         // ==========================================
-        // 1b. CLOUDINARY CONFIG (unsigned upload)
+        // 1b. CLOUDINARY CONFIG (unsigned upload) - UPDATED
         // ==========================================
-        const CLOUDINARY_CLOUD_NAME = "dynckplcs";
+        // 1. Double-check this matches your Cloudinary Dashboard exactly
+        const CLOUDINARY_CLOUD_NAME = "dynckplcs"; 
         const CLOUDINARY_UPLOAD_PRESET = "grieezbot_upload";
-        const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
+        const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`; // Changed 'upload' to 'auto/upload'
 
-        // Upload function using XHR (supports progress)
         async function uploadToCloudinary(file) {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            // Optional: Add folder if you want to organize
+            formData.append('folder', 'grieezbot_upload'); 
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', CLOUDINARY_UPLOAD_URL, true);
 
-            // Progress callback
             xhr.upload.addEventListener('progress', (e) => {
                 if (e.lengthComputable) {
                     const percent = Math.round((e.loaded / e.total) * 100);
@@ -410,14 +411,16 @@
 
             return new Promise((resolve, reject) => {
                 xhr.onload = () => {
-                    if (xhr.status === 200) {
-                        const res = JSON.parse(xhr.responseText);
-                        resolve(res.secure_url); // returns the uploaded file URL
+                    const response = JSON.parse(xhr.responseText);
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(response.secure_url);
                     } else {
-                        reject(xhr.responseText);
+                        // This will print the SPECIFIC Cloudinary error to your console
+                        console.error("Cloudinary Error:", response.error.message);
+                        reject(response.error.message);
                     }
                 };
-                xhr.onerror = () => reject("Upload failed");
+                xhr.onerror = () => reject("Network error during upload.");
                 xhr.send(formData);
             });
         }
