@@ -357,9 +357,9 @@
     </main>
 
     <script type="module">
-        // FIXED: Added getPopupResult to imports
+        // FIXED: Added GoogleAuthProvider, signInWithPopup, signInAnonymously to imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, GoogleAuthProvider, signInWithPopup, signInAnonymously, getPopupResult } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, GoogleAuthProvider, signInWithPopup, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, doc, setDoc, getDocs, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
         // ==========================================
@@ -458,20 +458,6 @@
                 alert("Guest Login Failed. Ensure Anonymous Auth is enabled in Firebase. " + err.message);
             }
         });
-
-        // ==========================================
-        // NEW: Handle redirect result (Google sign-in return)
-        // ==========================================
-              .then((result) => {
-                if (result?.user) {
-                    // User successfully signed in via Popup.
-                    // No need to do anything else; onAuthStateChanged will handle UI.
-                    console.log("Popup sign-in successful", result.user);
-                }
-            })
-            .catch((error) => {
-                console.error("Redirect sign-in error:", error);
-            });
 
         window.logoutUser = () => signOut(auth);
 
