@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GrieezBot Developed By GrieezBoy</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Highlight.js for code highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <!-- Markdown parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root { 
@@ -167,6 +165,17 @@
         .bot-msg { background: var(--bot-bubble); border-top-left-radius: 2px; }
         .user-msg { background: var(--user-bubble); border-top-right-radius: 2px; }
 
+        /* FIXED: List alignment inside chat bubbles */
+        .chat-bubble ol, .chat-bubble ul {
+            padding-left: 24px;
+            margin: 10px 0;
+            word-break: break-word;
+        }
+        .chat-bubble li {
+            margin-bottom: 8px;
+            white-space: normal;
+        }
+
         /* Message action buttons (edit / regenerate) */
         .msg-actions {
             position: absolute;
@@ -208,7 +217,7 @@
         }
         .story-title { color: var(--accent); font-weight: 800; margin-bottom: 10px; display: block; font-style: normal; font-size: 1rem; }
 
-        .code-container { margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); background: var(--code-bg); width: 100%; display: block; }
+        .code-container { margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); background: var(--code-bg); width: 100%; display: block; max-width: 100%; overflow-x: auto; }
         .code-header { background: rgba(255,255,255,0.05); padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; color: var(--text); border-bottom: 1px solid var(--border); text-transform: uppercase; font-weight: 700; }
         pre { padding: 12px; overflow-x: auto; font-family: ui-monospace, monospace; font-size: 0.8rem; color: #e1e1e1; white-space: pre; width: 100%; margin: 0; }
         pre code { font-family: inherit; background: transparent; padding: 0; }
@@ -247,7 +256,6 @@
 </head>
 <body>
 
-    <!-- AUTHENTICATION OVERLAY -->
     <div id="auth-overlay">
         <div class="auth-card">
             <h1 style="color: var(--accent); font-weight: 800; font-style: italic; margin-bottom: 5px; font-size: 1.8rem;">GRIEEZBOT PRO</h1>
@@ -260,13 +268,26 @@
                 <button type="submit" class="auth-btn" id="authSubmitBtn">Login</button>
             </form>
 
+            <div style="display:flex; align-items:center; margin: 15px 0;">
+                <hr style="flex:1; border:none; border-top:1px solid var(--border);">
+                <span style="padding:0 10px; font-size:0.8rem; color:var(--disclaimer);">OR</span>
+                <hr style="flex:1; border:none; border-top:1px solid var(--border);">
+            </div>
+
+            <button type="button" class="auth-btn" id="googleBtn" style="background: white; color: #444; border: 1px solid #ddd; margin-bottom: 10px;">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" style="margin-right: 8px;"> Continue with Google
+            </button>
+
+            <button type="button" class="auth-btn" id="guestBtn" style="background: #202c33; color: white; border: 1px solid var(--border); margin-bottom: 15px;">
+                <i class="fas fa-user-secret" style="margin-right: 8px;"></i> Continue as Guest
+            </button>
+
             <p style="color: var(--text); font-size: 0.8rem; cursor: pointer;" onclick="window.toggleAuthMode()" id="authToggleText">
                 Don't have an account? <span style="color: var(--accent); font-weight: bold;">Sign Up</span>
             </p>
         </div>
     </div>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <h2 style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">GrieezBot <span style="font-size: 0.6rem; background: var(--accent); color: white; padding: 2px 5px; border-radius: 4px; vertical-align: top;">PRO</span></h2>
         <p style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 15px;">Logged in: <span id="user-email-display"></span></p>
@@ -277,8 +298,7 @@
 
         <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Recent History</label>
         <div class="history-list" id="historyList">
-            <!-- Chats will load here via Firebase -->
-        </div>
+            </div>
 
         <div style="margin-top: auto;">
             <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Voice Engine</label>
@@ -289,7 +309,6 @@
                 <input type="checkbox" id="autoRead" checked>
             </div>
 
-            <!-- Admin Controls -->
             <div id="adminPanel" style="display: none; border-top: 1px solid var(--border); padding-top: 15px; margin-bottom: 15px;">
                 <label style="font-size: 0.6rem; font-weight: 700; color: var(--accent); text-transform: uppercase;">Admin Tools</label>
                 <button onclick="window.sendBroadcast()" style="margin-top: 10px; width: 100%; padding: 10px; background: rgba(66, 133, 244, 0.2); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.75rem;">
@@ -310,7 +329,6 @@
             <button onclick="window.toggleSidebar()" style="background:none; border:none; color:var(--text); font-size: 1rem; cursor:pointer;"><i class="fas fa-bars-staggered"></i></button>
             <div id="active-chat-title" style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">GRIEEZBOT PRO</div>
             <div class="nav-actions">
-                <!-- MUTE AUDIO BUTTON -->
                 <button id="stopAudioBtn" onclick="window.stopAudio()" style="display:none; background:none; border:none; color:#ff4b4b; font-size: 1.1rem; cursor:pointer;" title="Stop Speaking">
                     <i class="fas fa-circle-stop fa-beat"></i>
                 </button>
@@ -318,17 +336,15 @@
             </div>
         </nav>
 
-        <!-- BROADCAST BANNER -->
         <div id="broadcast-banner">
             <i class="fas fa-bullhorn"></i>
             <marquee id="broadcast-text" style="flex: 1;"></marquee>
-            <button onclick="document.getElementById('broadcast-banner').style.display='none'" style="background:none;border:none;color:white;cursor:pointer;">&times;</button>
+            <button id="close-broadcast" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem; font-weight:bold;">&times;</button>
         </div>
 
         <div class="chat-area" id="chatArea">
             <div class="message-wrapper" id="chatMessages">
-                <!-- Content handled by JS -->
-            </div>
+                </div>
         </div>
 
         <div class="input-wrap">
@@ -340,10 +356,10 @@
         </div>
     </main>
 
-    <!-- FIREBASE AND BOT LOGIC -->
     <script type="module">
+        // FIXED: Added GoogleAuthProvider, signInWithPopup, signInAnonymously to imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, GoogleAuthProvider, signInWithPopup, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, doc, setDoc, getDocs, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
         // ==========================================
@@ -375,7 +391,7 @@
         window.toggleTheme = () => document.body.classList.toggle('light-mode');
 
         // ==========================================
-        // 2. AUTHENTICATION
+        // 2. AUTHENTICATION (UPDATED)
         // ==========================================
         window.toggleAuthMode = () => {
             isSignUpMode = !isSignUpMode;
@@ -424,14 +440,42 @@
             }
         });
 
+        // FIXED: Google Login Handler
+        document.getElementById('googleBtn').addEventListener('click', async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (err) {
+                alert("Google Sign-in Failed: " + err.message);
+            }
+        });
+
+        // FIXED: Guest Login Handler
+        document.getElementById('guestBtn').addEventListener('click', async () => {
+            try {
+                await signInAnonymously(auth);
+            } catch (err) {
+                alert("Guest Login Failed. Ensure Anonymous Auth is enabled in Firebase. " + err.message);
+            }
+        });
+
         window.logoutUser = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
-            if (user && user.emailVerified) {
+            // Check for verified email OR anonymous/Google users
+            if (user && (user.emailVerified || user.isAnonymous || user.providerData.some(p => p.providerId === 'google.com'))) {
                 currentUser = user;
                 document.getElementById('auth-overlay').style.display = 'none';
-                document.getElementById('user-email-display').innerText = user.email;
-                if (user.email === ADMIN_EMAIL) document.getElementById('adminPanel').style.display = 'block';
+                
+                // Show Guest tag if anonymous
+                document.getElementById('user-email-display').innerText = user.isAnonymous ? "Guest Account (Unsaved)" : user.email;
+                
+                if (user.email === ADMIN_EMAIL) {
+                    document.getElementById('adminPanel').style.display = 'block';
+                } else {
+                    document.getElementById('adminPanel').style.display = 'none';
+                }
+                
                 loadChatHistoryList();
                 window.startNewChat();
                 listenForBroadcasts();
@@ -522,13 +566,11 @@
         };
 
         // ==========================================
-        // 4. CORE BOT LOGIC (UPDATED API)
+        // 4. CORE BOT LOGIC
         // ==========================================
-        // Generic function to send a prompt (used by handleSend, edit, regenerate)
         async function sendPrompt(text, conversationId) {
             if (!text || !currentUser) return;
 
-            // Ensure conversation exists
             if (!conversationId) {
                 const convRef = await addDoc(collection(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations'), {
                     title: text.length > 25 ? text.substring(0, 25) + '...' : text,
@@ -541,11 +583,9 @@
 
             const msgRef = collection(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations', conversationId, 'messages');
 
-            // Add user message
             const userDoc = await addDoc(msgRef, { text, sender: 'user', timestamp: serverTimestamp() });
             renderMessage({ id: userDoc.id, text, sender: 'user' });
 
-            // Show thinking indicator
             const chatMessages = document.getElementById('chatMessages');
             const botRow = document.createElement('div');
             botRow.className = 'message-row bot-row';
@@ -611,9 +651,7 @@
 
                 botRow.querySelector('.bot-disclaimer').style.display = 'block';
                 
-                // Add bot message to Firestore and get ID
                 const botDoc = await addDoc(msgRef, { text: finalDbText, sender: 'bot', type: finalDbType, timestamp: serverTimestamp() });
-                // Re-render with ID to enable regenerate button (replace the temporary row)
                 botRow.remove();
                 renderMessage({ id: botDoc.id, text: finalDbText, sender: 'bot', type: finalDbType });
 
@@ -633,7 +671,6 @@
             isBusy = false;
         };
 
-        // Edit message function
         window.editMessage = async (messageId, conversationId, oldText) => {
             const newText = prompt("Edit your message:", oldText);
             if (!newText || newText === oldText) return;
@@ -664,7 +701,6 @@
             isBusy = false;
         };
 
-        // Regenerate function
         window.regenerateMessage = async (botMessageId, conversationId) => {
             const botMsgRef = doc(db, 'artifacts', projectAppId, 'users', currentUser.uid, 'conversations', conversationId, 'messages', botMessageId);
             const botSnap = await getDoc(botMsgRef);
@@ -706,7 +742,6 @@
         // ==========================================
         // 5. MARKDOWN RENDERING & UTILITIES
         // ==========================================
-        // Configure marked to use highlight.js
         marked.setOptions({
             highlight: function(code, lang) {
                 if (lang && hljs.getLanguage(lang)) {
@@ -719,7 +754,6 @@
         });
 
         function renderMarkdown(text) {
-            // marked.parse returns HTML string
             return marked.parse(text);
         }
 
@@ -734,7 +768,6 @@
                 const interval = setInterval(() => {
                     if (i < text.length) {
                         const sub = text.substring(0, i + step);
-                        // During typewriter, show plain text with line breaks only (no markdown)
                         if (type === "story") {
                             el.innerHTML = `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${escapeHTML(sub).replace(/\n/g, '<br>')}</div>`;
                         } else {
@@ -744,7 +777,6 @@
                         document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
                     } else {
                         clearInterval(interval);
-                        // Final render with full markdown
                         if (type === "story") {
                             el.innerHTML = `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${renderMarkdown(text)}</div>`;
                         } else {
@@ -770,11 +802,9 @@
             } else if (message.type === 'story') {
                 content = `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${renderMarkdown(message.text)}</div>`;
             } else {
-                // Both user and bot messages now support markdown
                 content = renderMarkdown(message.text);
             }
 
-            // Build action buttons
             let actionsHtml = '';
             if (message.sender === 'user') {
                 actionsHtml = `<div class="msg-actions"><i class="fas fa-pen" title="Edit" onclick="window.editMessage('${message.id}', '${currentChatId}', '${escapeHTML(message.text).replace(/'/g, "\\'")}')"></i></div>`;
@@ -792,8 +822,6 @@
                 </div>`;
             chatBox.appendChild(row);
             document.getElementById('chatArea').scrollTop = chatBox.scrollHeight;
-            
-            // Highlight code blocks in this new message
             hljs.highlightAll();
         }
 
@@ -804,7 +832,7 @@
         };
 
         // ==========================================
-        // 6. VOICE & BROADCAST
+        // 6. VOICE & BROADCAST (SMART FIXED LOGIC)
         // ==========================================
         const synth = window.speechSynthesis;
         function populateVoices() {
@@ -832,14 +860,42 @@
             document.getElementById('stopAudioBtn').style.display = 'none';
         };
 
+        // FIXED: Smart broadcast listener (Checks localStorage and 24hr expiry)
         function listenForBroadcasts() {
             onSnapshot(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), (docSnap) => {
                 if (docSnap.exists()) {
-                    document.getElementById('broadcast-text').innerText = `${docSnap.data().message} — [Admin]`;
-                    document.getElementById('broadcast-banner').style.display = 'flex';
+                    const data = docSnap.data();
+                    if (!data.message) return;
+
+                    // Safely extract the timestamp for a unique ID
+                    let msgTime = Date.now();
+                    let timeKey = '0';
+                    if (data.timestamp) {
+                        msgTime = typeof data.timestamp.toMillis === 'function' ? data.timestamp.toMillis() : (data.timestamp.seconds * 1000);
+                        timeKey = data.timestamp.seconds || '0';
+                    }
+                    
+                    const msgId = docSnap.id + '_' + timeKey;
+                    const isClosed = localStorage.getItem('closed_broadcast_' + msgId);
+                    
+                    const now = Date.now();
+                    const isExpired = (now - msgTime) > (24 * 60 * 60 * 1000); // 24 Hours
+
+                    if (!isClosed && !isExpired) {
+                        document.getElementById('broadcast-text').innerText = `${data.message} — [Admin]`;
+                        document.getElementById('broadcast-banner').style.display = 'flex';
+                        
+                        document.getElementById('close-broadcast').onclick = () => {
+                            document.getElementById('broadcast-banner').style.display = 'none';
+                            localStorage.setItem('closed_broadcast_' + msgId, 'true'); // Save to memory forever
+                        };
+                    } else {
+                        document.getElementById('broadcast-banner').style.display = 'none';
+                    }
                 }
             });
         }
+        
         window.sendBroadcast = async () => {
             const msg = prompt("Public announcement message:");
             if (msg) await setDoc(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), { message: msg, timestamp: serverTimestamp() });
