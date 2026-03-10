@@ -357,9 +357,9 @@
     </main>
 
     <script type="module">
-        // FIXED: Added getRedirectResult to imports
+        // FIXED: Added getPopupResult to imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, GoogleAuthProvider, signInWithRedirect, signInAnonymously, getRedirectResult } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, GoogleAuthProvider, signInWithPopup, signInAnonymously, getPopupResult } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, doc, setDoc, getDocs, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
         // ==========================================
@@ -444,7 +444,7 @@
         document.getElementById('googleBtn').addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
             try {
-                await signInWithRedirect(auth, provider);
+                await signInWithPopup(auth, provider);
             } catch (err) {
                 alert("Google Sign-in Failed: " + err.message);
             }
@@ -462,12 +462,11 @@
         // ==========================================
         // NEW: Handle redirect result (Google sign-in return)
         // ==========================================
-        getRedirectResult(auth)
-            .then((result) => {
+              .then((result) => {
                 if (result?.user) {
-                    // User successfully signed in via redirect.
+                    // User successfully signed in via Popup.
                     // No need to do anything else; onAuthStateChanged will handle UI.
-                    console.log("Redirect sign-in successful", result.user);
+                    console.log("Popup sign-in successful", result.user);
                 }
             })
             .catch((error) => {
