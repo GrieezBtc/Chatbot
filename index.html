@@ -357,9 +357,9 @@
     </main>
 
     <script type="module">
-        // FIXED: Added GoogleAuthProvider, signInWithRedirect, signInAnonymously to imports
+        // FIXED: Added getRedirectResult to imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, GoogleAuthProvider, signInWithRedirect, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, GoogleAuthProvider, signInWithRedirect, signInAnonymously, getRedirectResult } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, doc, setDoc, getDocs, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
         // ==========================================
@@ -459,6 +459,21 @@
             }
         });
 
+        // ==========================================
+        // NEW: Handle redirect result (Google sign-in return)
+        // ==========================================
+        getRedirectResult(auth)
+            .then((result) => {
+                if (result?.user) {
+                    // User successfully signed in via redirect.
+                    // No need to do anything else; onAuthStateChanged will handle UI.
+                    console.log("Redirect sign-in successful", result.user);
+                }
+            })
+            .catch((error) => {
+                console.error("Redirect sign-in error:", error);
+            });
+
         window.logoutUser = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
@@ -466,16 +481,16 @@
             if (user && (user.emailVerified || user.isAnonymous || user.providerData.some(p => p.providerId === 'google.com'))) {
                 currentUser = user;
                 document.getElementById('auth-overlay').style.display = 'none';
-                
+
                 // Show Guest tag if anonymous
                 document.getElementById('user-email-display').innerText = user.isAnonymous ? "Guest Account (Unsaved)" : user.email;
-                
+
                 if (user.email === ADMIN_EMAIL) {
                     document.getElementById('adminPanel').style.display = 'block';
                 } else {
                     document.getElementById('adminPanel').style.display = 'none';
                 }
-                
+
                 loadChatHistoryList();
                 window.startNewChat();
                 listenForBroadcasts();
@@ -650,7 +665,7 @@
                 }
 
                 botRow.querySelector('.bot-disclaimer').style.display = 'block';
-                
+
                 const botDoc = await addDoc(msgRef, { text: finalDbText, sender: 'bot', type: finalDbType, timestamp: serverTimestamp() });
                 botRow.remove();
                 renderMessage({ id: botDoc.id, text: finalDbText, sender: 'bot', type: finalDbType });
@@ -695,7 +710,7 @@
             await Promise.all(deletePromises);
 
             await window.loadConversation(conversationId, document.getElementById('active-chat-title').innerText);
-            
+
             isBusy = true;
             await sendPrompt(newText, conversationId);
             isBusy = false;
@@ -733,7 +748,7 @@
             await Promise.all(deletePromises);
 
             await window.loadConversation(conversationId, document.getElementById('active-chat-title').innerText);
-            
+
             isBusy = true;
             await sendPrompt(userText, conversationId);
             isBusy = false;
@@ -874,17 +889,17 @@
                         msgTime = typeof data.timestamp.toMillis === 'function' ? data.timestamp.toMillis() : (data.timestamp.seconds * 1000);
                         timeKey = data.timestamp.seconds || '0';
                     }
-                    
+
                     const msgId = docSnap.id + '_' + timeKey;
                     const isClosed = localStorage.getItem('closed_broadcast_' + msgId);
-                    
+
                     const now = Date.now();
                     const isExpired = (now - msgTime) > (24 * 60 * 60 * 1000); // 24 Hours
 
                     if (!isClosed && !isExpired) {
                         document.getElementById('broadcast-text').innerText = `${data.message} — [Admin]`;
                         document.getElementById('broadcast-banner').style.display = 'flex';
-                        
+
                         document.getElementById('close-broadcast').onclick = () => {
                             document.getElementById('broadcast-banner').style.display = 'none';
                             localStorage.setItem('closed_broadcast_' + msgId, 'true'); // Save to memory forever
@@ -895,7 +910,7 @@
                 }
             });
         }
-        
+
         window.sendBroadcast = async () => {
             const msg = prompt("Public announcement message:");
             if (msg) await setDoc(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), { message: msg, timestamp: serverTimestamp() });
