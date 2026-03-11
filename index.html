@@ -221,7 +221,7 @@
         .code-header { background: rgba(255,255,255,0.05); padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; color: var(--text); border-bottom: 1px solid var(--border); text-transform: uppercase; font-weight: 700; }
         pre { padding: 12px; overflow-x: auto; font-family: ui-monospace, monospace; font-size: 0.8rem; color: #e1e1e1; white-space: pre; width: 100%; margin: 0; }
         pre code { font-family: inherit; background: transparent; padding: 0; }
-        .copy-btn { background: var(--accent); color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.6rem; }
+        .copy-code { background: var(--accent); color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.6rem; }
 
         .thinking-ui { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--accent); margin-bottom: 4px; font-weight: 600; }
         .dot-loader { display: flex; gap: 3px; }
@@ -230,14 +230,84 @@
 
         .bot-disclaimer { font-size: 0.65rem; color: var(--disclaimer); margin-top: 5px; font-style: italic; opacity: 0.7; }
 
+        /* Bot action buttons */
+        .bot-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+            opacity: .8;
+        }
+        .bot-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+        .bot-actions button:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
         #broadcast-banner {
             background: var(--accent); color: white; padding: 8px 15px;
             font-size: 0.8rem; font-weight: bold; display: none; align-items: center; gap: 10px;
         }
 
-        .input-wrap { padding: 8px 12px 14px 12px; background: var(--glass); border-top: 1px solid var(--border); flex-shrink: 0; }
-        .input-box { max-width: 650px; margin: 0 auto; background: var(--bg); border: 1px solid var(--border); padding: 0 12px; border-radius: 24px; display: flex; align-items: center; gap: 8px; }
-        input { flex: 1; background: none; border: none; color: var(--text); outline: none; font-size: 0.9rem; padding: 10px 0; }
+        .input-wrap { 
+            padding: 8px 12px 14px 12px; 
+            background: var(--glass); 
+            border-top: 1px solid var(--border); 
+            flex-shrink: 0; 
+        }
+        .image-preview-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px;
+        }
+        .preview-item {
+            position: relative;
+        }
+        .preview-item img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .remove-preview {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .input-box { 
+            max-width: 650px; 
+            margin: 0 auto; 
+            background: var(--bg); 
+            border: 1px solid var(--border); 
+            padding: 0 12px; 
+            border-radius: 24px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        input { 
+            flex: 1; 
+            background: none; 
+            border: none; 
+            color: var(--text); 
+            outline: none; 
+            font-size: 0.9rem; 
+            padding: 10px 0; 
+        }
 
         #micBtn { background:none; border:none; color:#8696a0; font-size: 1rem; cursor: pointer; }
         #micBtn.recording { color: #ff4b4b; animation: micPulse 1.5s infinite; }
@@ -384,6 +454,10 @@
                 <button onclick="window.sendBroadcast()" style="margin-top: 10px; width: 100%; padding: 10px; background: rgba(66, 133, 244, 0.2); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.75rem;">
                     <i class="fas fa-bullhorn"></i> Push Broadcast
                 </button>
+                <!-- Admin Feedback Viewer (simple) -->
+                <button onclick="window.viewFeedback()" style="margin-top: 10px; width: 100%; padding: 10px; background: rgba(66, 133, 244, 0.2); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.75rem;">
+                    <i class="fas fa-comment-dots"></i> View Feedback (Console)
+                </button>
             </div>
 
             <button onclick="window.logoutUser()" style="width: 100%; padding: 12px; background: #ff4b4b; border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; font-size: 0.8rem;">
@@ -420,7 +494,9 @@
         <!-- Drag and Drop Zone -->
         <div id="dropZone">Drop images here to extract text</div>
 
+        <!-- New Input Area with Preview Bar -->
         <div class="input-wrap">
+            <div id="imagePreviewBar" class="image-preview-bar"></div>
             <div class="input-box">
                 <!-- Hidden File Inputs (multiple enabled) -->
                 <input type="file" id="imageUpload" accept="image/*" multiple hidden>
@@ -456,7 +532,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
     <script type="module">
-        // FIXED: Added GoogleAuthProvider, signInWithPopup, signInAnonymously to imports
+        // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, GoogleAuthProvider, signInWithPopup, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, doc, setDoc, getDocs, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
@@ -494,7 +570,7 @@
         window.toggleTheme = () => document.body.classList.toggle('light-mode');
 
         // ==========================================
-        // 2. AUTHENTICATION (UPDATED)
+        // 2. AUTHENTICATION
         // ==========================================
         window.toggleAuthMode = () => {
             isSignUpMode = !isSignUpMode;
@@ -543,7 +619,6 @@
             }
         });
 
-        // FIXED: Google Login Handler
         document.getElementById('googleBtn').addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
             try {
@@ -553,7 +628,6 @@
             }
         });
 
-        // FIXED: Guest Login Handler
         document.getElementById('guestBtn').addEventListener('click', async () => {
             try {
                 await signInAnonymously(auth);
@@ -565,12 +639,9 @@
         window.logoutUser = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
-            // Check for verified email OR anonymous/Google users
             if (user && (user.emailVerified || user.isAnonymous || user.providerData.some(p => p.providerId === 'google.com'))) {
                 currentUser = user;
                 document.getElementById('auth-overlay').style.display = 'none';
-
-                // Show Guest tag if anonymous
                 document.getElementById('user-email-display').innerText = user.isAnonymous ? "Guest Account (Unsaved)" : user.email;
 
                 if (user.email === ADMIN_EMAIL) {
@@ -653,6 +724,7 @@
 
             if (window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
             document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+            addCopyButtons(); // add copy buttons after loading
             hljs.highlightAll();
         };
 
@@ -749,12 +821,14 @@
                     botRow.querySelector('.thinking-ui').style.display = 'none';
                     bubble.style.display = 'block';
                     finalDbText = fullText;
-                    await typewriter(bubble, finalDbText, "text");
+                    // Use streaming simulation for normal text
+                    await streamResponse(fullText, bubble);
                 }
 
                 botRow.querySelector('.bot-disclaimer').style.display = 'block';
 
                 const botDoc = await addDoc(msgRef, { text: finalDbText, sender: 'bot', type: finalDbType, timestamp: serverTimestamp() });
+                // Replace the temporary row with the saved message (including actions)
                 botRow.remove();
                 renderMessage({ id: botDoc.id, text: finalDbText, sender: 'bot', type: finalDbType });
 
@@ -765,34 +839,42 @@
             }
         }
 
-        // ==========================================
-        // 5. IMAGE UPLOAD & OCR (MULTI‑IMAGE)
-        // ==========================================
-
-        // Display image in chat (no OCR yet)
-        function processImage(file) {
-            uploadedImages.push(file);
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const chatBox = document.getElementById("chatMessages");
-                const row = document.createElement("div");
-                row.className = "message-row user-row";
-                row.innerHTML = `
-                    <div class="avatar"><i class="fas fa-user"></i></div>
-                    <div class="content-wrap">
-                        <div class="chat-bubble user-msg">
-                            <img src="${e.target.result}" class="scanned" style="max-width:220px;border-radius:10px">
-                        </div>
-                    </div>
-                `;
-                chatBox.appendChild(row);
-                document.getElementById('chatArea').scrollTop = chatBox.scrollHeight;
-            };
-            reader.readAsDataURL(file);
+        // Streaming simulation
+        async function streamResponse(text, bubble) {
+            bubble.innerHTML = "";
+            let words = text.split(" ");
+            for (let i = 0; i < words.length; i++) {
+                bubble.innerHTML += words[i] + " ";
+                document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+                await new Promise(r => setTimeout(r, 30));
+            }
+            addCopyButtons(); // add copy buttons for code blocks inside the bubble
         }
 
-        // Run OCR on all images in uploadedImages, fill ocrCache
+        // ==========================================
+        // 5. IMAGE PREVIEW & OCR (MULTI‑IMAGE)
+        // ==========================================
+        const previewBar = document.getElementById("imagePreviewBar");
+
+        function updatePreviewBar() {
+            previewBar.innerHTML = "";
+            uploadedImages.forEach((file, index) => {
+                const url = URL.createObjectURL(file);
+                const item = document.createElement("div");
+                item.className = "preview-item";
+                item.innerHTML = `
+                    <img src="${url}">
+                    <button class="remove-preview" data-index="${index}">×</button>
+                `;
+                previewBar.appendChild(item);
+            });
+        }
+
+        function processImage(file) {
+            uploadedImages.push(file);
+            updatePreviewBar();
+        }
+
         async function runMultiOCR() {
             ocrCache = [];
             for (const file of uploadedImages) {
@@ -805,7 +887,6 @@
             }
         }
 
-        // New handleSend: combines text and images intelligently
         window.handleSend = async () => {
             const text = document.getElementById("userInput").value.trim();
             if (!text && uploadedImages.length === 0) return;
@@ -817,7 +898,6 @@
                 await runMultiOCR();
                 let combinedOCR = ocrCache.join("\n");
 
-                // If there's no text, just output OCR results and return
                 if (!text) {
                     renderMessage({
                         text: "📄 OCR Result:\n\n" + combinedOCR,
@@ -825,10 +905,10 @@
                     });
                     uploadedImages = [];
                     ocrCache = [];
+                    updatePreviewBar();
                     return;
                 }
 
-                // Text + images: construct a detailed prompt
                 finalPrompt = `
 User Request:
 ${text}
@@ -842,14 +922,354 @@ If this looks like UI generate HTML.
 If this is a document summarize it.
 `;
 
-                // Clear arrays after using them
                 uploadedImages = [];
                 ocrCache = [];
+                updatePreviewBar();
             }
 
             await sendPrompt(finalPrompt, currentChatId);
         };
 
+        // File input handlers
+        document.getElementById("imageUpload").addEventListener("change", (e) => {
+            const files = Array.from(e.target.files);
+            uploadedImages.push(...files);
+            updatePreviewBar();
+            e.target.value = '';
+        });
+
+        document.getElementById("cameraCapture").addEventListener("change", (e) => {
+            const files = Array.from(e.target.files);
+            uploadedImages.push(...files);
+            updatePreviewBar();
+            e.target.value = '';
+        });
+
+        previewBar.addEventListener("click", (e) => {
+            if (e.target.classList.contains("remove-preview")) {
+                const index = e.target.dataset.index;
+                uploadedImages.splice(index, 1);
+                updatePreviewBar();
+            }
+        });
+
+        // ==========================================
+        // 6. RENDER MESSAGE (with bot actions)
+        // ==========================================
+        function renderMessage(message, instant = false) {
+            const chatBox = document.getElementById('chatMessages');
+            const row = document.createElement('div');
+            row.className = `message-row ${message.sender === 'user' ? 'user-row' : 'bot-row'}`;
+            const isBot = message.sender === 'bot';
+
+            let content = "";
+            if (message.type === 'image') {
+                content = `<div class="image-result"><img src="${message.text}"><div class="image-footer"><a href="${message.text}" target="_blank" class="download-link">Full Res</a></div></div>`;
+            } else if (message.type === 'story') {
+                content = `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${renderMarkdown(message.text)}</div>`;
+            } else {
+                content = renderMarkdown(message.text);
+            }
+
+            let actionsHtml = '';
+            if (message.sender === 'user') {
+                actionsHtml = `<div class="msg-actions"><i class="fas fa-pen" title="Edit" onclick="window.editMessage('${message.id}', '${currentChatId}', '${escapeHTML(message.text).replace(/'/g, "\\'")}')"></i></div>`;
+            } else if (message.sender === 'bot' && message.id) {
+                // Bot action buttons
+                actionsHtml = `
+                    <div class="msg-actions">
+                        <i class="fas fa-pen" title="Edit" onclick="window.editMessage('${message.id}', '${currentChatId}', '${escapeHTML(message.text).replace(/'/g, "\\'")}')"></i>
+                    </div>
+                    <div class="bot-actions">
+                        <button class="copy-response" title="Copy">📋</button>
+                        <button class="retry-response" title="Retry">🔁</button>
+                        <button class="feedback-btn" data-type="up" title="Good response">👍</button>
+                        <button class="feedback-btn" data-type="down" title="Bad response">👎</button>
+                    </div>
+                `;
+            }
+
+            row.innerHTML = `
+                <div class="avatar" style="background:${isBot ? 'var(--accent)' : 'var(--user-bubble)'}">
+                    ${isBot ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>'}
+                </div>
+                <div class="content-wrap">
+                    <div class="chat-bubble ${isBot ? 'bot-msg' : 'user-msg'}">${content}</div>
+                    ${actionsHtml}
+                    ${isBot ? '<div class="bot-disclaimer">Grieezbot is AI and can make mistakes</div>' : ''}
+                </div>`;
+            chatBox.appendChild(row);
+            document.getElementById('chatArea').scrollTop = chatBox.scrollHeight;
+            addCopyButtons(); // add copy buttons for code blocks
+            hljs.highlightAll();
+        }
+
+        // ==========================================
+        // 7. EVENT LISTENERS FOR BOT ACTIONS
+        // ==========================================
+        document.addEventListener("click", async e => {
+            // Copy entire response
+            const copyBtn = e.target.closest(".copy-response");
+            if (copyBtn) {
+                const bubble = copyBtn.closest(".content-wrap").querySelector(".bot-msg");
+                navigator.clipboard.writeText(bubble.innerText);
+                copyBtn.innerText = "Copied";
+                setTimeout(() => copyBtn.innerText = "📋", 1500);
+                return;
+            }
+
+            // Retry (regenerate)
+            const retryBtn = e.target.closest(".retry-response");
+            if (retryBtn) {
+                const row = retryBtn.closest(".message-row");
+                const prevUser = row.previousElementSibling;
+                if (!prevUser) return;
+                const prompt = prevUser.querySelector(".chat-bubble").innerText;
+                await sendPrompt(prompt, currentChatId);
+                return;
+            }
+
+            // Feedback
+            const fbBtn = e.target.closest(".feedback-btn");
+            if (fbBtn) {
+                const type = fbBtn.dataset.type;
+                const row = fbBtn.closest(".message-row");
+                const botText = row.querySelector(".bot-msg").innerText;
+                const userRow = row.previousElementSibling;
+                if (!userRow) return;
+                const userText = userRow.querySelector(".chat-bubble").innerText;
+                await addDoc(collection(db, "artifacts", projectAppId, "feedback"), {
+                    user: userText,
+                    bot: botText,
+                    feedback: type,
+                    timestamp: serverTimestamp()
+                });
+                fbBtn.innerText = "Saved";
+                setTimeout(() => fbBtn.innerText = type === "up" ? "👍" : "👎", 1500);
+                return;
+            }
+        });
+
+        // ==========================================
+        // 8. MARKDOWN & UTILITIES
+        // ==========================================
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    return hljs.highlight(code, { language: lang }).value;
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            gfm: true,
+            breaks: true
+        });
+
+        function renderMarkdown(text) {
+            return marked.parse(text);
+        }
+
+        function escapeHTML(str) { 
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); 
+        }
+
+        async function typewriter(el, text, type) {
+            let i = 0;
+            const step = 4;
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    if (i < text.length) {
+                        const sub = text.substring(0, i + step);
+                        if (type === "story") {
+                            el.innerHTML = `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${escapeHTML(sub).replace(/\n/g, '<br>')}</div>`;
+                        } else {
+                            el.innerHTML = escapeHTML(sub).replace(/\n/g, '<br>');
+                        }
+                        i += step;
+                        document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+                    } else {
+                        clearInterval(interval);
+                        if (type === "story") {
+                            el.innerHTML = `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${renderMarkdown(text)}</div>`;
+                        } else {
+                            el.innerHTML = renderMarkdown(text);
+                        }
+                        hljs.highlightAll();
+                        addCopyButtons(); // add copy buttons after typewriter finishes
+                        if(document.getElementById('autoRead').checked) window.speakText(text);
+                        resolve();
+                    }
+                }, 10);
+            });
+        }
+
+        window.quickSend = (t) => { document.getElementById('userInput').value = t; window.handleSend(); };
+
+        // Automatic copy buttons for code blocks
+        function addCopyButtons() {
+            document.querySelectorAll("pre code").forEach(block => {
+                const pre = block.parentElement;
+                if (pre.querySelector(".copy-code")) return;
+                const btn = document.createElement("button");
+                btn.className = "copy-code";
+                btn.innerText = "Copy";
+                btn.style.position = "absolute";
+                btn.style.right = "8px";
+                btn.style.top = "8px";
+                btn.onclick = () => {
+                    navigator.clipboard.writeText(block.innerText);
+                    btn.innerText = "Copied!";
+                    setTimeout(() => btn.innerText = "Copy", 1500);
+                };
+                pre.style.position = "relative";
+                pre.appendChild(btn);
+            });
+        }
+
+        // ==========================================
+        // 9. VOICE & BROADCAST
+        // ==========================================
+        const synth = window.speechSynthesis;
+        function populateVoices() {
+            const voices = synth.getVoices();
+            document.getElementById('voiceSelect').innerHTML = voices.map((v, i) => `<option value="${i}" ${v.name.includes("Google") ? "selected" : ""}>${v.name}</option>`).join('');
+        }
+        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
+        populateVoices();
+
+        window.speakText = (text) => {
+            if (synth.speaking) synth.cancel();
+            const cleaned = text.replace(/```[\s\S]*?```/g, ' [Code Block] ').replace(/[#*&/\\<>\[\]{}|_+=-]/g, ' ').replace(/\s+/g, ' ').trim();
+            const utter = new SpeechSynthesisUtterance(cleaned);
+            utter.voice = synth.getVoices()[document.getElementById('voiceSelect').value];
+
+            utter.onstart = () => document.getElementById('stopAudioBtn').style.display = 'inline-block';
+            utter.onend = () => document.getElementById('stopAudioBtn').style.display = 'none';
+            utter.onerror = () => document.getElementById('stopAudioBtn').style.display = 'none';
+
+            synth.speak(utter);
+        };
+
+        window.stopAudio = () => {
+            if (synth.speaking) synth.cancel();
+            document.getElementById('stopAudioBtn').style.display = 'none';
+        };
+
+        function listenForBroadcasts() {
+            onSnapshot(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (!data.message) return;
+
+                    let msgTime = Date.now();
+                    let timeKey = '0';
+                    if (data.timestamp) {
+                        msgTime = typeof data.timestamp.toMillis === 'function' ? data.timestamp.toMillis() : (data.timestamp.seconds * 1000);
+                        timeKey = data.timestamp.seconds || '0';
+                    }
+
+                    const msgId = docSnap.id + '_' + timeKey;
+                    const isClosed = localStorage.getItem('closed_broadcast_' + msgId);
+                    const now = Date.now();
+                    const isExpired = (now - msgTime) > (24 * 60 * 60 * 1000);
+
+                    if (!isClosed && !isExpired) {
+                        document.getElementById('broadcast-text').innerText = `${data.message} — [Admin]`;
+                        document.getElementById('broadcast-banner').style.display = 'flex';
+                        document.getElementById('close-broadcast').onclick = () => {
+                            document.getElementById('broadcast-banner').style.display = 'none';
+                            localStorage.setItem('closed_broadcast_' + msgId, 'true');
+                        };
+                    } else {
+                        document.getElementById('broadcast-banner').style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        window.sendBroadcast = async () => {
+            const msg = prompt("Public announcement message:");
+            if (msg) await setDoc(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), { message: msg, timestamp: serverTimestamp() });
+        };
+
+        // ==========================================
+        // 10. ADMIN FEEDBACK FUNCTIONS
+        // ==========================================
+        window.viewFeedback = async () => {
+            const feedbackRef = collection(db, "artifacts", projectAppId, "feedback");
+            const snap = await getDocs(feedbackRef);
+            console.log("--- FEEDBACK ---");
+            snap.forEach(doc => {
+                const data = doc.data();
+                console.log("User:", data.user);
+                console.log("Bot:", data.bot);
+                console.log("Feedback:", data.feedback);
+                console.log("Timestamp:", data.timestamp?.toDate?.() || data.timestamp);
+                console.log("ID:", doc.id);
+                console.log("----------------");
+            });
+            alert("Feedback logged to console (F12)");
+        };
+
+        window.deleteFeedback = async (id) => {
+            if (confirm("Delete this feedback?")) {
+                await deleteDoc(doc(db, "artifacts", projectAppId, "feedback", id));
+                alert("Deleted");
+            }
+        };
+
+        // ==========================================
+        // 11. DRAG AND DROP (MULTIPLE IMAGES)
+        // ==========================================
+        const dropZone = document.getElementById("dropZone");
+
+        document.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("active");
+        });
+
+        document.addEventListener("dragleave", (e) => {
+            dropZone.classList.remove("active");
+        });
+
+        document.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("active");
+            const files = e.dataTransfer.files;
+            for (let file of files) {
+                if (file.type.startsWith("image/")) {
+                    processImage(file);
+                }
+            }
+        });
+
+        // ==========================================
+        // 12. ATTACHMENT MENU TOGGLE & CLICK OUTSIDE
+        // ==========================================
+        window.toggleAttachMenu = function() {
+            const menu = document.getElementById("attachOptions");
+            menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+        };
+
+        document.addEventListener("click", (e) => {
+            const menu = document.getElementById("attachOptions");
+            if (!e.target.closest(".attachment-menu")) {
+                menu.style.display = "none";
+            }
+        });
+
+        // Voice recognition
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRec) {
+            const rec = new SpeechRec();
+            const micBtn = document.getElementById('micBtn');
+            rec.onstart = () => micBtn.classList.add('recording');
+            rec.onend = () => micBtn.classList.remove('recording');
+            rec.onresult = (e) => { document.getElementById('userInput').value = e.results[0][0].transcript; window.handleSend(); };
+            micBtn.onclick = () => { try { rec.start(); } catch { rec.stop(); } };
+        }
+        document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') window.handleSend(); });
+
+        // Edit and regenerate (keep existing)
         window.editMessage = async (messageId, conversationId, oldText) => {
             const newText = prompt("Edit your message:", oldText);
             if (!newText || newText === oldText) return;
@@ -917,236 +1337,6 @@ If this is a document summarize it.
             await sendPrompt(userText, conversationId);
             isBusy = false;
         };
-
-        // ==========================================
-        // 6. MARKDOWN RENDERING & UTILITIES
-        // ==========================================
-        marked.setOptions({
-            highlight: function(code, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    return hljs.highlight(code, { language: lang }).value;
-                }
-                return hljs.highlightAuto(code).value;
-            },
-            gfm: true,
-            breaks: true
-        });
-
-        function renderMarkdown(text) {
-            return marked.parse(text);
-        }
-
-        function escapeHTML(str) { 
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); 
-        }
-
-        async function typewriter(el, text, type) {
-            let i = 0;
-            const step = 4;
-            return new Promise(resolve => {
-                const interval = setInterval(() => {
-                    if (i < text.length) {
-                        const sub = text.substring(0, i + step);
-                        if (type === "story") {
-                            el.innerHTML = `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${escapeHTML(sub).replace(/\n/g, '<br>')}</div>`;
-                        } else {
-                            el.innerHTML = escapeHTML(sub).replace(/\n/g, '<br>');
-                        }
-                        i += step;
-                        document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
-                    } else {
-                        clearInterval(interval);
-                        if (type === "story") {
-                            el.innerHTML = `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${renderMarkdown(text)}</div>`;
-                        } else {
-                            el.innerHTML = renderMarkdown(text);
-                        }
-                        hljs.highlightAll();
-                        if(document.getElementById('autoRead').checked) window.speakText(text);
-                        resolve();
-                    }
-                }, 10);
-            });
-        }
-
-        function renderMessage(message, instant = false) {
-            const chatBox = document.getElementById('chatMessages');
-            const row = document.createElement('div');
-            row.className = `message-row ${message.sender === 'user' ? 'user-row' : 'bot-row'}`;
-            const isBot = message.sender === 'bot';
-
-            let content = "";
-            if (message.type === 'image') {
-                content = `<div class="image-result"><img src="${message.text}"><div class="image-footer"><a href="${message.text}" target="_blank" class="download-link">Full Res</a></div></div>`;
-            } else if (message.type === 'story') {
-                content = `<div class="story-container"><span class="story-title">📖 A GrieezBot Story</span>${renderMarkdown(message.text)}</div>`;
-            } else {
-                content = renderMarkdown(message.text);
-            }
-
-            let actionsHtml = '';
-            if (message.sender === 'user') {
-                actionsHtml = `<div class="msg-actions"><i class="fas fa-pen" title="Edit" onclick="window.editMessage('${message.id}', '${currentChatId}', '${escapeHTML(message.text).replace(/'/g, "\\'")}')"></i></div>`;
-            } else if (message.sender === 'bot' && message.id) {
-                actionsHtml = `<div class="msg-actions"><i class="fas fa-sync-alt" title="Regenerate" onclick="window.regenerateMessage('${message.id}', '${currentChatId}')"></i></div>`;
-            }
-
-            row.innerHTML = `
-                <div class="avatar" style="background:${isBot ? 'var(--accent)' : 'var(--user-bubble)'}">
-                    ${isBot ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>'}
-                </div>
-                <div class="content-wrap">
-                    <div class="chat-bubble ${isBot ? 'bot-msg' : 'user-msg'}">${content}${actionsHtml}</div>
-                    ${isBot ? '<div class="bot-disclaimer">Grieezbot is AI and can make mistakes</div>' : ''}
-                </div>`;
-            chatBox.appendChild(row);
-            document.getElementById('chatArea').scrollTop = chatBox.scrollHeight;
-            hljs.highlightAll();
-        }
-
-        window.quickSend = (t) => { document.getElementById('userInput').value = t; window.handleSend(); };
-        window.copyCode = (btn) => {
-            navigator.clipboard.writeText(btn.closest('.code-container').querySelector('code').innerText);
-            btn.innerText = "Copied!"; setTimeout(() => btn.innerText = "Copy", 2000);
-        };
-
-        // ==========================================
-        // 7. VOICE & BROADCAST (SMART FIXED LOGIC)
-        // ==========================================
-        const synth = window.speechSynthesis;
-        function populateVoices() {
-            const voices = synth.getVoices();
-            document.getElementById('voiceSelect').innerHTML = voices.map((v, i) => `<option value="${i}" ${v.name.includes("Google") ? "selected" : ""}>${v.name}</option>`).join('');
-        }
-        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
-        populateVoices();
-
-        window.speakText = (text) => {
-            if (synth.speaking) synth.cancel();
-            const cleaned = text.replace(/```[\s\S]*?```/g, ' [Code Block] ').replace(/[#*&/\\<>\[\]{}|_+=-]/g, ' ').replace(/\s+/g, ' ').trim();
-            const utter = new SpeechSynthesisUtterance(cleaned);
-            utter.voice = synth.getVoices()[document.getElementById('voiceSelect').value];
-
-            utter.onstart = () => document.getElementById('stopAudioBtn').style.display = 'inline-block';
-            utter.onend = () => document.getElementById('stopAudioBtn').style.display = 'none';
-            utter.onerror = () => document.getElementById('stopAudioBtn').style.display = 'none';
-
-            synth.speak(utter);
-        };
-
-        window.stopAudio = () => {
-            if (synth.speaking) synth.cancel();
-            document.getElementById('stopAudioBtn').style.display = 'none';
-        };
-
-        // FIXED: Smart broadcast listener (Checks localStorage and 24hr expiry)
-        function listenForBroadcasts() {
-            onSnapshot(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (!data.message) return;
-
-                    // Safely extract the timestamp for a unique ID
-                    let msgTime = Date.now();
-                    let timeKey = '0';
-                    if (data.timestamp) {
-                        msgTime = typeof data.timestamp.toMillis === 'function' ? data.timestamp.toMillis() : (data.timestamp.seconds * 1000);
-                        timeKey = data.timestamp.seconds || '0';
-                    }
-
-                    const msgId = docSnap.id + '_' + timeKey;
-                    const isClosed = localStorage.getItem('closed_broadcast_' + msgId);
-
-                    const now = Date.now();
-                    const isExpired = (now - msgTime) > (24 * 60 * 60 * 1000); // 24 Hours
-
-                    if (!isClosed && !isExpired) {
-                        document.getElementById('broadcast-text').innerText = `${data.message} — [Admin]`;
-                        document.getElementById('broadcast-banner').style.display = 'flex';
-
-                        document.getElementById('close-broadcast').onclick = () => {
-                            document.getElementById('broadcast-banner').style.display = 'none';
-                            localStorage.setItem('closed_broadcast_' + msgId, 'true'); // Save to memory forever
-                        };
-                    } else {
-                        document.getElementById('broadcast-banner').style.display = 'none';
-                    }
-                }
-            });
-        }
-
-        window.sendBroadcast = async () => {
-            const msg = prompt("Public announcement message:");
-            if (msg) await setDoc(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), { message: msg, timestamp: serverTimestamp() });
-        };
-
-        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRec) {
-            const rec = new SpeechRec();
-            const micBtn = document.getElementById('micBtn');
-            rec.onstart = () => micBtn.classList.add('recording');
-            rec.onend = () => micBtn.classList.remove('recording');
-            rec.onresult = (e) => { document.getElementById('userInput').value = e.results[0][0].transcript; window.handleSend(); };
-            micBtn.onclick = () => { try { rec.start(); } catch { rec.stop(); } };
-        }
-        document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') window.handleSend(); });
-
-        // ==========================================
-        // 8. DRAG AND DROP (MULTIPLE IMAGES)
-        // ==========================================
-        const dropZone = document.getElementById("dropZone");
-
-        document.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            dropZone.classList.add("active");
-        });
-
-        document.addEventListener("dragleave", (e) => {
-            dropZone.classList.remove("active");
-        });
-
-        document.addEventListener("drop", (e) => {
-            e.preventDefault();
-            dropZone.classList.remove("active");
-            const files = e.dataTransfer.files;
-            for (let file of files) {
-                if (file.type.startsWith("image/")) {
-                    processImage(file);
-                }
-            }
-        });
-
-        // ==========================================
-        // 9. FILE INPUT HANDLERS (MULTIPLE)
-        // ==========================================
-        document.getElementById("imageUpload").addEventListener("change", (e) => {
-            const files = e.target.files;
-            for (let file of files) {
-                processImage(file);
-            }
-            e.target.value = ''; // allow re-upload of same files
-        });
-
-        document.getElementById("cameraCapture").addEventListener("change", (e) => {
-            const file = e.target.files[0];
-            if (file) processImage(file);
-            e.target.value = '';
-        });
-
-        // ==========================================
-        // 10. ATTACHMENT MENU TOGGLE & CLICK OUTSIDE
-        // ==========================================
-        window.toggleAttachMenu = function() {
-            const menu = document.getElementById("attachOptions");
-            menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-        };
-
-        document.addEventListener("click", (e) => {
-            const menu = document.getElementById("attachOptions");
-            if (!e.target.closest(".attachment-menu")) {
-                menu.style.display = "none";
-            }
-        });
     </script>
 </body>
 </html>
