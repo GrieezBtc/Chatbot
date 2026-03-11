@@ -99,7 +99,7 @@
         .history-item {
             padding: 10px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center;
             justify-content: space-between; font-size: 0.8rem; color: var(--text); transition: 0.2s;
-            border: 1px solid transparent; group;
+            border: 1px solid transparent;
         }
         .history-item:hover { background: var(--card-bg); }
         .history-item.active { background: rgba(66, 133, 244, 0.15); border-color: var(--accent); color: var(--accent); }
@@ -444,6 +444,18 @@
             <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Voice Engine</label>
             <select id="voiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.75rem;"></select>
 
+            <!-- NEW: Bot Voice Selector -->
+            <div style="margin: 15px 0;">
+                <label style="font-size: 12px; font-weight: bold;">Bot Voice</label>
+                <select id="botVoiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.75rem;">
+                    <option value="rex">Rex (AI Premium)</option>
+                    <option value="malev1">Male V1</option>
+                    <option value="malev2">Male V2</option>
+                    <option value="famalev1">Female V1</option>
+                    <option value="famalev2">Female V2</option>
+                </select>
+            </div>
+
             <div style="margin: 15px 0; display: flex; align-items: center; justify-content: space-between;">
                 <span style="font-size: 0.75rem; font-weight: 600;">Auto-Speak</span>
                 <input type="checkbox" id="autoRead" checked>
@@ -454,7 +466,6 @@
                 <button onclick="window.sendBroadcast()" style="margin-top: 10px; width: 100%; padding: 10px; background: rgba(66, 133, 244, 0.2); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.75rem;">
                     <i class="fas fa-bullhorn"></i> Push Broadcast
                 </button>
-                <!-- Admin Feedback Viewer (simple) -->
                 <button onclick="window.viewFeedback()" style="margin-top: 10px; width: 100%; padding: 10px; background: rgba(66, 133, 244, 0.2); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.75rem;">
                     <i class="fas fa-comment-dots"></i> View Feedback (Console)
                 </button>
@@ -494,7 +505,7 @@
         <!-- Drag and Drop Zone -->
         <div id="dropZone">Drop images here to extract text</div>
 
-        <!-- New Input Area with Preview Bar -->
+        <!-- Input Area with Preview Bar -->
         <div class="input-wrap">
             <div id="imagePreviewBar" class="image-preview-bar"></div>
             <div class="input-box">
@@ -527,6 +538,9 @@
             </div>
         </div>
     </main>
+
+    <!-- Global Audio Player for TTS -->
+    <audio id="botVoicePlayer"></audio>
 
     <!-- Tesseract OCR Library -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -724,7 +738,7 @@
 
             if (window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
             document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
-            addCopyButtons(); // add copy buttons after loading
+            addCopyButtons();
             hljs.highlightAll();
         };
 
@@ -741,7 +755,58 @@
         };
 
         // ==========================================
-        // 4. CORE BOT LOGIC
+        // 4. HELPER FUNCTION: detect HTML request
+        // ==========================================
+        function userRequestedHTML(text) {
+            const t = text.toLowerCase();
+            return (
+                t.includes("generate html") ||
+                t.includes("create html") ||
+                t.includes("html code") ||
+                t.includes("convert to html") ||
+                t.includes("build webpage") ||
+                t.includes("write html")
+            );
+        }
+
+        // ==========================================
+        // 5. TTS FUNCTION
+        // ==========================================
+        const botPlayer = document.getElementById('botVoicePlayer');
+        const voiceSelect = document.getElementById('botVoiceSelect');
+        let selectedVoice = localStorage.getItem("botVoice") || "rex";
+        voiceSelect.value = selectedVoice;
+
+        voiceSelect.addEventListener("change", () => {
+            selectedVoice = voiceSelect.value;
+            localStorage.setItem("botVoice", selectedVoice);
+        });
+
+        async function speakText(text) {
+            try {
+                const voice = selectedVoice; // use current selected voice
+                const url = `https://eliteprotech-apis.zone.id/tts?text=${encodeURIComponent(text)}&voice=${voice}`;
+                const response = await fetch(url);
+                let audioUrl = "";
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const data = await response.json();
+                    audioUrl = data.result || data.url || (data.data && data.data.url);
+                } else {
+                    const blob = await response.blob();
+                    audioUrl = URL.createObjectURL(blob);
+                }
+                if (audioUrl) {
+                    botPlayer.src = audioUrl;
+                    botPlayer.play();
+                }
+            } catch (e) {
+                console.error("TTS error", e);
+            }
+        }
+
+        // ==========================================
+        // 6. CORE BOT LOGIC
         // ==========================================
         async function sendPrompt(text, conversationId) {
             if (!text || !currentUser) return;
@@ -821,14 +886,12 @@
                     botRow.querySelector('.thinking-ui').style.display = 'none';
                     bubble.style.display = 'block';
                     finalDbText = fullText;
-                    // Use streaming simulation for normal text
                     await streamResponse(fullText, bubble);
                 }
 
                 botRow.querySelector('.bot-disclaimer').style.display = 'block';
 
                 const botDoc = await addDoc(msgRef, { text: finalDbText, sender: 'bot', type: finalDbType, timestamp: serverTimestamp() });
-                // Replace the temporary row with the saved message (including actions)
                 botRow.remove();
                 renderMessage({ id: botDoc.id, text: finalDbText, sender: 'bot', type: finalDbType });
 
@@ -848,11 +911,11 @@
                 document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
                 await new Promise(r => setTimeout(r, 30));
             }
-            addCopyButtons(); // add copy buttons for code blocks inside the bubble
+            addCopyButtons();
         }
 
         // ==========================================
-        // 5. IMAGE PREVIEW & OCR (MULTI‑IMAGE)
+        // 7. IMAGE PREVIEW & OCR (MULTI‑IMAGE)
         // ==========================================
         const previewBar = document.getElementById("imagePreviewBar");
 
@@ -909,17 +972,28 @@
                     return;
                 }
 
+                const allowHTML = userRequestedHTML(text);
+
                 finalPrompt = `
 User Request:
 ${text}
 
-Image Text Extracted:
-${combinedOCR}
+User uploaded ${uploadedImages.length} image(s).
 
 Instructions:
-If this contains math solve it.
-If this looks like UI generate HTML.
-If this is a document summarize it.
+
+1. Analyze the image carefully.
+2. If it contains math, solve it.
+3. If it contains a document, summarize it.
+4. If it contains code, explain it.
+5. If it contains a UI, describe how it works.
+
+IMPORTANT RULE:
+Do NOT generate HTML code unless the user specifically requested HTML.
+
+HTML allowed: ${allowHTML ? "YES" : "NO"}
+
+If HTML is not allowed, only explain the interface instead.
 `;
 
                 uploadedImages = [];
@@ -954,7 +1028,7 @@ If this is a document summarize it.
         });
 
         // ==========================================
-        // 6. RENDER MESSAGE (with bot actions)
+        // 8. RENDER MESSAGE (with bot actions)
         // ==========================================
         function renderMessage(message, instant = false) {
             const chatBox = document.getElementById('chatMessages');
@@ -975,16 +1049,17 @@ If this is a document summarize it.
             if (message.sender === 'user') {
                 actionsHtml = `<div class="msg-actions"><i class="fas fa-pen" title="Edit" onclick="window.editMessage('${message.id}', '${currentChatId}', '${escapeHTML(message.text).replace(/'/g, "\\'")}')"></i></div>`;
             } else if (message.sender === 'bot' && message.id) {
-                // Bot action buttons
+                // Bot action buttons with new speak button
                 actionsHtml = `
                     <div class="msg-actions">
                         <i class="fas fa-pen" title="Edit" onclick="window.editMessage('${message.id}', '${currentChatId}', '${escapeHTML(message.text).replace(/'/g, "\\'")}')"></i>
                     </div>
                     <div class="bot-actions">
+                        <button class="speak-response" title="Read aloud">🔊</button>
                         <button class="copy-response" title="Copy">📋</button>
                         <button class="retry-response" title="Retry">🔁</button>
-                        <button class="feedback-btn" data-type="up" title="Good response">👍</button>
-                        <button class="feedback-btn" data-type="down" title="Bad response">👎</button>
+                        <button class="feedback-btn" data-type="up">👍</button>
+                        <button class="feedback-btn" data-type="down">👎</button>
                     </div>
                 `;
             }
@@ -1000,14 +1075,23 @@ If this is a document summarize it.
                 </div>`;
             chatBox.appendChild(row);
             document.getElementById('chatArea').scrollTop = chatBox.scrollHeight;
-            addCopyButtons(); // add copy buttons for code blocks
+            addCopyButtons();
             hljs.highlightAll();
         }
 
         // ==========================================
-        // 7. EVENT LISTENERS FOR BOT ACTIONS
+        // 9. EVENT LISTENERS FOR BOT ACTIONS
         // ==========================================
         document.addEventListener("click", async e => {
+            // Speak button
+            const speakBtn = e.target.closest(".speak-response");
+            if (speakBtn) {
+                const bubble = speakBtn.closest(".content-wrap").querySelector(".bot-msg");
+                const text = bubble.innerText;
+                await speakText(text);
+                return;
+            }
+
             // Copy entire response
             const copyBtn = e.target.closest(".copy-response");
             if (copyBtn) {
@@ -1051,7 +1135,7 @@ If this is a document summarize it.
         });
 
         // ==========================================
-        // 8. MARKDOWN & UTILITIES
+        // 10. MARKDOWN & UTILITIES
         // ==========================================
         marked.setOptions({
             highlight: function(code, lang) {
@@ -1094,7 +1178,7 @@ If this is a document summarize it.
                             el.innerHTML = renderMarkdown(text);
                         }
                         hljs.highlightAll();
-                        addCopyButtons(); // add copy buttons after typewriter finishes
+                        addCopyButtons();
                         if(document.getElementById('autoRead').checked) window.speakText(text);
                         resolve();
                     }
@@ -1126,7 +1210,7 @@ If this is a document summarize it.
         }
 
         // ==========================================
-        // 9. VOICE & BROADCAST
+        // 11. VOICE & BROADCAST
         // ==========================================
         const synth = window.speechSynthesis;
         function populateVoices() {
@@ -1192,7 +1276,7 @@ If this is a document summarize it.
         };
 
         // ==========================================
-        // 10. ADMIN FEEDBACK FUNCTIONS
+        // 12. ADMIN FEEDBACK FUNCTIONS
         // ==========================================
         window.viewFeedback = async () => {
             const feedbackRef = collection(db, "artifacts", projectAppId, "feedback");
@@ -1218,7 +1302,7 @@ If this is a document summarize it.
         };
 
         // ==========================================
-        // 11. DRAG AND DROP (MULTIPLE IMAGES)
+        // 13. DRAG AND DROP (MULTIPLE IMAGES)
         // ==========================================
         const dropZone = document.getElementById("dropZone");
 
@@ -1243,7 +1327,7 @@ If this is a document summarize it.
         });
 
         // ==========================================
-        // 12. ATTACHMENT MENU TOGGLE & CLICK OUTSIDE
+        // 14. ATTACHMENT MENU TOGGLE & CLICK OUTSIDE
         // ==========================================
         window.toggleAttachMenu = function() {
             const menu = document.getElementById("attachOptions");
