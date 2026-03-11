@@ -441,10 +441,9 @@
             </div>
 
         <div style="margin-top: auto;">
-            <label style="font-size: 0.6rem; font-weight: 700; opacity: 0.6; text-transform: uppercase;">Voice Engine</label>
-            <select id="voiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.75rem;"></select>
-
-            <!-- NEW: Bot Voice Selector -->
+            <!-- REMOVED: Old browser voice selector -->
+            
+            <!-- Bot Voice Selector (API TTS) -->
             <div style="margin: 15px 0;">
                 <label style="font-size: 12px; font-weight: bold;">Bot Voice</label>
                 <select id="botVoiceSelect" style="width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; outline: none; font-size: 0.75rem;">
@@ -770,7 +769,7 @@
         }
 
         // ==========================================
-        // 5. TTS FUNCTION
+        // 5. TTS FUNCTION (API)
         // ==========================================
         const botPlayer = document.getElementById('botVoicePlayer');
         const voiceSelect = document.getElementById('botVoiceSelect');
@@ -784,7 +783,7 @@
 
         async function speakText(text) {
             try {
-                const voice = selectedVoice; // use current selected voice
+                const voice = selectedVoice;
                 const url = `https://eliteprotech-apis.zone.id/tts?text=${encodeURIComponent(text)}&voice=${voice}`;
                 const response = await fetch(url);
                 let audioUrl = "";
@@ -799,11 +798,23 @@
                 if (audioUrl) {
                     botPlayer.src = audioUrl;
                     botPlayer.play();
+                    document.getElementById('stopAudioBtn').style.display = 'inline-block';
+                    botPlayer.onended = () => {
+                        document.getElementById('stopAudioBtn').style.display = 'none';
+                    };
                 }
             } catch (e) {
                 console.error("TTS error", e);
             }
         }
+
+        window.stopAudio = () => {
+            if (botPlayer) {
+                botPlayer.pause();
+                botPlayer.currentTime = 0;
+                document.getElementById('stopAudioBtn').style.display = 'none';
+            }
+        };
 
         // ==========================================
         // 6. CORE BOT LOGIC
@@ -858,7 +869,7 @@
                     finalDbText = imageUrl;
                     finalDbType = "image";
                     bubble.innerHTML = `<div class="image-result"><img src="${imageUrl}" onerror="this.src='https://via.placeholder.com/350?text=Image+Generation+Error'"><div class="image-footer"><a href="${imageUrl}" target="_blank" class="download-link">Full Res</a></div></div>`;
-                    if(document.getElementById('autoRead').checked) window.speakText(`Here is the image for ${promptText}`);
+                    if(document.getElementById('autoRead').checked) await speakText(`Here is the image for ${promptText}`);
                 } 
                 else if (isStory) {
                     const storyPrompt = text.replace(/(tell|write|generate|a|story|about|narrate)/gi, "").trim() || "a random tale";
@@ -912,6 +923,9 @@
                 await new Promise(r => setTimeout(r, 30));
             }
             addCopyButtons();
+            if (document.getElementById('autoRead').checked) {
+                await speakText(text);
+            }
         }
 
         // ==========================================
@@ -1049,7 +1063,6 @@ If HTML is not allowed, only explain the interface instead.
             if (message.sender === 'user') {
                 actionsHtml = `<div class="msg-actions"><i class="fas fa-pen" title="Edit" onclick="window.editMessage('${message.id}', '${currentChatId}', '${escapeHTML(message.text).replace(/'/g, "\\'")}')"></i></div>`;
             } else if (message.sender === 'bot' && message.id) {
-                // Bot action buttons with new speak button
                 actionsHtml = `
                     <div class="msg-actions">
                         <i class="fas fa-pen" title="Edit" onclick="window.editMessage('${message.id}', '${currentChatId}', '${escapeHTML(message.text).replace(/'/g, "\\'")}')"></i>
@@ -1179,7 +1192,9 @@ If HTML is not allowed, only explain the interface instead.
                         }
                         hljs.highlightAll();
                         addCopyButtons();
-                        if(document.getElementById('autoRead').checked) window.speakText(text);
+                        if (document.getElementById('autoRead').checked) {
+                            speakText(text);
+                        }
                         resolve();
                     }
                 }, 10);
@@ -1210,34 +1225,8 @@ If HTML is not allowed, only explain the interface instead.
         }
 
         // ==========================================
-        // 11. VOICE & BROADCAST
+        // 11. BROADCAST (unchanged)
         // ==========================================
-        const synth = window.speechSynthesis;
-        function populateVoices() {
-            const voices = synth.getVoices();
-            document.getElementById('voiceSelect').innerHTML = voices.map((v, i) => `<option value="${i}" ${v.name.includes("Google") ? "selected" : ""}>${v.name}</option>`).join('');
-        }
-        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
-        populateVoices();
-
-        window.speakText = (text) => {
-            if (synth.speaking) synth.cancel();
-            const cleaned = text.replace(/```[\s\S]*?```/g, ' [Code Block] ').replace(/[#*&/\\<>\[\]{}|_+=-]/g, ' ').replace(/\s+/g, ' ').trim();
-            const utter = new SpeechSynthesisUtterance(cleaned);
-            utter.voice = synth.getVoices()[document.getElementById('voiceSelect').value];
-
-            utter.onstart = () => document.getElementById('stopAudioBtn').style.display = 'inline-block';
-            utter.onend = () => document.getElementById('stopAudioBtn').style.display = 'none';
-            utter.onerror = () => document.getElementById('stopAudioBtn').style.display = 'none';
-
-            synth.speak(utter);
-        };
-
-        window.stopAudio = () => {
-            if (synth.speaking) synth.cancel();
-            document.getElementById('stopAudioBtn').style.display = 'none';
-        };
-
         function listenForBroadcasts() {
             onSnapshot(doc(db, 'artifacts', projectAppId, 'public', 'data', 'announcements', 'latest'), (docSnap) => {
                 if (docSnap.exists()) {
@@ -1341,7 +1330,7 @@ If HTML is not allowed, only explain the interface instead.
             }
         });
 
-        // Voice recognition
+        // Voice recognition (speech-to-text)
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRec) {
             const rec = new SpeechRec();
