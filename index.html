@@ -310,6 +310,11 @@
             border-radius:8px;
         }
 
+        /* Scanned image style */
+        .scanned{
+            filter:contrast(1.2) brightness(1.1) grayscale(0.2);
+        }
+
         @media (max-width: 768px) { 
             .sidebar { position: fixed; left: -260px; height: 100dvh; }
             .sidebar.open { transform: translateX(260px); }
@@ -413,12 +418,12 @@
         </div>
 
         <!-- Drag and Drop Zone -->
-        <div id="dropZone">Drop image here to extract text</div>
+        <div id="dropZone">Drop images here to extract text</div>
 
         <div class="input-wrap">
             <div class="input-box">
-                <!-- Hidden File Inputs -->
-                <input type="file" id="imageUpload" accept="image/*" hidden>
+                <!-- Hidden File Inputs (multiple enabled) -->
+                <input type="file" id="imageUpload" accept="image/*" multiple hidden>
                 <input type="file" id="cameraCapture" accept="image/*" capture="environment" hidden>
 
                 <!-- Attachment Menu -->
@@ -428,7 +433,7 @@
                     </button>
                     <div class="attach-options" id="attachOptions">
                         <button onclick="document.getElementById('imageUpload').click()">
-                            <i class="fas fa-image"></i> Upload Image
+                            <i class="fas fa-image"></i> Upload Images
                         </button>
                         <button onclick="document.getElementById('cameraCapture').click()">
                             <i class="fas fa-camera"></i> Camera
@@ -479,8 +484,10 @@
         let currentChatId = null;
         let isSignUpMode = false;
         let isBusy = false;
-        // For image upload OCR
-        let uploadedImage = null;
+
+        // Arrays for multiple image upload & OCR caching
+        let uploadedImages = [];
+        let ocrCache = [];
 
         // UI Handlers
         window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('open');
@@ -758,13 +765,89 @@
             }
         }
 
+        // ==========================================
+        // 5. IMAGE UPLOAD & OCR (MULTI‑IMAGE)
+        // ==========================================
+
+        // Display image in chat (no OCR yet)
+        function processImage(file) {
+            uploadedImages.push(file);
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const chatBox = document.getElementById("chatMessages");
+                const row = document.createElement("div");
+                row.className = "message-row user-row";
+                row.innerHTML = `
+                    <div class="avatar"><i class="fas fa-user"></i></div>
+                    <div class="content-wrap">
+                        <div class="chat-bubble user-msg">
+                            <img src="${e.target.result}" class="scanned" style="max-width:220px;border-radius:10px">
+                        </div>
+                    </div>
+                `;
+                chatBox.appendChild(row);
+                document.getElementById('chatArea').scrollTop = chatBox.scrollHeight;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Run OCR on all images in uploadedImages, fill ocrCache
+        async function runMultiOCR() {
+            ocrCache = [];
+            for (const file of uploadedImages) {
+                try {
+                    const result = await Tesseract.recognize(file, 'eng');
+                    ocrCache.push(result.data.text.trim());
+                } catch {
+                    ocrCache.push("");
+                }
+            }
+        }
+
+        // New handleSend: combines text and images intelligently
         window.handleSend = async () => {
-            const val = document.getElementById('userInput').value.trim();
-            if(!val || isBusy || !currentUser) return;
-            isBusy = true;
-            document.getElementById('userInput').value = '';
-            await sendPrompt(val, currentChatId);
-            isBusy = false;
+            const text = document.getElementById("userInput").value.trim();
+            if (!text && uploadedImages.length === 0) return;
+
+            document.getElementById("userInput").value = "";
+            let finalPrompt = text;
+
+            if (uploadedImages.length > 0) {
+                await runMultiOCR();
+                let combinedOCR = ocrCache.join("\n");
+
+                // If there's no text, just output OCR results and return
+                if (!text) {
+                    renderMessage({
+                        text: "📄 OCR Result:\n\n" + combinedOCR,
+                        sender: "bot"
+                    });
+                    uploadedImages = [];
+                    ocrCache = [];
+                    return;
+                }
+
+                // Text + images: construct a detailed prompt
+                finalPrompt = `
+User Request:
+${text}
+
+Image Text Extracted:
+${combinedOCR}
+
+Instructions:
+If this contains math solve it.
+If this looks like UI generate HTML.
+If this is a document summarize it.
+`;
+
+                // Clear arrays after using them
+                uploadedImages = [];
+                ocrCache = [];
+            }
+
+            await sendPrompt(finalPrompt, currentChatId);
         };
 
         window.editMessage = async (messageId, conversationId, oldText) => {
@@ -836,7 +919,7 @@
         };
 
         // ==========================================
-        // 5. MARKDOWN RENDERING & UTILITIES
+        // 6. MARKDOWN RENDERING & UTILITIES
         // ==========================================
         marked.setOptions({
             highlight: function(code, lang) {
@@ -928,7 +1011,7 @@
         };
 
         // ==========================================
-        // 6. VOICE & BROADCAST (SMART FIXED LOGIC)
+        // 7. VOICE & BROADCAST (SMART FIXED LOGIC)
         // ==========================================
         const synth = window.speechSynthesis;
         function populateVoices() {
@@ -1009,7 +1092,7 @@
         document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') window.handleSend(); });
 
         // ==========================================
-        // 7. DRAG AND DROP IMAGE OCR (SIMPLIFIED)
+        // 8. DRAG AND DROP (MULTIPLE IMAGES)
         // ==========================================
         const dropZone = document.getElementById("dropZone");
 
@@ -1025,69 +1108,23 @@
         document.addEventListener("drop", (e) => {
             e.preventDefault();
             dropZone.classList.remove("active");
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith("image/")) {
-                processImage(file);
+            const files = e.dataTransfer.files;
+            for (let file of files) {
+                if (file.type.startsWith("image/")) {
+                    processImage(file);
+                }
             }
         });
 
         // ==========================================
-        // 8. IMAGE UPLOAD & CAMERA HANDLING (OCR)
+        // 9. FILE INPUT HANDLERS (MULTIPLE)
         // ==========================================
-        function processImage(file) {
-            uploadedImage = file;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const chatBox = document.getElementById("chatMessages");
-                const row = document.createElement("div");
-                row.className = "message-row user-row";
-                row.innerHTML = `
-                    <div class="avatar"><i class="fas fa-user"></i></div>
-                    <div class="content-wrap">
-                        <div class="chat-bubble user-msg">
-                            <img src="${e.target.result}" style="max-width:220px;border-radius:10px">
-                        </div>
-                    </div>
-                `;
-                chatBox.appendChild(row);
-                document.getElementById('chatArea').scrollTop = chatBox.scrollHeight;
-            };
-            reader.readAsDataURL(file);
-            runOCR(file);
-        }
-
-        async function runOCR(file) {
-            const botMsg = "Reading text from image...";
-            renderMessage({ text: botMsg, sender: "bot" });
-
-            try {
-                const result = await Tesseract.recognize(file, 'eng');
-                const text = result.data.text;
-
-                if (text.trim().length > 0) {
-                    renderMessage({
-                        text: "📄 OCR Result:\n\n" + text,
-                        sender: "bot"
-                    });
-                } else {
-                    renderMessage({
-                        text: "I couldn't detect any text in that image.",
-                        sender: "bot"
-                    });
-                }
-            } catch (e) {
-                renderMessage({
-                    text: "OCR failed to read the image.",
-                    sender: "bot"
-                });
-            }
-        }
-
-        // Attach event listeners for file inputs
         document.getElementById("imageUpload").addEventListener("change", (e) => {
-            const file = e.target.files[0];
-            if (file) processImage(file);
-            e.target.value = ''; // allow re-upload of same file
+            const files = e.target.files;
+            for (let file of files) {
+                processImage(file);
+            }
+            e.target.value = ''; // allow re-upload of same files
         });
 
         document.getElementById("cameraCapture").addEventListener("change", (e) => {
@@ -1097,7 +1134,7 @@
         });
 
         // ==========================================
-        // 9. ATTACHMENT MENU TOGGLE & CLICK OUTSIDE
+        // 10. ATTACHMENT MENU TOGGLE & CLICK OUTSIDE
         // ==========================================
         window.toggleAttachMenu = function() {
             const menu = document.getElementById("attachOptions");
