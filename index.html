@@ -245,6 +245,71 @@
 
         .send-btn { background: var(--accent); color: white; border-radius: 50%; width: 34px; height: 34px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
+        /* Drag and Drop Zone */
+        #dropZone{
+            position:absolute;
+            top:0;
+            left:0;
+            right:0;
+            bottom:0;
+            display:none;
+            align-items:center;
+            justify-content:center;
+            font-size:20px;
+            color:white;
+            background:rgba(0,0,0,0.7);
+            z-index:999;
+        }
+
+        #dropZone.active{
+            display:flex;
+        }
+
+        /* Attachment Menu Styles */
+        .attachment-menu{
+            position:relative;
+        }
+
+        .attach-btn{
+            background:none;
+            border:none;
+            color:var(--text);
+            font-size:18px;
+            cursor:pointer;
+        }
+
+        .attach-options{
+            position:absolute;
+            bottom:40px;
+            left:0;
+            background:var(--glass);
+            border:1px solid var(--border);
+            border-radius:12px;
+            display:none;
+            flex-direction:column;
+            padding:8px;
+            min-width:140px;
+            box-shadow:0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .attach-options button{
+            background:none;
+            border:none;
+            color:var(--text);
+            padding:8px;
+            text-align:left;
+            cursor:pointer;
+            display:flex;
+            gap:8px;
+            align-items:center;
+            font-size:13px;
+        }
+
+        .attach-options button:hover{
+            background:rgba(255,255,255,0.05);
+            border-radius:8px;
+        }
+
         @media (max-width: 768px) { 
             .sidebar { position: fixed; left: -260px; height: 100dvh; }
             .sidebar.open { transform: translateX(260px); }
@@ -347,14 +412,43 @@
                 </div>
         </div>
 
+        <!-- Drag and Drop Zone -->
+        <div id="dropZone">Drop image here to extract text</div>
+
         <div class="input-wrap">
             <div class="input-box">
+                <!-- Hidden File Inputs -->
+                <input type="file" id="imageUpload" accept="image/*" hidden>
+                <input type="file" id="cameraCapture" accept="image/*" capture="environment" hidden>
+
+                <!-- Attachment Menu -->
+                <div class="attachment-menu">
+                    <button class="attach-btn" onclick="window.toggleAttachMenu()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="attach-options" id="attachOptions">
+                        <button onclick="document.getElementById('imageUpload').click()">
+                            <i class="fas fa-image"></i> Upload Image
+                        </button>
+                        <button onclick="document.getElementById('cameraCapture').click()">
+                            <i class="fas fa-camera"></i> Camera
+                        </button>
+                    </div>
+                </div>
+
                 <button id="micBtn"><i class="fas fa-microphone"></i></button>
+
                 <input type="text" id="userInput" placeholder="Message GrieezBot..." autocomplete="off">
-                <button class="send-btn" onclick="window.handleSend()"><i class="fas fa-paper-plane"></i></button>
+
+                <button class="send-btn" onclick="window.handleSend()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </div>
     </main>
+
+    <!-- Tesseract OCR Library -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
     <script type="module">
         // FIXED: Added GoogleAuthProvider, signInWithPopup, signInAnonymously to imports
@@ -385,6 +479,8 @@
         let currentChatId = null;
         let isSignUpMode = false;
         let isBusy = false;
+        // For image upload OCR
+        let uploadedImage = null;
 
         // UI Handlers
         window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('open');
@@ -911,6 +1007,109 @@
             micBtn.onclick = () => { try { rec.start(); } catch { rec.stop(); } };
         }
         document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') window.handleSend(); });
+
+        // ==========================================
+        // 7. DRAG AND DROP IMAGE OCR (SIMPLIFIED)
+        // ==========================================
+        const dropZone = document.getElementById("dropZone");
+
+        document.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("active");
+        });
+
+        document.addEventListener("dragleave", (e) => {
+            dropZone.classList.remove("active");
+        });
+
+        document.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("active");
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith("image/")) {
+                processImage(file);
+            }
+        });
+
+        // ==========================================
+        // 8. IMAGE UPLOAD & CAMERA HANDLING (OCR)
+        // ==========================================
+        function processImage(file) {
+            uploadedImage = file;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const chatBox = document.getElementById("chatMessages");
+                const row = document.createElement("div");
+                row.className = "message-row user-row";
+                row.innerHTML = `
+                    <div class="avatar"><i class="fas fa-user"></i></div>
+                    <div class="content-wrap">
+                        <div class="chat-bubble user-msg">
+                            <img src="${e.target.result}" style="max-width:220px;border-radius:10px">
+                        </div>
+                    </div>
+                `;
+                chatBox.appendChild(row);
+                document.getElementById('chatArea').scrollTop = chatBox.scrollHeight;
+            };
+            reader.readAsDataURL(file);
+            runOCR(file);
+        }
+
+        async function runOCR(file) {
+            const botMsg = "Reading text from image...";
+            renderMessage({ text: botMsg, sender: "bot" });
+
+            try {
+                const result = await Tesseract.recognize(file, 'eng');
+                const text = result.data.text;
+
+                if (text.trim().length > 0) {
+                    renderMessage({
+                        text: "📄 OCR Result:\n\n" + text,
+                        sender: "bot"
+                    });
+                } else {
+                    renderMessage({
+                        text: "I couldn't detect any text in that image.",
+                        sender: "bot"
+                    });
+                }
+            } catch (e) {
+                renderMessage({
+                    text: "OCR failed to read the image.",
+                    sender: "bot"
+                });
+            }
+        }
+
+        // Attach event listeners for file inputs
+        document.getElementById("imageUpload").addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) processImage(file);
+            e.target.value = ''; // allow re-upload of same file
+        });
+
+        document.getElementById("cameraCapture").addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) processImage(file);
+            e.target.value = '';
+        });
+
+        // ==========================================
+        // 9. ATTACHMENT MENU TOGGLE & CLICK OUTSIDE
+        // ==========================================
+        window.toggleAttachMenu = function() {
+            const menu = document.getElementById("attachOptions");
+            menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+        };
+
+        document.addEventListener("click", (e) => {
+            const menu = document.getElementById("attachOptions");
+            if (!e.target.closest(".attachment-menu")) {
+                menu.style.display = "none";
+            }
+        });
     </script>
 </body>
 </html>
